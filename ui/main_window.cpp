@@ -33,6 +33,10 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
+#include <new>
+#include <qnamespace.h>
+#include <qpixmap.h>
+#include <qpushbutton.h>
 
 #include "about_window.h"
 #include "buffer_view.h"
@@ -106,6 +110,7 @@ MainWindow::MainWindow()
 
         QFrame *text_combo_box_frame = new QFrame();
         {
+  
             QHBoxLayout *text_combo_box_layout = new QHBoxLayout();
 
             QLabel *combo_box_label = new QLabel(tr("Mode:"));
@@ -140,9 +145,9 @@ MainWindow::MainWindow()
 #ifndef NDEBUG
             text_combo_box_layout->addWidget(m_show_marker_checkbox);
 #endif
-            m_search_trigger_button = new QPushButton;
+            /*m_search_trigger_button = new QPushButton;
             m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
-            text_combo_box_layout->addWidget(m_search_trigger_button);
+            text_combo_box_layout->addWidget(m_search_trigger_button);*/
 
             text_combo_box_layout->addStretch();
             text_combo_box_frame->setLayout(text_combo_box_layout);
@@ -175,7 +180,29 @@ MainWindow::MainWindow()
         foreach (auto expand_to_lvl_button, m_expand_to_lvl_buttons)
             expand_to_lvl_layout->addWidget(expand_to_lvl_button);
         expand_to_lvl_layout->addStretch();
+        
+        QLineEdit *line_edit = new QLineEdit();
+        QPalette palette = line_edit->palette();
+        palette.setColor(QPalette::Base, Qt::white);
+        palette.setColor(QPalette::Text, Qt::black); // Set text color to black
+        line_edit->setPalette(palette);
 
+        QHBoxLayout* search_buttons_layout = new QHBoxLayout;
+        QLabel *searchlabel = new QLabel();
+        QPixmap pixmap(":/images/search.png");
+        searchlabel->setPixmap(pixmap);
+        QPushButton* m_prev = new QPushButton();
+        QPushButton* m_next = new QPushButton();
+        m_prev->setIcon(QIcon(":/images/arrow_up.png"));
+        m_next = new QPushButton;
+        m_next->setIcon(QIcon(":/images/arrow_down.png"));
+
+        search_buttons_layout->addWidget(searchlabel);
+        search_buttons_layout->addWidget(line_edit);
+        search_buttons_layout->addWidget(m_prev);
+        search_buttons_layout->addWidget(m_next);
+
+        left_vertical_layout->addLayout(search_buttons_layout);
         left_vertical_layout->addWidget(text_combo_box_frame);
         left_vertical_layout->addWidget(m_command_hierarchy_view);
         left_vertical_layout->addLayout(goto_draw_call_layout);
@@ -191,10 +218,9 @@ MainWindow::MainWindow()
         m_overview_tab_view = new OverviewTabView(m_data_core->GetCaptureMetadata(),
                                                   *m_event_selection);
         m_event_state_view = new EventStateView(*m_data_core);
-        m_tab_widget->addTab(m_overview_tab_view, "Overview");
-
-        m_tab_widget->addTab(m_command_tab_view, "Commands");
-        m_shader_view_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+        m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+        m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Commands");
+        m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
         m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
 #if defined(ENABLE_CAPTURE_BUFFERS)
         m_buffer_view = new BufferView(*m_data_core);
@@ -317,9 +343,10 @@ MainWindow::MainWindow()
     {
         QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), this, SLOT(OnExpandToLevel()));
     }
-    QObject::connect(m_search_trigger_button, SIGNAL(clicked()), this, SLOT(OnSearchTrigger()));
+    // QObject::connect(m_search_trigger_button, SIGNAL(clicked()), this, SLOT(OnSearchTrigger()));
 
     CreateActions();
+    CreateShortcuts();
     CreateMenus();
     CreateStatusBar();
     CreateToolBars();
@@ -899,6 +926,35 @@ void MainWindow::CreateActions()
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::CreateShortcuts()
+{
+    // Search Shortcut
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, this, &MainWindow::OnSearchTrigger);
+
+    // Overview Shortcut
+    QShortcut *overviewTabShortcut = new QShortcut(QKeySequence("Ctrl+shift+O"), this);
+    connect(overviewTabShortcut, &QShortcut::activated, [this]() {
+    m_tab_widget->setCurrentIndex(m_overview_view_tab_index);
+    });
+    // Commands Shortcut
+    QShortcut *commandTabShortcut = new QShortcut(QKeySequence("Ctrl+C"), this);
+    connect(commandTabShortcut, &QShortcut::activated, [this]() {
+    m_tab_widget->setCurrentIndex(m_command_view_tab_index);
+    });
+    // Shaders Shortcut
+    QShortcut *shaderTabShortcut = new QShortcut(QKeySequence("Ctrl+shift+s"), this);
+    connect(shaderTabShortcut, &QShortcut::activated, [this]() {
+    m_tab_widget->setCurrentIndex(m_shader_view_tab_index);
+    });
+    // Event State Shortcut
+    QShortcut *eventStateTabShortcut = new QShortcut(QKeySequence("Ctrl+shift+e"), this);
+    connect(eventStateTabShortcut, &QShortcut::activated, [this]() {
+    m_tab_widget->setCurrentIndex(m_event_state_view_tab_index);
+    });
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::CreateMenus()
 {
     // File Menu
@@ -1054,7 +1110,7 @@ void MainWindow::OnCrossReference(Dive::CrossRef ref)
     {
     case Dive::CrossRefType::kShaderAddress:
         if (m_shader_view->OnCrossReference(ref))
-            m_tab_widget->setCurrentIndex(m_shader_view_index);
+            m_tab_widget->setCurrentIndex(m_shader_view_tab_index);
         break;
     case Dive::CrossRefType::kGFRIndex: m_command_hierarchy_view->setCurrentNode(ref.Id()); break;
     default:
@@ -1075,6 +1131,6 @@ void MainWindow::OnFileLoaded()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnSwitchToShaderTab()
 {
-    DIVE_ASSERT(m_shader_view_index >= 0);
-    m_tab_widget->setCurrentIndex(m_shader_view_index);
+    DIVE_ASSERT(m_shader_view_tab_index >= 0);
+    m_tab_widget->setCurrentIndex(m_shader_view_tab_index);
 }

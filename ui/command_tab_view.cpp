@@ -20,10 +20,12 @@
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QtWidgets>
 #include <QVBoxLayout>
 #include "command_buffer_model.h"
 #include "command_buffer_view.h"
 #include "search_dialog.h"
+#include "minimap_view.h"
 
 #include "dive_core/command_hierarchy.h"
 
@@ -43,11 +45,30 @@ CommandTabView::CommandTabView(const Dive::CommandHierarchy &command_hierarchy, 
     m_command_buffer_view->header()->moveSection(2, 0);
     m_command_buffer_view->header()->moveSection(2, 1);
 
-    m_search_trigger_button = new QPushButton;
-    m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
+
+    QLabel *searchlabel = new QLabel();
+    QPixmap pixmap(":/images/search.png");
+    searchlabel->setPixmap(pixmap);
+
+    QLineEdit *line_edit = new QLineEdit();
+    QPalette palette = line_edit->palette();
+    palette.setColor(QPalette::Base, Qt::white);
+    palette.setColor(QPalette::Text, Qt::black); // Set text color to black
+    line_edit->setPalette(palette);
+    /*m_search_trigger_button = new QPushButton;
+    m_search_trigger_button->setIcon(QIcon(":/images/search.png"));*/
+
+        QPushButton* m_prev = new QPushButton();
+        QPushButton* m_next = new QPushButton();
+        m_prev->setIcon(QIcon(":/images/arrow_up.png"));
+        m_next = new QPushButton;
+        m_next->setIcon(QIcon(":/images/arrow_down.png"));
 
     QHBoxLayout *options_layout = new QHBoxLayout();
-    options_layout->addWidget(m_search_trigger_button);
+    options_layout->addWidget(searchlabel);
+    options_layout->addWidget(line_edit);
+    options_layout->addWidget(m_next);
+    options_layout->addWidget(m_prev);
     options_layout->addStretch();
 
     QVBoxLayout *main_layout = new QVBoxLayout();
@@ -55,10 +76,18 @@ CommandTabView::CommandTabView(const Dive::CommandHierarchy &command_hierarchy, 
     main_layout->addWidget(m_command_buffer_view);
     setLayout(main_layout);
 
-    QObject::connect(m_search_trigger_button,
+    QHBoxLayout *mini_map_layout = new QHBoxLayout();
+    MinimapView minimap;
+    mini_map_layout->addWidget(&minimap);
+    setLayout(mini_map_layout);
+
+    /*QObject::connect(m_search_trigger_button,
                      SIGNAL(clicked()),
                      this,
-                     SLOT(OnSearchCommandBuffer()));
+                     SLOT(OnSearchCommandBuffer()));*/
+
+    QShortcut *searchShortcut = new QShortcut(QKeySequence("Ctrl+shift+f"), this);
+    connect(searchShortcut, &QShortcut::activated, this, &CommandTabView::OnSearchCommandBuffer);
 }
 
 //--------------------------------------------------------------------------------------------------

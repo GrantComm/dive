@@ -37,6 +37,12 @@ SearchDialog::SearchDialog(QWidget* parent, const QString& title) : QDialog(pare
     connect(m_prev, SIGNAL(clicked()), this, SLOT(prevSearchedItem()));
     connect(m_next, SIGNAL(clicked()), this, SLOT(nextSearchedItem()));
 
+    QShortcut *previousSearchItemShortcut = new QShortcut(QKeySequence("Ctrl+shift+p"), this);
+    connect(previousSearchItemShortcut, &QShortcut::activated, this, &SearchDialog::prevSearchedItem);
+
+    QShortcut *nextSearchShortcut = new QShortcut(QKeySequence("Ctrl+shift+n"), this);
+    connect(nextSearchShortcut, &QShortcut::activated, this, &SearchDialog::nextSearchedItem);
+
     QHBoxLayout* search_buttons_layout = new QHBoxLayout;
     search_buttons_layout->addWidget(m_input);
     search_buttons_layout->addWidget(m_search);

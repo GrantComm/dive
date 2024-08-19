@@ -94,6 +94,7 @@ private slots:
 
 private:
     void    CreateActions();
+    void    CreateShortcuts();
     void    CreateMenus();
     void    CreateToolBars();
     void    CreateStatusBar();
@@ -120,6 +121,7 @@ private:
     QAction     *m_about_action;
     QToolBar    *m_file_tool_bar;
     TraceDialog *m_trace_dig;
+    QAction     *m_search_action;
 
     enum
     {
@@ -156,9 +158,11 @@ private:
     // Right pane
     QTabWidget      *m_tab_widget;
     CommandTabView  *m_command_tab_view;
+    int              m_command_view_tab_index;
     OverviewTabView *m_overview_tab_view;
+    int              m_overview_view_tab_index;
     ShaderView      *m_shader_view;
-    int              m_shader_view_index;
+    int              m_shader_view_tab_index;
     EventStateView  *m_event_state_view;
     int              m_event_state_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)
