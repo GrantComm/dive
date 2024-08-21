@@ -20,6 +20,7 @@
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QtWidgets>
 #include <QVBoxLayout>
 #include "command_buffer_model.h"
 #include "command_buffer_view.h"
@@ -60,6 +61,9 @@ CommandTabView::CommandTabView(const Dive::CommandHierarchy &command_hierarchy, 
                      SIGNAL(clicked()),
                      this,
                      SLOT(OnSearchCommandBuffer()));
+    
+    QShortcut *searchShortcut = new QShortcut(QKeySequence(SHORTCUT_COMMANDS_SEARCH), this);
+    connect(searchShortcut, &QShortcut::activated, this, &CommandTabView::OnSearchCommandBuffer);
 }
 
 //--------------------------------------------------------------------------------------------------

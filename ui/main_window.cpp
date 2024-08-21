@@ -911,6 +911,11 @@ void MainWindow::CreateActions()
     m_about_action = new QAction(tr("&About Dive"), this);
     m_about_action->setStatusTip(tr("Display application version information"));
     connect(m_about_action, &QAction::triggered, this, &MainWindow::OnAbout);
+
+    // Shortcuts action
+    m_shortcuts_action = new QAction(tr("&Shortcuts"), this);
+    m_shortcuts_action->setStatusTip(tr("Display application keyboard shortcuts"));
+    connect(m_shortcuts_action, &QAction::triggered, this, &MainWindow::OnShortcuts);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -934,6 +939,7 @@ void MainWindow::CreateMenus()
     m_help_menu = menuBar()->addMenu(tr("&Help"));
     m_help_menu->addAction(m_shortcuts_action);
     m_help_menu->addAction(m_about_action);
+    m_help_menu->addAction(m_shortcuts_action);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -988,17 +994,17 @@ void MainWindow::CreateShortcuts()
     // Commands Shortcut
     QShortcut *commandTabShortcut = new QShortcut(QKeySequence(SHORTCUT_COMMANDS_TAB), this);
     connect(commandTabShortcut, &QShortcut::activated, [this]() {
-        m_tab_widget->setCurrentIndex(m_command_view_tab_index);
+    m_tab_widget->setCurrentIndex(m_command_view_tab_index);
     });
     // Shaders Shortcut
     QShortcut *shaderTabShortcut = new QShortcut(QKeySequence(SHORTCUT_SHADERS_TAB), this);
     connect(shaderTabShortcut, &QShortcut::activated, [this]() {
-        m_tab_widget->setCurrentIndex(m_shader_view_tab_index);
+    m_tab_widget->setCurrentIndex(m_shader_view_tab_index);
     });
     // Event State Shortcut
     QShortcut *eventStateTabShortcut = new QShortcut(QKeySequence(SHORTCUT_EVENT_STATE_TAB), this);
     connect(eventStateTabShortcut, &QShortcut::activated, [this]() {
-        m_tab_widget->setCurrentIndex(m_event_state_view_tab_index);
+    m_tab_widget->setCurrentIndex(m_event_state_view_tab_index);
     });
 }
 
