@@ -916,6 +916,11 @@ void MainWindow::CreateActions()
     m_shortcuts_action = new QAction(tr("&Shortcuts"), this);
     m_shortcuts_action->setStatusTip(tr("Display application keyboard shortcuts"));
     connect(m_shortcuts_action, &QAction::triggered, this, &MainWindow::OnShortcuts);
+    
+    // About action
+    m_about_action = new QAction(tr("&About Dive"), this);
+    m_about_action->setStatusTip(tr("Display application version information"));
+    connect(m_about_action, &QAction::triggered, this, &MainWindow::OnAbout);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -940,6 +945,7 @@ void MainWindow::CreateMenus()
     m_help_menu->addAction(m_shortcuts_action);
     m_help_menu->addAction(m_about_action);
     m_help_menu->addAction(m_shortcuts_action);
+    m_help_menu->addAction(m_about_action);
 }
 
 //--------------------------------------------------------------------------------------------------
