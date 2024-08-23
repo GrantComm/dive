@@ -981,11 +981,11 @@ void MainWindow::CreateShortcuts()
     // Commands Search Shortcut
     QShortcut *searchCommandsShortcut = new QShortcut(QKeySequence(SHORTCUT_COMMANDS_SEARCH), this);
     connect(searchCommandsShortcut, &QShortcut::activated, [this]() {
-        if (m_tab_widget->currentIndex() == m_command_view_tab_index)
+        if (m_tab_widget->currentIndex() == m_command_view_tab_index) 
         {
             m_command_tab_view->OnSearchCommandBuffer();
         }
-        else
+        else 
         {
             m_tab_widget->setCurrentIndex(m_command_view_tab_index);
             m_command_tab_view->OnSearchCommandBuffer();
