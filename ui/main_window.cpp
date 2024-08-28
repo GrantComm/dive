@@ -58,6 +58,7 @@
 #include "shortcuts_window.h"
 #include "text_file_view.h"
 #include "tree_view_combo_box.h"
+#include "filter_dialog.h"
 
 static const int   kViewModeStringCount = 3;
 static const int   kEventViewModeStringCount = 3;
@@ -147,6 +148,10 @@ MainWindow::MainWindow()
             m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
             text_combo_box_layout->addWidget(m_search_trigger_button);
 
+            m_filter_trigger_button = new QPushButton;
+            m_filter_trigger_button->setIcon(QIcon(":/images/filter.png"));
+            text_combo_box_layout->addWidget(m_filter_trigger_button);
+
             text_combo_box_layout->addStretch();
             text_combo_box_frame->setLayout(text_combo_box_layout);
         }
@@ -234,6 +239,8 @@ MainWindow::MainWindow()
     horizontal_splitter->setStretchFactor(2, 1);
 
     m_trace_dig = new TraceDialog(this);
+
+    m_filter_dialog = new FilterDialog(this);
 
     // Main Window requires a central widget.
     // Make the horizontal splitter that central widget so it takes up the whole area.
@@ -329,6 +336,8 @@ MainWindow::MainWindow()
         QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), this, SLOT(OnExpandToLevel()));
     }
     QObject::connect(m_search_trigger_button, SIGNAL(clicked()), this, SLOT(OnSearchTrigger()));
+
+    QObject::connect(m_filter_trigger_button, SIGNAL(clicked()), this, SLOT(OnFilterTrigger()));
 
     QObject::connect(m_event_search_bar,
                      SIGNAL(hide_search_bar(bool)),
@@ -1246,4 +1255,10 @@ void MainWindow::DisconnectSearchBar()
                         &DiveTreeView::updateSearch,
                         m_event_search_bar,
                         &SearchBar::updateSearchResults);
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnFilterTrigger()
+{
+    m_filter_dialog->exec();
 }

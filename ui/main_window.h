@@ -18,6 +18,7 @@
 #include "dive_core/cross_ref.h"
 #include "dive_core/data_core.h"
 #include "event_selection_model.h"
+#include "filter_dialog.h"
 #include "overlay.h"
 #include "progress_tracker_callback.h"
 
@@ -96,6 +97,7 @@ private slots:
     void OnTabViewChange();
     void ConnectSearchBar();
     void DisconnectSearchBar();
+    void OnFilterTrigger();
 
 private:
     void    CreateActions();
@@ -127,6 +129,7 @@ private:
     QAction     *m_shortcuts_action;
     QToolBar    *m_file_tool_bar;
     TraceDialog *m_trace_dig;
+    FilterDialog *m_filter_dialog;
 
     enum
     {
@@ -149,6 +152,7 @@ private:
     DiveTreeView *m_command_hierarchy_view;
     CommandModel *m_command_hierarchy_model;
     QPushButton  *m_search_trigger_button;
+    QPushButton  *m_filter_trigger_button;
     SearchBar    *m_event_search_bar = nullptr;
 
     TreeViewComboBox    *m_view_mode_combo_box;
