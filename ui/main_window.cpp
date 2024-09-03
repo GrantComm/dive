@@ -1045,6 +1045,11 @@ void MainWindow::CreateShortcuts()
     connect(eventStateTabShortcut, &QShortcut::activated, [this]() {
         m_tab_widget->setCurrentIndex(m_event_state_view_tab_index);
     });
+    // Filter Shortcut
+    QShortcut *filterShortcut = new QShortcut(QKeySequence(SHORTCUT_FILTER), this);
+    connect(filterShortcut, &QShortcut::activated, [this]() {
+        m_filter_dialog->show();
+    });
 }
 
 //--------------------------------------------------------------------------------------------------
