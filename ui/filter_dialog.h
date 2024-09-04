@@ -12,6 +12,7 @@
 */
 
 #include <QDialog>
+#include <qevent.h>
 #include <unordered_set>
 
 #pragma once
@@ -31,9 +32,10 @@ public slots:
     void selectAllEventsFilter(int state);
     void selectFilter(int state);
     void applyFilters();
-    void closeDialog();
+    void onReject();
 
-signals:
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     QCheckBox   *m_all_filter = nullptr;
