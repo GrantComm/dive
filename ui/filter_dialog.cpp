@@ -16,6 +16,7 @@
 #include "QCheckBox"
 #include "QPushButton"
 #include "QVBoxLayout"
+#include <qevent.h>
 #include <qnamespace.h>
 #include <iostream>
 #include <string>
@@ -27,7 +28,7 @@ FilterDialog::FilterDialog(QWidget* parent) :
 {
     m_all_filter = new QCheckBox("All Calls", this);
     m_all_filter->setCheckState(Qt::Checked);
-    m_filters.insert(m_all_filter);
+    m_active_filters.insert(m_all_filter);
     m_bind_filter = new QCheckBox("Bind", this);
     m_clear_filter = new QCheckBox("Clear", this);
     m_copy_filter = new QCheckBox("Copy", this);
@@ -35,6 +36,7 @@ FilterDialog::FilterDialog(QWidget* parent) :
     m_apply = new QPushButton("Apply Filters", this);
     m_apply->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
     connect(m_all_filter, SIGNAL(stateChanged(int)), this, SLOT(selectAllEventsFilter(int)));
     connect(m_bind_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
     connect(m_clear_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
@@ -59,7 +61,7 @@ FilterDialog::FilterDialog(QWidget* parent) :
     dialog_layout->addLayout(filter_options_layout);
     dialog_layout->addLayout(filter_buttons_layout);
 
-    setWindowTitle("Vulkan Call Filters");
+    setWindowTitle("Event Filters");
     setWindowModality(Qt::NonModal);
     setLayout(dialog_layout);
 }
@@ -100,25 +102,49 @@ void FilterDialog::selectFilter(int state) {
 //--------------------------------------------------------------------------------------------------
 void FilterDialog::applyFilters() {
     m_active_filters.clear();
-    for (QCheckBox* selectedCheckBox : m_filters) {
-        if (selectedCheckBox->text() == "All Calls")
-        {
-            m_active_filters.clear();
-            m_active_filters.insert(selectedCheckBox);
-            break;
-        }
-        m_active_filters.insert(selectedCheckBox);
+    
+    if (m_filters.empty())
+    {
+        m_all_filter->setCheckState(Qt::Checked);
+        m_active_filters.insert(m_all_filter);
     }
-    m_filters.clear();
+    else 
+    {
+        for (QCheckBox* selectedCheckBox : m_filters) {
+            if (selectedCheckBox->text() == "All Calls")
+            {
+                m_active_filters.clear();
+                m_active_filters.insert(selectedCheckBox);
+                break;
+            }
+            m_active_filters.insert(selectedCheckBox);
+        }
+
+        m_filters.clear();
+    }
 
     // Pass the vector to the hierarchy tree rebuild and hide the filter dialog
     this->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
-void FilterDialog::closeDialog() {
-    for (QCheckBox* selectedCheckBox : m_filters) {
-        selectedCheckBox->setCheckState(Qt::Unchecked);
+void FilterDialog::onReject() {
+    close();
+}
+
+//--------------------------------------------------------------------------------------------------
+void FilterDialog::closeEvent(QCloseEvent *event) 
+{
+    // Iterate over the copy of filters
+    auto unappliedFilters = m_filters;
+    for (QCheckBox* checkBox : unappliedFilters) {
+        checkBox->setCheckState(m_active_filters.count(checkBox) ? Qt::Checked : Qt::Unchecked);
     }
-    m_filters.clear();
+
+    // Ensure all checkboxes in m_active_filters are checked
+    for (QCheckBox* checkBox : m_active_filters) {
+        if (!checkBox->isChecked()) {
+            checkBox->setCheckState(Qt::Checked);
+        }
+    }
 }
