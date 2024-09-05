@@ -51,6 +51,9 @@ ShortcutsDialog::ShortcutsDialog(QWidget *parent)
     os << "View the previous search result: ";
     os << SHORTCUT_PREVIOUS_SEARCH_RESULT << std::endl;
     os << std::endl;
+        os << "Set filters: ";
+    os << SHORTCUT_FILTER << std::endl;
+    os << std::endl;
     os << "View the Overview tab: ";
     os << SHORTCUT_OVERVIEW_TAB << std::endl;
     os << std::endl;
