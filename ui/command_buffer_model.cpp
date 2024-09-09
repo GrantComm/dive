@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include "dive_core/command_hierarchy.h"
 
 static_assert(sizeof(void *) == sizeof(uint64_t),
@@ -307,25 +308,30 @@ QList<QModelIndex> CommandBufferModel::search(const QModelIndex &start, const QV
 
     QString     text;
     QModelIndex p = parent(start);
-    int         from = start.row();
-    int         to = rowCount(p);
+    int         starting_row = start.row();
+    int         ending_row = rowCount(p);
+    int starting_column = start.column();
+    int ending_column = columnCount(p);
 
-    for (int r = from; r < to; ++r)
+    for (int r = starting_row; r < ending_row; ++r)
     {
-        QModelIndex idx = index(r, start.column(), p);
-        if (!idx.isValid())
-            continue;
-        QVariant v = data(idx, Qt::DisplayRole);
+        for (int c = starting_column; c < ending_column; c++)
+        {
+            QModelIndex idx = index(r, c, p);
+            if (!idx.isValid())
+                continue;
+            QVariant v = data(idx, Qt::DisplayRole);
 
-        if (text.isEmpty())
-            text = value.toString();
-        QString t = v.toString();
-        if (t.contains(text, cs))
-            result.append(idx);
+            if (text.isEmpty())
+                text = value.toString();
+            QString t = v.toString();
+            if (t.contains(text, cs))
+                result.append(idx);
 
-        // Search the hierarchy
-        if (hasChildren(idx))
-            result += search(index(0, idx.column(), idx), (text.isEmpty() ? value : text));
+            // Search the hierarchy
+            if (hasChildren(idx))
+                result += search(index(0, idx.column(), idx), (text.isEmpty() ? value : text));
+            }
     }
 
     return result;
