@@ -184,7 +184,16 @@ isa_print(struct isa_print_state *state, const char *fmt, ...)
 	int ret;
 
 	va_start(args, fmt);
-	ret = vasprintf(&buffer, fmt, args);
+#ifdef _MSC_VER
+	va_list args_copy;
+    va_copy(args_copy, args);
+    int len = _vscprintf(fmt, args_copy);
+    va_end(args_copy);
+	buffer = (char *)malloc(len + 1);
+    ret = _vsprintf_p(&buffer, len + 1, fmt, args); 
+#else
+    ret = vasprintf(&buffer, fmt, args);
+#endif
 	va_end(args);
 
 	if (ret != -1) {
@@ -224,7 +233,27 @@ decode_error(struct decode_state *state, const char *fmt, ...)
 
 	va_list ap;
 	va_start(ap, fmt);
-	vasprintf(&state->errors[state->num_errors++], fmt, ap);
+	#ifdef _MSC_VER
+    va_list ap_copy;
+    va_copy(ap_copy, ap);
+    int len = _vscprintf(fmt, ap_copy);
+    va_end(ap_copy);
+
+    if (len == -1) {
+        va_end(ap);
+        return;
+    }
+
+    state->errors[state->num_errors] = (char *)malloc(len + 1);
+    if (!state->errors[state->num_errors]) {
+        va_end(ap);
+        return;
+    }
+
+    _vsprintf_p(state->errors[state->num_errors++], len + 1, fmt, ap);
+#else
+    vasprintf(&state->errors[state->num_errors++], fmt, ap);
+#endif
 	va_end(ap);
 }
 
@@ -733,9 +762,17 @@ display(struct decode_scope *scope)
 				e++;
 			}
 
-			char *field_name = strndup(p, e-p);
-			display_field(scope, field_name);
-			free(field_name);
+#ifdef _MSC_VER
+            char *field_name = (char *)malloc(e - p + 1); 
+            strncpy(field_name, p, e - p);
+            field_name[e - p] = '\0'; 
+            display_field(scope, field_name);
+            free(field_name);
+#else
+            char *field_name = strndup(p, e - p);
+            display_field(scope, field_name);
+            free(field_name);
+#endif
 
 			p = e;
 		} else {
@@ -913,9 +950,17 @@ decode_bitset(void *out, struct decode_scope *scope)
 				e++;
 			}
 
-			char *field_name = strndup(p, e-p);
-			decode_field(out, scope, field_name);
-			free(field_name);
+#ifdef _MSC_VER
+            char *field_name = (char *)malloc(e - p + 1);
+            strncpy(field_name, p, e - p);
+            field_name[e - p] = '\0';
+            decode_field(out, scope, field_name);
+            free(field_name);
+#else
+            char *field_name = strndup(p, e - p);
+            decode_field(out, scope, field_name);
+            free(field_name);
+#endif
 
 			p = e;
 		}
