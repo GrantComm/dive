@@ -37,12 +37,14 @@ public slots:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+signals:
+    void FiltersUpdated(std::unordered_set<QCheckBox*> active_filters);
+
 private:
     QCheckBox   *m_all_filter = nullptr;
-    QCheckBox   *m_bind_filter = nullptr;
-    QCheckBox   *m_clear_filter = nullptr;
-    QCheckBox   *m_copy_filter = nullptr;
+    QCheckBox   *m_blit_filter = nullptr;
     QCheckBox   *m_draw_filter = nullptr;
+    QCheckBox   *m_write_filter = nullptr;
     QPushButton *m_apply = nullptr;
     
     std::unordered_set<QCheckBox*> m_active_filters;

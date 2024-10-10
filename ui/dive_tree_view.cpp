@@ -22,6 +22,7 @@
 #include <QTextDocument>
 #include <algorithm>
 #include <cstdint>
+#include <string>
 #ifndef NDEBUG
 #    include <iostream>
 #endif
@@ -65,6 +66,7 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
         QStyle *style = options.widget ? options.widget->style() : QApplication::style();
 
         uint64_t node_index = (uint64_t)(index.internalPointer());
+        std::cout<< "HERE, GetNodeDesc - " << std::to_string(node_index)<< std::endl;
         options.text = QString(m_dive_tree_view_ptr->GetCommandHierarchy().GetNodeDesc(node_index));
 
         QTextDocument doc;
@@ -159,6 +161,7 @@ void DiveTreeView::setCurrentNode(uint64_t node_index)
 void DiveTreeView::expandNode(const QModelIndex &index)
 {
     uint64_t node_index = (uint64_t)(index.internalPointer());
+    std::cout << "expand index: " << std::to_string(node_index) << std::endl;
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
         Dive::CommandHierarchy::MarkerType marker_type = m_command_hierarchy.GetMarkerNodeType(
@@ -174,6 +177,8 @@ void DiveTreeView::expandNode(const QModelIndex &index)
 void DiveTreeView::collapseNode(const QModelIndex &index)
 {
     uint64_t node_index = (uint64_t)(index.internalPointer());
+        std::cout << "collapse index: " << std::to_string(node_index) << std::endl;
+
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
         Dive::CommandHierarchy::MarkerType marker_type = m_command_hierarchy.GetMarkerNodeType(
@@ -211,6 +216,7 @@ void DiveTreeView::gotoEvent(bool is_above)
         auto     event_id_idx = m->index(next_node_idx.row(), 1, next_node_idx.parent());
         auto     event_id = m->data(event_id_idx, Qt::DisplayRole);
         uint64_t node_idx = (uint64_t)(next_node_idx.internalPointer());
+            std::cout << "gotoevent index: " << std::to_string(node_idx) << std::endl;
         auto     node_type = m_command_hierarchy.GetNodeType(node_idx);
 
         if (event_id != QVariant() && (node_type == Dive::NodeType::kDrawDispatchBlitNode ||

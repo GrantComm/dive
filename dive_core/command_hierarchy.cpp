@@ -266,6 +266,8 @@ const Topology &CommandHierarchy::GetRgpHierarchyTopology() const
 //--------------------------------------------------------------------------------------------------
 NodeType CommandHierarchy::GetNodeType(uint64_t node_index) const
 {
+    std::cout << "HERE, index= " << std::to_string(node_index) << std::endl;
+    std::cout << "HERE, size= " << std::to_string(m_nodes.m_node_type.size()) << std::endl;
     DIVE_ASSERT(node_index < m_nodes.m_node_type.size());
     return m_nodes.m_node_type[node_index];
 }
@@ -592,6 +594,7 @@ bool CommandHierarchyCreator::CreateTrees(CommandHierarchy  *command_hierarchy_p
     }
 
     // Convert the info in m_node_children into CommandHierarchy's topologies
+    std::cout << "create top 1" << std::endl;
     CreateTopologies();
     return true;
 }
@@ -693,6 +696,7 @@ bool CommandHierarchyCreator::CreateTrees(CommandHierarchy *command_hierarchy_pt
     }
 
     // Convert the info in m_node_children into CommandHierarchy's topologies
+    std::cout << "create top 2" << std::endl;
     CreateTopologies();
     return true;
 }
@@ -2242,6 +2246,7 @@ uint64_t CommandHierarchyCreator::GetChildCount(CommandHierarchy::TopologyType t
 //--------------------------------------------------------------------------------------------------
 void CommandHierarchyCreator::CreateTopologies()
 {
+    std::cout << "Create Top " << std::endl;
     // A kVulkanCallTopology is a kAllEventTopology without the following:
     //  kDrawDispatchDmaNode, kSyncNode, kPostambleStateNode, kMarkerNode-kBarrier
     auto FilterOut = [&](size_t node_index) {
@@ -2263,6 +2268,7 @@ void CommandHierarchyCreator::CreateTopologies()
     CommandHierarchy::TopologyType dst_topology = CommandHierarchy::kVulkanCallTopology;
     size_t                         num_nodes = m_node_children[src_topology][0].size();
     DIVE_ASSERT(num_nodes == m_node_children[src_topology][1].size());
+    std::cout << "HERE, size of nodes: " << std::to_string(num_nodes)<< std::endl;
     for (size_t node_index = 0; node_index < num_nodes; ++node_index)
     {
         // Ensure topology was not previously filled-in

@@ -59,6 +59,7 @@
 #include "text_file_view.h"
 #include "tree_view_combo_box.h"
 #include "filter_dialog.h"
+#include "events_filter_proxy_model.h"
 
 static const int   kViewModeStringCount = 3;
 static const int   kEventViewModeStringCount = 3;
@@ -100,6 +101,8 @@ MainWindow::MainWindow()
     m_data_core = new Dive::DataCore(&m_progress_tracker, &m_log_compound);
 
     m_event_selection = new EventSelection(m_data_core->GetCommandHierarchy());
+
+    m_events_filter_proxy_model = new EventsFilterProxyModel();
 
     // Left side panel
     QFrame *left_frame = new QFrame();
@@ -350,6 +353,17 @@ MainWindow::MainWindow()
                      SIGNAL(HideOtherSearchBars()),
                      this,
                      SLOT(OnTabViewChange()));
+    
+    QObject::connect(m_filter_dialog,
+                     SIGNAL(FiltersUpdated(std::unordered_set<QCheckBox*>)),
+                     this,
+                     SLOT(UpdateWithFilters(std::unordered_set<QCheckBox*>)));
+
+    QObject::connect(m_events_filter_proxy_model,
+                     &QAbstractItemModel::layoutChanged, this, &MainWindow::Test);
+    
+    QObject::connect(m_events_filter_proxy_model,
+                     &QAbstractItemModel::layoutAboutToBeChanged, this, &MainWindow::Test);
 
     CreateActions();
     CreateMenus();
@@ -1266,4 +1280,21 @@ void MainWindow::DisconnectSearchBar()
 void MainWindow::OnFilterTrigger()
 {
     m_filter_dialog->exec();
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::UpdateWithFilters(std::unordered_set<QCheckBox*> active_filters)
+{
+    m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
+    m_events_filter_proxy_model->setFilterText(active_filters);
+    
+    std::cout << "HERE, filtering done!" << std::endl;
+    m_command_hierarchy_view->setModel(m_events_filter_proxy_model);
+    std::cout << "HERE, Updated with filters" << std::endl;
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::Test()
+{
+    std::cout << "HERE, filtering done for realsies!" << std::endl;
 }

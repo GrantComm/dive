@@ -17,6 +17,8 @@
 #include <QString>
 #include <QStringList>
 #include <QTreeWidget>
+#include <iostream>
+#include <string>
 
 #include "dive_core/command_hierarchy.h"
 
@@ -76,6 +78,7 @@ QVariant CommandModel::data(const QModelIndex &index, int role) const
     {
         if (index.column() == 0)
         {
+            std::cout << "data: " << std::to_string(node_index) << std::endl;
             Dive::NodeType node_type = m_command_hierarchy.GetNodeType(node_index);
 
             if (node_type == Dive::NodeType::kMarkerNode)
