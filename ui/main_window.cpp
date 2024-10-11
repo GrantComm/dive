@@ -167,9 +167,10 @@ MainWindow::MainWindow()
         m_event_search_bar->hide();
 
         m_command_hierarchy_model = new CommandModel(m_data_core->GetCommandHierarchy());
+        m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
+
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
-        m_command_hierarchy_view->setModel(m_command_hierarchy_model);
-        m_command_hierarchy_view->SetDataCore(m_data_core);
+        m_command_hierarchy_view->setModel(m_events_filter_proxy_model);        m_command_hierarchy_view->SetDataCore(m_data_core);
 
         QLabel *goto_draw_call_label = new QLabel(tr("Go To:"));
         m_prev_event_button = new QPushButton("Prev Event");
@@ -1287,8 +1288,7 @@ void MainWindow::UpdateWithFilters(std::unordered_set<QCheckBox*> active_filters
 {
     m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
     m_events_filter_proxy_model->setFilterText(active_filters);
-    
-    std::cout << "HERE, filtering done!" << std::endl;
+
     m_command_hierarchy_view->setModel(m_events_filter_proxy_model);
     std::cout << "HERE, Updated with filters" << std::endl;
 }

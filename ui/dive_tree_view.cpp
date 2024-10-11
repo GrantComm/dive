@@ -32,6 +32,8 @@
 #include "dive_core/common/common.h"
 #include "dive_core/data_core.h"
 #include "hover_help_model.h"
+#include "events_filter_proxy_model.h"
+
 
 // =================================================================================================
 // DiveTreeViewDelegate
@@ -48,24 +50,37 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
                                  const QStyleOptionViewItem &option,
                                  const QModelIndex          &index) const
 {
+    const EventsFilterProxyModel* proxyModel = qobject_cast<const EventsFilterProxyModel*>(index.model());
+    
+    if (!proxyModel) {
+        return;
+    }
+
+    if (!proxyModel->filterAcceptsRow(index.row(), index.parent())) {
+        return; // Don't paint the item
+    }
+
+    QModelIndex sourceIndex = proxyModel->mapToSource(index);
+
+
     // Hover help messages
     if (option.state & QStyle::State_MouseOver)
     {
         const Dive::CommandHierarchy &command_hierarchy = m_dive_tree_view_ptr
                                                           ->GetCommandHierarchy();
-        uint64_t node_index = (uint64_t)(index.internalPointer());
+        uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
         m_hover_help_ptr->SetCommandHierarchyNodeItem(command_hierarchy, node_index);
     }
 
     // Write the command hierarchy description
-    if (index.column() == 0)
+    if (sourceIndex.column() == 0)
     {
         QStyleOptionViewItem options = option;
-        initStyleOption(&options, index);
+        initStyleOption(&options, sourceIndex);
 
         QStyle *style = options.widget ? options.widget->style() : QApplication::style();
 
-        uint64_t node_index = (uint64_t)(index.internalPointer());
+        uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
         std::cout<< "HERE, GetNodeDesc - " << std::to_string(node_index)<< std::endl;
         options.text = QString(m_dive_tree_view_ptr->GetCommandHierarchy().GetNodeDesc(node_index));
 
@@ -79,7 +94,7 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
         if (options.state & QStyle::State_MouseOver || options.state & QStyle::State_Selected ||
             !is_parameterized)
         {
-            QStyledItemDelegate::paint(painter, options, index);
+            QStyledItemDelegate::paint(painter, options, sourceIndex);
             return;
         }
         else
@@ -111,7 +126,7 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
         }
     }
 
-    QStyledItemDelegate::paint(painter, option, index);
+    QStyledItemDelegate::paint(painter, option, sourceIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +175,12 @@ void DiveTreeView::setCurrentNode(uint64_t node_index)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::expandNode(const QModelIndex &index)
 {
-    uint64_t node_index = (uint64_t)(index.internalPointer());
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    index.model());
+    QModelIndex sourceIndex = proxyModel->mapToSource(index);
+
+
+    uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
     std::cout << "expand index: " << std::to_string(node_index) << std::endl;
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
@@ -317,7 +337,9 @@ void DiveTreeView::keyPressEvent(QKeyEvent *event)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::setAndScrollToNode(QModelIndex &idx)
 {
-    auto     m = dynamic_cast<CommandModel *>(model());
+    auto proxyModel = dynamic_cast<EventsFilterProxyModel *>(model());
+
+    auto     m = dynamic_cast<CommandModel *>(proxyModel->sourceModel());
     uint64_t node_index = (uint64_t)(idx.internalPointer());
     idx = m->findNode(node_index);
     idx = m->index(idx.row(), 1, idx.parent());
@@ -333,18 +355,25 @@ void DiveTreeView::searchNodeByText(const QString &search_text)
 
     if (search_text.isEmpty())
         return;
+    auto proxyModel = dynamic_cast<EventsFilterProxyModel *>(model()); 
 
-    auto m = dynamic_cast<CommandModel *>(model());
-    search_indexes = m->search(m->index(0, 0), QVariant::fromValue(search_text));
+    auto m = dynamic_cast<CommandModel *>(proxyModel->sourceModel());
+    // auto m = dynamic_cast<CommandModel *>(model());
+    search_indexes = m->search(m->index(0, 0), QVariant::fromValue(search_text), proxyModel);
     search_index_it = search_indexes.begin();
 
     if (!search_indexes.isEmpty())
     {
         QModelIndex curr_idx = currentIndex();
-        if (curr_idx.isValid() && curr_idx != *search_index_it)
+        if (curr_idx.isValid())
         {
-            search_index_it = search_indexes.begin() +
-                              getNearestSearchNode((uint64_t)(curr_idx.internalPointer()));
+            QModelIndex sourceIndex = proxyModel->mapToSource(curr_idx); 
+
+            if (sourceIndex.isValid() && sourceIndex != *search_index_it)
+            {
+                search_index_it = search_indexes.begin() +
+                                  getNearestSearchNode((uint64_t)(sourceIndex.internalPointer()));
+            }
         }
         setAndScrollToNode(*search_index_it);
     }

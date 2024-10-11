@@ -266,8 +266,6 @@ const Topology &CommandHierarchy::GetRgpHierarchyTopology() const
 //--------------------------------------------------------------------------------------------------
 NodeType CommandHierarchy::GetNodeType(uint64_t node_index) const
 {
-    std::cout << "HERE, index= " << std::to_string(node_index) << std::endl;
-    std::cout << "HERE, size= " << std::to_string(m_nodes.m_node_type.size()) << std::endl;
     DIVE_ASSERT(node_index < m_nodes.m_node_type.size());
     return m_nodes.m_node_type[node_index];
 }
@@ -594,7 +592,6 @@ bool CommandHierarchyCreator::CreateTrees(CommandHierarchy  *command_hierarchy_p
     }
 
     // Convert the info in m_node_children into CommandHierarchy's topologies
-    std::cout << "create top 1" << std::endl;
     CreateTopologies();
     return true;
 }

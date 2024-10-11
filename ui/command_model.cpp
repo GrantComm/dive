@@ -19,6 +19,7 @@
 #include <QTreeWidget>
 #include <iostream>
 #include <string>
+#include "events_filter_proxy_model.h"
 
 #include "dive_core/command_hierarchy.h"
 
@@ -138,11 +139,21 @@ QVariant CommandModel::headerData(int section, Qt::Orientation orientation, int 
 //--------------------------------------------------------------------------------------------------
 QModelIndex CommandModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!hasIndex(row, column, parent))
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    parent.model());
+    bool        use_proxy_model = false;
+    QModelIndex sourceIndex;
+    if (proxyModel)
+    {
+        use_proxy_model = true;
+        sourceIndex = proxyModel->mapToSource(parent);
+    }
+
+    if (!hasIndex(row, column, use_proxy_model ? sourceIndex : parent))
         return QModelIndex();
 
     uint64_t node_index;
-    if (!parent.isValid())
+    if (use_proxy_model ? !sourceIndex.isValid() : !parent.isValid())
     {
         // Root level in the model, which is actually one-level down in the topology, since the root
         // node is ignored
@@ -150,7 +161,9 @@ QModelIndex CommandModel::index(int row, int column, const QModelIndex &parent) 
     }
     else
     {
-        uint64_t parent_node_index = (uint64_t)(parent.internalPointer());
+        uint64_t parent_node_index = (uint64_t)(use_proxy_model ?
+                                                sourceIndex.internalPointer() :
+                                                parent.internalPointer());
         node_index = m_topology_ptr->GetChildNodeIndex(parent_node_index, row);
     }
     return createIndex(row, column, node_index);
@@ -159,10 +172,21 @@ QModelIndex CommandModel::index(int row, int column, const QModelIndex &parent) 
 //--------------------------------------------------------------------------------------------------
 QModelIndex CommandModel::parent(const QModelIndex &index) const
 {
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    index.model());
+    bool        use_proxy_model = false;
+    QModelIndex sourceIndex;
+    if (proxyModel)
+    {
+        use_proxy_model = true;
+        sourceIndex = proxyModel->mapToSource(index);
+    }
+
     if (!index.isValid())
         return QModelIndex();
 
-    uint64_t child_node_index = (uint64_t)(index.internalPointer());
+    uint64_t child_node_index = (uint64_t)(use_proxy_model ? sourceIndex.internalPointer() :
+                                                             index.internalPointer());
     uint64_t parent_node_index = m_topology_ptr->GetParentNodeIndex(child_node_index);
 
     // Root item. No parent.
@@ -176,16 +200,26 @@ QModelIndex CommandModel::parent(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 int CommandModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.column() > 0)
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    parent.model());
+    bool use_proxy_model = false;
+    QModelIndex sourceIndex;
+    if (proxyModel)
+    {
+        use_proxy_model = true;
+        sourceIndex = proxyModel->mapToSource(parent);
+    }
+
+    if (use_proxy_model ? sourceIndex.column() : parent.column() > 0)
         return 0;
     if (m_topology_ptr == nullptr || m_topology_ptr->GetNumNodes() == 0)
         return 0;
 
     uint64_t parent_node_index;
-    if (!parent.isValid())  // Root level
+    if (use_proxy_model ? !sourceIndex.isValid() : !parent.isValid())  // Root level
         parent_node_index = Dive::Topology::kRootNodeIndex;
     else
-        parent_node_index = (uint64_t)(parent.internalPointer());
+        parent_node_index = (uint64_t)(use_proxy_model ? sourceIndex.internalPointer() : parent.internalPointer());
 
     return m_topology_ptr->GetNumChildren(parent_node_index);
 }
@@ -266,33 +300,54 @@ void CommandModel::BuildNodeLookup(const QModelIndex &parent) const
 }
 
 //--------------------------------------------------------------------------------------------------
-QList<QModelIndex> CommandModel::search(const QModelIndex &start, const QVariant &value) const
+QList<QModelIndex> CommandModel::search(const QModelIndex &start,
+                                        const QVariant    &value,
+                                        const EventsFilterProxyModel &sortFilterProxyModel) const
 {
     QList<QModelIndex>  result;
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 
     QString     text;
     QModelIndex p = parent(start);
-    int         from = start.row();
-    int         to = rowCount(p);
+    int from = start.row();
+    int to = sortFilterProxyModel.rowCount(p);
 
     for (int r = from; r < to; ++r)
     {
-        QModelIndex idx = index(r, start.column(), p);
-        if (!idx.isValid())
+        QModelIndex proxyIndex = index(r, start.column(), p);
+
+        if (!proxyIndex.isValid())
             continue;
-        QVariant v = data(idx, Qt::DisplayRole);
+        
+        QModelIndex sourceIndex = sortFilterProxyModel.mapToSource(proxyIndex);
+
+        QVariant v = data(sourceIndex, Qt::DisplayRole);
 
         if (text.isEmpty())
             text = value.toString();
         QString t = v.toString();
         if (t.contains(text, cs))
-            result.append(idx);
+            result.append(sourceIndex);
 
-        // Search the hierarchy
-        if (hasChildren(idx))
-            result += search(index(0, idx.column(), idx), (text.isEmpty() ? value : text));
+            // Search the hierarchy
+            if (hasChildren(sourceIndex))
+                result += search(index(0, sourceIndex.column(), proxyIndex),
+                                 (text.isEmpty() ? value : text),
+                                 sortFilterProxyModel);
+       
     }
 
     return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+QModelIndex CommandModel::correctIndex(const QModelIndex &index) const
+{
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    index.model());
+    if (proxyModel)
+    {
+        return proxyModel->mapToSource(index);
+    }
+    return QModelIndex();
 }

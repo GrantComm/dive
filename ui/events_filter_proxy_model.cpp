@@ -28,17 +28,23 @@ bool EventsFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex 
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
     QString data = sourceModel()->data(index).toString();
     bool rowAccepted = false; 
-    std::cout << "HERE, row count = " << std::to_string(sourceModel()->rowCount(index)) << std::endl;
-    std::cout << "HERE, data = " << data.toStdString() << std::endl;
+    bool        showAllEvents = false;
+    auto        iterator = std::find_if(m_active_filters.begin(),
+                                 m_active_filters.end(),
+                                 [](const QCheckBox *checkBox) {
+                                     return checkBox->text() == "All Calls";
+                                 });
 
+    if (iterator != m_active_filters.end())
+    {
+        showAllEvents = true;
+    }
     // Assume the row is accepted if there are no active filters
-    if (m_active_filters.empty()) {
-        std::cout<< "HERE, no filters, row accepted" << std::endl;
+    if (showAllEvents || m_active_filters.empty()) {
         rowAccepted = true;
     } else {
         for (QCheckBox* checkBox : m_active_filters) {
             if (data.contains(checkBox->text(), Qt::CaseInsensitive)) {
-                std::cout << "HERE, accepted data = " << data.toStdString() << std::endl;
                 rowAccepted = true; 
                 break; // If a checkbox matches, accept the row
             }
@@ -50,7 +56,6 @@ bool EventsFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex 
         int childCount = sourceModel()->rowCount(index);
         for (int i = 0; i < childCount; ++i) {
             if (filterAcceptsRow(i, index)) {
-                std::cout << "HERE, accepted data = " << data.toStdString() << std::endl;
                 rowAccepted = true;
                 break;
             }

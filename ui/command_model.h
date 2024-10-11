@@ -17,6 +17,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QVariant>
+#include "events_filter_proxy_model.h"
 
 // Forward Declarations
 namespace Dive
@@ -62,7 +63,11 @@ public:
                                 const Dive::CommandHierarchy &command_hierarchy,
                                 const Dive::Topology         *topology_ptr);
 
-    QList<QModelIndex> search(const QModelIndex &start, const QVariant &value) const;
+    QList<QModelIndex> search(const QModelIndex           &start,
+                              const QVariant              &value,
+                              const EventsFilterProxyModel &sortFilterProxyModel) const;
+
+    QModelIndex correctIndex(const QModelIndex &index) const;
 
 private:
     enum class UIBarrierIdVariant
