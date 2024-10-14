@@ -100,7 +100,7 @@ private slots:
     void ConnectSearchBar();
     void DisconnectSearchBar();
     void OnFilterTrigger();
-    void UpdateWithFilters(std::unordered_set<QCheckBox*> active_filters);
+    void UpdateWithFilters(QSet<QString> active_filters);
     void Test();
 
 private:

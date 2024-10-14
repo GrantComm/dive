@@ -38,9 +38,10 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 signals:
-    void FiltersUpdated(std::unordered_set<QCheckBox*> active_filters);
+    void FiltersUpdated(QSet<QString> active_filters);
 
 private:
+    const std::size_t kTotalFilterCount = 4;
     QCheckBox   *m_all_filter = nullptr;
     QCheckBox   *m_blit_filter = nullptr;
     QCheckBox   *m_draw_filter = nullptr;

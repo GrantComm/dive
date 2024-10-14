@@ -64,10 +64,12 @@ public:
                                 const Dive::Topology         *topology_ptr);
 
     QList<QModelIndex> search(const QModelIndex           &start,
-                              const QVariant              &value,
-                              const EventsFilterProxyModel &sortFilterProxyModel) const;
+                              const QVariant         &value,
+                              const EventsFilterProxyModel &proxyModel) const;
 
     QModelIndex correctIndex(const QModelIndex &index) const;
+
+    bool isIndexVisible(const QModelIndex &sourceIndex, const EventsFilterProxyModel &proxyModel) const;
 
 private:
     enum class UIBarrierIdVariant

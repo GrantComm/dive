@@ -14,7 +14,8 @@
 #include <QSortFilterProxyModel>
 #include <QWidget>
 #include <qcheckbox.h>
-#include <unordered_set>
+#include <QSet>
+
 
 #pragma once
 
@@ -27,8 +28,8 @@ public:
 
 
 public slots:
-    void setFilterText(const std::unordered_set<QCheckBox*> &active_filters);
+    void setFilterText(const QSet<QString> &active_filters);
 
 private:
-    std::unordered_set<QCheckBox*> m_active_filters;
+    QSet<QString> m_active_filters;
 };

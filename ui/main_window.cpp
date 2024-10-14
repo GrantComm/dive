@@ -170,7 +170,8 @@ MainWindow::MainWindow()
         m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
 
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
-        m_command_hierarchy_view->setModel(m_events_filter_proxy_model);        m_command_hierarchy_view->SetDataCore(m_data_core);
+        m_command_hierarchy_view->setModel(m_events_filter_proxy_model);        
+        m_command_hierarchy_view->SetDataCore(m_data_core);
 
         QLabel *goto_draw_call_label = new QLabel(tr("Go To:"));
         m_prev_event_button = new QPushButton("Prev Event");
@@ -356,9 +357,9 @@ MainWindow::MainWindow()
                      SLOT(OnTabViewChange()));
     
     QObject::connect(m_filter_dialog,
-                     SIGNAL(FiltersUpdated(std::unordered_set<QCheckBox*>)),
+                     SIGNAL(FiltersUpdated(QSet<QString>)),
                      this,
-                     SLOT(UpdateWithFilters(std::unordered_set<QCheckBox*>)));
+                     SLOT(UpdateWithFilters(QSet<QString>)));
 
     QObject::connect(m_events_filter_proxy_model,
                      &QAbstractItemModel::layoutChanged, this, &MainWindow::Test);
@@ -1284,7 +1285,7 @@ void MainWindow::OnFilterTrigger()
 }
 
 //--------------------------------------------------------------------------------------------------
-void MainWindow::UpdateWithFilters(std::unordered_set<QCheckBox*> active_filters)
+void MainWindow::UpdateWithFilters(QSet<QString> active_filters)
 {
     m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
     m_events_filter_proxy_model->setFilterText(active_filters);

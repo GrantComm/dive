@@ -89,6 +89,11 @@ void FilterDialog::selectFilter(int state) {
             m_filters.erase(iterator);
         }
         m_filters.insert(qobject_cast<QCheckBox*>(sender()));
+
+        if (m_filters.size() == (kTotalFilterCount - 1) || m_active_filters.size() + 1 == (kTotalFilterCount - 1))
+        {
+            m_all_filter->setCheckState(Qt::Checked);
+        }
     }
     else
     {
@@ -104,25 +109,28 @@ void FilterDialog::applyFilters() {
     {
         m_all_filter->setCheckState(Qt::Checked);
         m_active_filters.insert(m_all_filter);
+        emit FiltersUpdated({m_all_filter->text()});
     }
     else 
     {
+        QSet<QString> applied_filter_texts;
         for (QCheckBox* selectedCheckBox : m_filters) {
             if (selectedCheckBox->text() == "All Calls")
             {
                 m_active_filters.clear();
+                applied_filter_texts.clear();
                 m_active_filters.insert(selectedCheckBox);
+                applied_filter_texts.insert(selectedCheckBox->text());
+                emit FiltersUpdated(applied_filter_texts);
                 break;
             }
             m_active_filters.insert(selectedCheckBox);
+            applied_filter_texts.insert(selectedCheckBox->text());
         }
-
+        emit FiltersUpdated(applied_filter_texts);
         m_filters.clear();
+        this->hide();
     }
-
-    // Pass the vector to the hierarchy tree rebuild and hide the filter dialog
-    this->hide();
-    emit FiltersUpdated(m_active_filters);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,13 +143,16 @@ void FilterDialog::closeEvent(QCloseEvent *event)
 {
     // Iterate over the copy of filters
     auto unappliedFilters = m_filters;
-    for (QCheckBox* checkBox : unappliedFilters) {
+    for (QCheckBox* checkBox : unappliedFilters)
+    {
         checkBox->setCheckState(m_active_filters.count(checkBox) ? Qt::Checked : Qt::Unchecked);
     }
 
     // Ensure all checkboxes in m_active_filters are checked
-    for (QCheckBox* checkBox : m_active_filters) {
-        if (!checkBox->isChecked()) {
+    for (QCheckBox* checkBox : m_active_filters)
+    {
+        if (!checkBox->isChecked())
+        {
             checkBox->setCheckState(Qt::Checked);
         }
     }

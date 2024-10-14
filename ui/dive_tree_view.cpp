@@ -358,10 +358,13 @@ void DiveTreeView::searchNodeByText(const QString &search_text)
     auto proxyModel = dynamic_cast<EventsFilterProxyModel *>(model()); 
 
     auto m = dynamic_cast<CommandModel *>(proxyModel->sourceModel());
-    // auto m = dynamic_cast<CommandModel *>(model());
-    search_indexes = m->search(m->index(0, 0), QVariant::fromValue(search_text), proxyModel);
+    //auto m = dynamic_cast<CommandModel *>(model());
+    uint64_t proxyCount = m->rowCount();
+    uint64_t regCount = model()->rowCount();
+    std::cout << "Prox: " << std::to_string(proxyCount) << std::endl;
+    std::cout << "Reg: " << std::to_string(regCount) << std::endl;
+    search_indexes = m->search(model()->index(0, 0), QVariant::fromValue(search_text), proxyModel);
     search_index_it = search_indexes.begin();
-
     if (!search_indexes.isEmpty())
     {
         QModelIndex curr_idx = currentIndex();

@@ -300,45 +300,86 @@ void CommandModel::BuildNodeLookup(const QModelIndex &parent) const
 }
 
 //--------------------------------------------------------------------------------------------------
-QList<QModelIndex> CommandModel::search(const QModelIndex &start,
+QList<QModelIndex> CommandModel::search(const QModelIndex            &start,
                                         const QVariant    &value,
-                                        const EventsFilterProxyModel &sortFilterProxyModel) const
+                                        const EventsFilterProxyModel &proxyModel) const
 {
     QList<QModelIndex>  result;
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 
     QString     text;
     QModelIndex p = parent(start);
-    int from = start.row();
-    int to = sortFilterProxyModel.rowCount(p);
+    int         from = start.row();
+    int         to = proxyModel.rowCount(proxyModel.mapFromSource(p));
 
     for (int r = from; r < to; ++r)
     {
-        QModelIndex proxyIndex = index(r, start.column(), p);
+        QModelIndex proxyIndex = proxyModel.index(r,
+                                                  start.column(),
+                                                  proxyModel.mapFromSource(
+                                                  p));
+        QModelIndex sourceIndex = proxyModel.mapToSource(proxyIndex);
 
-        if (!proxyIndex.isValid())
+        if (!sourceIndex.isValid())
             continue;
-        
-        QModelIndex sourceIndex = sortFilterProxyModel.mapToSource(proxyIndex);
 
         QVariant v = data(sourceIndex, Qt::DisplayRole);
 
         if (text.isEmpty())
             text = value.toString();
+
         QString t = v.toString();
         if (t.contains(text, cs))
+        {
             result.append(sourceIndex);
+        }
 
-            // Search the hierarchy
-            if (hasChildren(sourceIndex))
-                result += search(index(0, sourceIndex.column(), proxyIndex),
-                                 (text.isEmpty() ? value : text),
-                                 sortFilterProxyModel);
-       
+        if (hasChildren(sourceIndex))
+        {
+            QModelIndex firstChildIndex = proxyModel.index(0,
+                                                           sourceIndex.column(),
+                                                           proxyIndex);
+            result += search(firstChildIndex, (text.isEmpty() ? value : text), proxyModel);
+        }
     }
 
     return result;
 }
+/*
+QList<QModelIndex> CommandModel::search(const QModelIndex            &start,
+                                        const QVariant               &value,
+                                        const EventsFilterProxyModel &proxyModel) const
+{
+    QList<QModelIndex>  result;
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+
+    QString     text;
+    QModelIndex p = parent(start);
+    int         from = start.row();
+    int         to = rowCount(p);
+
+    for (int r = from; r < to; ++r)
+    {
+        QModelIndex idx = index(r, start.column(), p);
+        if (!idx.isValid())
+            continue;
+        QVariant v = data(idx, Qt::DisplayRole);
+
+        if (text.isEmpty())
+            text = value.toString();
+        QString t = v.toString();
+        if (t.contains(text, cs) && isIndexVisible(idx, proxyModel))
+            result.append(idx);
+
+        // Search the hierarchy
+        if (hasChildren(idx))
+            result += search(index(0, idx.column(), idx),
+                             (text.isEmpty() ? value : text),
+                             proxyModel);
+    }
+
+    return result;
+}*/
 
 //--------------------------------------------------------------------------------------------------
 QModelIndex CommandModel::correctIndex(const QModelIndex &index) const
@@ -350,4 +391,24 @@ QModelIndex CommandModel::correctIndex(const QModelIndex &index) const
         return proxyModel->mapToSource(index);
     }
     return QModelIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+bool CommandModel::isIndexVisible(const QModelIndex           &sourceIndex,
+                                  const EventsFilterProxyModel &proxyModel) const
+{
+    // Check if the source index is valid and from the correct model
+    if (!sourceIndex.isValid() || sourceIndex.model() != this)
+    {
+        return false;
+    }
+
+    // Check if the proxy model's source model matches this CommandModel
+    if (proxyModel.sourceModel() != this)
+    {
+        return true;
+    }
+
+    QModelIndex proxyIndex = proxyModel.mapFromSource(sourceIndex);
+    return proxyIndex.isValid();
 }

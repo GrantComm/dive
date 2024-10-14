@@ -46,9 +46,6 @@ SearchBar::SearchBar(QWidget* parent) :
     m_cancel = new QPushButton(this);
     m_cancel->setIcon(QIcon(":/images/cancel.png"));
 
-    m_cancel = new QPushButton(this);
-    m_cancel->setIcon(QIcon(":/images/cancel.png"));
-
     m_search_results = new QLabel(this);
     m_search_results->hide();
 
