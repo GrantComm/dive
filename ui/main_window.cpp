@@ -59,6 +59,7 @@
 #include "text_file_view.h"
 #include "tree_view_combo_box.h"
 #include "filter_dialog.h"
+#include "events_filter_proxy_model.h"
 
 static const int   kViewModeStringCount = 3;
 static const int   kEventViewModeStringCount = 3;
@@ -100,6 +101,8 @@ MainWindow::MainWindow()
     m_data_core = new Dive::DataCore(&m_progress_tracker, &m_log_compound);
 
     m_event_selection = new EventSelection(m_data_core->GetCommandHierarchy());
+
+    m_events_filter_proxy_model = new EventsFilterProxyModel();
 
     // Left side panel
     QFrame *left_frame = new QFrame();
@@ -164,8 +167,10 @@ MainWindow::MainWindow()
         m_event_search_bar->hide();
 
         m_command_hierarchy_model = new CommandModel(m_data_core->GetCommandHierarchy());
+        m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
+
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
-        m_command_hierarchy_view->setModel(m_command_hierarchy_model);
+        m_command_hierarchy_view->setModel(m_events_filter_proxy_model);        
         m_command_hierarchy_view->SetDataCore(m_data_core);
 
         QLabel *goto_draw_call_label = new QLabel(tr("Go To:"));
@@ -350,6 +355,11 @@ MainWindow::MainWindow()
                      SIGNAL(HideOtherSearchBars()),
                      this,
                      SLOT(OnTabViewChange()));
+    
+    QObject::connect(m_filter_dialog,
+                     SIGNAL(FiltersUpdated(QSet<QString>)),
+                     this,
+                     SLOT(UpdateWithFilters(QSet<QString>)));
 
     CreateActions();
     CreateMenus();
@@ -1266,4 +1276,13 @@ void MainWindow::DisconnectSearchBar()
 void MainWindow::OnFilterTrigger()
 {
     m_filter_dialog->exec();
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::UpdateWithFilters(QSet<QString> active_filters)
+{
+    m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
+    m_events_filter_proxy_model->setFilterText(active_filters);
+
+    m_command_hierarchy_view->setModel(m_events_filter_proxy_model);
 }

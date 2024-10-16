@@ -1,5 +1,5 @@
 /*
- Copyright 2019 Google LLC
+ Copyright 2024 Google LLC
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <qevent.h>
 #include <qnamespace.h>
 #include <iostream>
+#include <qobjectdefs.h>
 #include <string>
 
 //--------------------------------------------------------------------------------------------------
@@ -29,19 +30,17 @@ FilterDialog::FilterDialog(QWidget* parent) :
     m_all_filter = new QCheckBox("All Calls", this);
     m_all_filter->setCheckState(Qt::Checked);
     m_active_filters.insert(m_all_filter);
-    m_bind_filter = new QCheckBox("Bind", this);
-    m_clear_filter = new QCheckBox("Clear", this);
-    m_copy_filter = new QCheckBox("Copy", this);
+    m_blit_filter = new QCheckBox("Blit", this);
     m_draw_filter = new QCheckBox("Draw", this);
+    m_write_filter = new QCheckBox("Write", this);
     m_apply = new QPushButton("Apply Filters", this);
     m_apply->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
     connect(m_all_filter, SIGNAL(stateChanged(int)), this, SLOT(selectAllEventsFilter(int)));
-    connect(m_bind_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
-    connect(m_clear_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
-    connect(m_copy_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
+    connect(m_blit_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
     connect(m_draw_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
+    connect(m_write_filter, SIGNAL(stateChanged(int)), this, SLOT(selectFilter(int)));
     connect(m_apply, SIGNAL(clicked()), this, SLOT(applyFilters()));
 
 
@@ -50,10 +49,9 @@ FilterDialog::FilterDialog(QWidget* parent) :
 
     QHBoxLayout* filter_options_layout = new QHBoxLayout;
     filter_options_layout->addWidget(m_all_filter);
-    filter_options_layout->addWidget(m_bind_filter);
-    filter_options_layout->addWidget(m_clear_filter);
-    filter_options_layout->addWidget(m_copy_filter);
+    filter_options_layout->addWidget(m_blit_filter);
     filter_options_layout->addWidget(m_draw_filter);
+    filter_options_layout->addWidget(m_write_filter);
 
 
 
@@ -70,10 +68,9 @@ FilterDialog::FilterDialog(QWidget* parent) :
 void FilterDialog::selectAllEventsFilter(int state) {
     if (state == Qt::Checked)
     {
-        m_bind_filter->setCheckState(Qt::Unchecked);
-        m_clear_filter->setCheckState(Qt::Unchecked);
-        m_copy_filter->setCheckState(Qt::Unchecked);
+        m_blit_filter->setCheckState(Qt::Unchecked);
         m_draw_filter->setCheckState(Qt::Unchecked);
+        m_write_filter->setCheckState(Qt::Unchecked);
         m_filters.clear();
     }
 }
@@ -92,6 +89,10 @@ void FilterDialog::selectFilter(int state) {
             m_filters.erase(iterator);
         }
         m_filters.insert(qobject_cast<QCheckBox*>(sender()));
+        if (m_filters.size() == (kTotalFilterCount - 1) || m_active_filters.size() + 1 == (kTotalFilterCount - 1))
+        {
+            m_all_filter->setCheckState(Qt::Checked);
+        }
     }
     else
     {
@@ -102,29 +103,33 @@ void FilterDialog::selectFilter(int state) {
 //--------------------------------------------------------------------------------------------------
 void FilterDialog::applyFilters() {
     m_active_filters.clear();
-    
+
     if (m_filters.empty())
     {
         m_all_filter->setCheckState(Qt::Checked);
         m_active_filters.insert(m_all_filter);
+        emit FiltersUpdated({m_all_filter->text()});
     }
     else 
     {
+        QSet<QString> applied_filter_texts;
         for (QCheckBox* selectedCheckBox : m_filters) {
             if (selectedCheckBox->text() == "All Calls")
             {
                 m_active_filters.clear();
+                applied_filter_texts.clear();
                 m_active_filters.insert(selectedCheckBox);
+                applied_filter_texts.insert(selectedCheckBox->text());
+                emit FiltersUpdated(applied_filter_texts);
                 break;
             }
             m_active_filters.insert(selectedCheckBox);
+            applied_filter_texts.insert(selectedCheckBox->text());
         }
-
+        emit FiltersUpdated(applied_filter_texts);
         m_filters.clear();
+        this->hide();
     }
-
-    // Pass the vector to the hierarchy tree rebuild and hide the filter dialog
-    this->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,13 +142,16 @@ void FilterDialog::closeEvent(QCloseEvent *event)
 {
     // Iterate over the copy of filters
     auto unappliedFilters = m_filters;
-    for (QCheckBox* checkBox : unappliedFilters) {
+    for (QCheckBox* checkBox : unappliedFilters)
+    {
         checkBox->setCheckState(m_active_filters.count(checkBox) ? Qt::Checked : Qt::Unchecked);
     }
 
     // Ensure all checkboxes in m_active_filters are checked
-    for (QCheckBox* checkBox : m_active_filters) {
-        if (!checkBox->isChecked()) {
+    for (QCheckBox* checkBox : m_active_filters)
+    {
+        if (!checkBox->isChecked())
+        {
             checkBox->setCheckState(Qt::Checked);
         }
     }

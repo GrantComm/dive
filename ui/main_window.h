@@ -50,6 +50,7 @@ class TreeViewComboBox;
 class SearchBar;
 class CaptureSettingView;
 class TraceDialog;
+class EventsFilterProxyModel;
 enum class EventMode;
 
 #define MESSAGE_TIMEOUT 2500
@@ -98,6 +99,7 @@ private slots:
     void ConnectSearchBar();
     void DisconnectSearchBar();
     void OnFilterTrigger();
+    void UpdateWithFilters(QSet<QString> active_filters);
 
 private:
     void    CreateActions();
@@ -130,6 +132,7 @@ private:
     QToolBar    *m_file_tool_bar;
     TraceDialog *m_trace_dig;
     FilterDialog *m_filter_dialog;
+    EventsFilterProxyModel *m_events_filter_proxy_model;
 
     enum
     {

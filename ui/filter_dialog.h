@@ -1,5 +1,5 @@
 /*
- Copyright 2019 Google LLC
+ Copyright 2024 Google LLC
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -37,14 +37,17 @@ public slots:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+signals:
+    void FiltersUpdated(QSet<QString> active_filters);
+
 private:
+    const std::size_t kTotalFilterCount = 4;
     QCheckBox   *m_all_filter = nullptr;
-    QCheckBox   *m_bind_filter = nullptr;
-    QCheckBox   *m_clear_filter = nullptr;
-    QCheckBox   *m_copy_filter = nullptr;
+    QCheckBox   *m_blit_filter = nullptr;
     QCheckBox   *m_draw_filter = nullptr;
+    QCheckBox   *m_write_filter = nullptr;
     QPushButton *m_apply = nullptr;
-    
+
     std::unordered_set<QCheckBox*> m_active_filters;
     std::unordered_set<QCheckBox*> m_filters;
     bool m_submitted;
