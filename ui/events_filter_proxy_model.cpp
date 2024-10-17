@@ -53,3 +53,38 @@ bool EventsFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex 
 
     return rowAccepted;
 }
+
+//--------------------------------------------------------------------------------------------------
+QList<QModelIndex> EventsFilterProxyModel::search(const QVariant &value) const
+{
+    QString     text;
+    QList<QModelIndex> foundIndices;
+    if (text.isEmpty())
+    {
+        text = value.toString();
+    }
+
+    for (int row = 0; row < rowCount(); ++row) {
+        searchRecursively(text, index(row, 0), foundIndices);
+    }
+
+    return foundIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+void EventsFilterProxyModel::searchRecursively(const QString &searchText, const QModelIndex &parent, QList<QModelIndex> &foundIndices) const
+{
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+    // Get the source index to access data from the source model
+    QModelIndex sourceIndex = mapToSource(parent); 
+    QString data = sourceModel()->data(sourceIndex).toString().toLower();
+
+    if (data.contains(searchText, cs)) {
+        foundIndices.append(parent); // Add the matching proxy index to the list
+    }
+
+    // Recursively search in child rows (in the PROXY model)
+    for (int i = 0; i < rowCount(parent); ++i) {
+        searchRecursively(searchText, index(i, 0, parent), foundIndices);
+    }
+}

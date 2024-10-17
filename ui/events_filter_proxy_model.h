@@ -24,7 +24,8 @@ class EventsFilterProxyModel : public QSortFilterProxyModel {
 public:
     EventsFilterProxyModel(QObject *parent = nullptr);
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
-
+    QList<QModelIndex> search(const QVariant &value) const;
+    void searchRecursively(const QString &searchText, const QModelIndex &parent, QList<QModelIndex> &foundIndices) const;
 
 public slots:
     void setFilterText(const QSet<QString> &active_filters);

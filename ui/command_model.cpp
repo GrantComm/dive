@@ -135,11 +135,21 @@ QVariant CommandModel::headerData(int section, Qt::Orientation orientation, int 
 //--------------------------------------------------------------------------------------------------
 QModelIndex CommandModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!hasIndex(row, column, parent))
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    parent.model());
+    bool        use_proxy_model = false;
+    QModelIndex sourceIndex;
+    if (proxyModel)
+    {
+        use_proxy_model = true;
+        sourceIndex = proxyModel->mapToSource(parent);
+    }
+
+    if (!hasIndex(row, column, use_proxy_model ? sourceIndex : parent))
         return QModelIndex();
 
     uint64_t node_index;
-    if (!parent.isValid())
+    if (use_proxy_model ? !sourceIndex.isValid() : !parent.isValid())
     {
         // Root level in the model, which is actually one-level down in the topology, since the root
         // node is ignored
@@ -147,7 +157,9 @@ QModelIndex CommandModel::index(int row, int column, const QModelIndex &parent) 
     }
     else
     {
-        uint64_t parent_node_index = (uint64_t)(parent.internalPointer());
+        uint64_t parent_node_index = (uint64_t)(use_proxy_model ?
+                                                sourceIndex.internalPointer() :
+                                                parent.internalPointer());
         node_index = m_topology_ptr->GetChildNodeIndex(parent_node_index, row);
     }
     return createIndex(row, column, node_index);
@@ -173,16 +185,26 @@ QModelIndex CommandModel::parent(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 int CommandModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.column() > 0)
+    const EventsFilterProxyModel *proxyModel = qobject_cast<const EventsFilterProxyModel *>(
+    parent.model());
+    bool use_proxy_model = false;
+    QModelIndex sourceIndex;
+    if (proxyModel)
+    {
+        use_proxy_model = true;
+        sourceIndex = proxyModel->mapToSource(parent);
+    }
+
+    if (use_proxy_model ? sourceIndex.column() : parent.column() > 0)
         return 0;
     if (m_topology_ptr == nullptr || m_topology_ptr->GetNumNodes() == 0)
         return 0;
 
     uint64_t parent_node_index;
-    if (!parent.isValid())  // Root level
+    if (use_proxy_model ? !sourceIndex.isValid() : !parent.isValid())  // Root level
         parent_node_index = Dive::Topology::kRootNodeIndex;
     else
-        parent_node_index = (uint64_t)(parent.internalPointer());
+        parent_node_index = (uint64_t)(use_proxy_model ? sourceIndex.internalPointer() : parent.internalPointer());
 
     return m_topology_ptr->GetNumChildren(parent_node_index);
 }
@@ -293,3 +315,10 @@ QList<QModelIndex> CommandModel::search(const QModelIndex &start, const QVariant
 
     return result;
 }
+
+//--------------------------------------------------------------------------------------------------
+void CommandModel::setProxyModel(EventsFilterProxyModel &events_filter_proxy_model)
+{
+    m_events_filter_proxy_model = &events_filter_proxy_model;
+}
+

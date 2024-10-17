@@ -167,6 +167,7 @@ MainWindow::MainWindow()
         m_event_search_bar->hide();
 
         m_command_hierarchy_model = new CommandModel(m_data_core->GetCommandHierarchy());
+        m_command_hierarchy_model->setProxyModel(*m_events_filter_proxy_model);
         m_events_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
 
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());

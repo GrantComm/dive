@@ -18,11 +18,14 @@
 #include <QModelIndex>
 #include <QVariant>
 
+#include "events_filter_proxy_model.h"
+
 // Forward Declarations
 namespace Dive
 {
 class CommandHierarchy;
 class Topology;
+class EventsFilterProxyModel;
 };  // namespace Dive
 
 class CommandModel : public QAbstractItemModel
@@ -63,6 +66,7 @@ public:
                                 const Dive::Topology         *topology_ptr);
 
     QList<QModelIndex> search(const QModelIndex &start, const QVariant &value) const;
+    void setProxyModel(EventsFilterProxyModel &events_filter_proxy_model);
 
 private:
     enum class UIBarrierIdVariant
@@ -79,4 +83,5 @@ private:
     const Dive::CommandHierarchy              &m_command_hierarchy;
     const Dive::Topology                      *m_topology_ptr;
     mutable std::vector<QPersistentModelIndex> m_node_lookup;
+    EventsFilterProxyModel *m_events_filter_proxy_model;
 };

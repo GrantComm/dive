@@ -79,6 +79,7 @@ void FilterDialog::selectAllEventsFilter(int state) {
 void FilterDialog::selectFilter(int state) {
     if (state == Qt::Checked)
     {
+        m_current_filter_count ++;
         m_all_filter->setCheckState(Qt::Unchecked);
         auto iterator = std::find_if(m_filters.begin(), m_filters.end(), 
                               [](const QCheckBox* checkBox) { 
@@ -89,13 +90,15 @@ void FilterDialog::selectFilter(int state) {
             m_filters.erase(iterator);
         }
         m_filters.insert(qobject_cast<QCheckBox*>(sender()));
-        if (m_filters.size() == (kTotalFilterCount - 1) || m_active_filters.size() + 1 == (kTotalFilterCount - 1))
+
+        if (m_filters.size() == (kTotalFilterCount - 1) ||  m_current_filter_count == (kTotalFilterCount - 1))
         {
             m_all_filter->setCheckState(Qt::Checked);
         }
     }
     else
     {
+        m_current_filter_count --;
         m_filters.erase(qobject_cast<QCheckBox*>(sender()));
     }
 }
@@ -104,11 +107,12 @@ void FilterDialog::selectFilter(int state) {
 void FilterDialog::applyFilters() {
     m_active_filters.clear();
 
-    if (m_filters.empty())
+    if (m_filters.empty() && m_current_filter_count == 0)
     {
         m_all_filter->setCheckState(Qt::Checked);
         m_active_filters.insert(m_all_filter);
         emit FiltersUpdated({m_all_filter->text()});
+        this->hide();
     }
     else 
     {

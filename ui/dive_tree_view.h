@@ -21,6 +21,8 @@
 #include <QStyledItemDelegate>
 #include <QTreeView>
 
+#include "events_filter_proxy_model.h"
+
 // Forward declarations
 class QWidget;
 class DiveTreeView;
@@ -68,6 +70,8 @@ public:
     void ExpandToLevel(int level);
 
     void SetDataCore(Dive::DataCore *data_core) { m_data_core = data_core; }
+    
+    void setProxyModel(EventsFilterProxyModel *events_filter_proxy_model) { m_events_filter_proxy_model = events_filter_proxy_model; }
 
 public slots:
     void setCurrentNode(uint64_t node_index);
@@ -103,4 +107,5 @@ private:
     QList<QModelIndex>           search_indexes;
     QList<QModelIndex>::Iterator search_index_it;
     Dive::DataCore              *m_data_core = nullptr;
+    EventsFilterProxyModel *m_events_filter_proxy_model;
 };
