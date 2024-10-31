@@ -34,7 +34,10 @@
 #include <QVBoxLayout>
 #include <cstdint>
 #include <filesystem>
+#include <qspinbox.h>
 #include <string>
+#include <QCoreApplication>
+#include <QDir>
 
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
@@ -59,6 +62,7 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_dev_label = new QLabel(tr("Devices:"));
     m_pkg_label = new QLabel(tr("Packages:"));
     m_app_type_label = new QLabel(tr("Application Type:"));
+    m_num_frames_label = new QLabel(tr("Number of Frames:")); 
 
     m_dev_model = new QStandardItemModel();
     m_pkg_model = new QStandardItemModel();
@@ -67,6 +71,11 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_dev_box = new QComboBox();
     m_pkg_box = new QComboBox();
     m_app_type_box = new QComboBox();
+    
+    m_num_frames_spin_box = new QSpinBox();
+    m_num_frames_spin_box->setMinimum(1);
+    m_num_frames_spin_box->setMaximum(100);
+    m_num_frames_spin_box->setValue(0);
 
     m_button_layout = new QHBoxLayout();
     m_run_button = new QPushButton("&Start Application", this);
@@ -148,6 +157,13 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_type_layout->addWidget(m_app_type_label);
     m_type_layout->addWidget(m_app_type_box);
 
+    m_num_frames_layout = new QHBoxLayout();
+    m_num_frames_layout->addWidget(m_num_frames_label);
+    m_num_frames_layout->addWidget(m_num_frames_spin_box);
+    m_num_frames_label->hide();
+    m_num_frames_spin_box->hide();
+
+
     m_button_layout->addWidget(m_run_button);
     m_button_layout->addWidget(m_capture_button);
 
@@ -156,7 +172,7 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_main_layout->addLayout(m_pkg_filter_layout);
     m_main_layout->addLayout(m_pkg_layout);
     m_main_layout->addLayout(m_args_layout);
-
+    m_main_layout->addLayout(m_num_frames_layout);
     m_main_layout->addLayout(m_type_layout);
 
     m_main_layout->addLayout(m_button_layout);
@@ -339,6 +355,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     }
     else if (app_type == "Vulkan APK")
     {
+        device->enableGfxr(kGfxrCapture);
         ret = device->SetupApp(m_cur_pkg, Dive::ApplicationType::VULKAN_APK, m_command_args);
     }
     else if (app_type == "Command Line Application")
@@ -391,7 +408,10 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     {
         m_run_button->setDisabled(false);
         m_run_button->setText("&Stop");
-        m_capture_button->setEnabled(true);
+        if (!kGfxrCapture)
+        {
+            m_capture_button->setEnabled(true);
+        }
     }
     return true;
 }
@@ -408,7 +428,7 @@ void TraceDialog::OnStartClicked()
         ShowErrorMessage(err_msg);
         return;
     }
-    absl::Status ret = device->SetupDevice();
+    absl::Status ret = device->SetupDevice(m_num_frames_spin_box->value());
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Fail to setup device: ", ret.message());
@@ -436,6 +456,22 @@ void TraceDialog::OnStartClicked()
     {
         qDebug() << "Stop package " << m_cur_pkg.c_str();
         device->StopApp().IgnoreError();
+
+        if (kGfxrCapture)
+        {
+            QString capturePath = QCoreApplication::applicationDirPath() + QDir::separator();
+            auto r = device->RetrieveTraceFile("/sdcard/Download/gfrx_capture.gfxr", (capturePath.toStdString() + "gfxr"));
+            if (r.ok())
+                qDebug() << "Gfxr capture saved";
+            else
+            {
+                std::string err_msg = absl::StrCat("Failed to retrieve trace file, error: ", r.message());
+                qDebug() << err_msg.c_str();
+                ShowErrorMessage(err_msg);
+                return;
+            }
+        }
+
         m_run_button->setText("&Start Application");
         m_capture_button->setEnabled(false);
     }
@@ -677,4 +713,20 @@ void TraceDialog::OnPackageListFilterApplied(QSet<QString> filters)
     UpdatePackageList();
     m_pkg_filter_label->hide();
     m_pkg_filter->hide();
+}
+
+void TraceDialog::useGfxrCapture(bool enable)
+{
+    if (enable)
+    {
+        m_num_frames_label->show();
+        m_num_frames_spin_box->show();
+    }
+    else
+    {
+        m_num_frames_label->hide();
+        m_num_frames_spin_box->hide();
+    }
+
+    kGfxrCapture = enable;
 }

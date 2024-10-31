@@ -161,10 +161,11 @@ std::filesystem::path ResolveAndroidLibPath(const std::string &name)
     }
 
     LOGD("%s is at %s \n", name.c_str(), lib_path.generic_string().c_str());
+    std::cout << "HERE, " << name.c_str() << " is at " << lib_path.generic_string().c_str() << std::endl;
     return lib_path;
 }
 
-absl::Status AndroidDevice::SetupDevice()
+absl::Status AndroidDevice::SetupDevice(int numFrames)
 {
     RETURN_IF_ERROR(Adb().Run("shell setenforce 0"));
     RETURN_IF_ERROR(Adb().Run("shell getenforce"));
@@ -181,6 +182,18 @@ absl::Status AndroidDevice::SetupDevice()
                               ResolveAndroidLibPath(kXrLayerLibName).generic_string(),
                               kTargetPath)));
     RETURN_IF_ERROR(Adb().Run(absl::StrFormat("forward tcp:%d tcp:%d", kPort, kPort)));
+
+    if (kGfxrEnabled)
+    {
+        RETURN_IF_ERROR(
+        Adb().Run(absl::StrFormat("push %s %s",
+                              ResolveAndroidLibPath(kVkGfxrLayerLibName).generic_string(),
+                              kTargetPath)));
+        RETURN_IF_ERROR(Adb().Run("setprop debug.gfxrecon.capture_file  '/sdcard/Download/gfxr_capture.gfxr'"));
+        std::string capture_frames_command = "shell setprop debug.gfxrecon.capture_frames " + std::to_string(numFrames);
+        RETURN_IF_ERROR(Adb().Run(capture_frames_command));
+    }
+
 #if defined(DIVE_ENABLE_PERFETTO)
     RETURN_IF_ERROR(Adb().Run("shell setprop debug.graphics.gpu.profiler.perfetto 1"));
 #endif
@@ -386,6 +399,11 @@ absl::Status AndroidDevice::RetrieveTraceFile(const std::string &trace_file_path
 {
     RETURN_IF_ERROR(Adb().Run(absl::StrFormat("pull %s %s", trace_file_path, save_path)));
     return Adb().Run(absl::StrFormat("shell rm %s", trace_file_path));
+}
+
+void AndroidDevice::enableGfxr(bool enableGfxr)
+{
+    kGfxrEnabled = enableGfxr;
 }
 
 }  // namespace Dive

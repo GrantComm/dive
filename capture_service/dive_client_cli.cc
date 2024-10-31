@@ -34,6 +34,7 @@ using namespace std::chrono_literals;
 enum class Command
 {
     kNone,
+    kGfxrCapture,
     kListDevice,
     kListPackage,
     kRunPackage,
@@ -68,6 +69,11 @@ bool AbslParseFlag(absl::string_view text, Command* command, std::string* error)
         *command = Command::kCleanup;
         return true;
     }
+    if (text == "gfxr_capture")
+    {
+        *command = Command::kGfxrCapture;
+        return true;
+    }
     if (text.empty())
     {
         *command = Command::kNone;
@@ -82,6 +88,7 @@ std::string AbslUnparseFlag(Command command)
     switch (command)
     {
     case Command::kNone: return "";
+    case Command::kGfxrCapture: return "gfxr_capture";
     case Command::kListDevice: return "list_device";
     case Command::kListPackage: return "list_package";
     case Command::kRunPackage: return "run";
@@ -152,7 +159,7 @@ bool list_package(Dive::DeviceManager& mgr, const std::string& device_serial)
         return false;
     }
     auto device = *dev_ret;
-    auto ret = device->SetupDevice();
+    auto ret = device->SetupDevice(false);
     if (!ret.ok())
     {
         std::cout << "Failed to setup device, error: " << ret.message() << std::endl;
@@ -197,7 +204,7 @@ bool run_package(Dive::DeviceManager& mgr,
         return false;
     }
     auto dev = *dev_ret;
-    auto ret = dev->SetupDevice();
+    auto ret = dev->SetupDevice(false);
     if (!ret.ok())
     {
         std::cout << "Failed to setup device, error: " << ret.message() << std::endl;
@@ -300,6 +307,30 @@ bool run_and_capture(Dive::DeviceManager& mgr,
     return true;
 }
 
+bool run_and_gfxr_capture(Dive::DeviceManager& mgr,
+                     const std::string&   app_type,
+                     const std::string&   package,
+                     const std::string&   command,
+                     const std::string&   command_args)
+{
+
+    std::string target_str = absl::GetFlag(FLAGS_target);
+    run_package(mgr, app_type, package, command, command_args);
+    int time_to_wait_in_seconds = absl::GetFlag(FLAGS_trigger_capture_after);
+    std::cout << "wait for " << time_to_wait_in_seconds << " seconds" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(time_to_wait_in_seconds));
+    trigger_capture(mgr);
+
+    std::cout << "Press Enter to exit" << std::endl;
+    std::string input;
+    if (std::getline(std::cin, input))
+    {
+        std::cout << "Exiting..." << std::endl;
+    }
+
+    return true;
+}
+
 bool clean_up_app_and_device(Dive::DeviceManager& mgr, const std::string& package)
 {
     std::string serial = absl::GetFlag(FLAGS_device);
@@ -365,6 +396,11 @@ int main(int argc, char** argv)
 
     switch (cmd)
     {
+    case Command::kGfxrCapture:
+    {
+        run_and_gfxr_capture(mgr, "vulkan", package, vulkan_command, vulkan_command_args);
+        break;
+    }
     case Command::kListDevice:
     {
         list_device(mgr);

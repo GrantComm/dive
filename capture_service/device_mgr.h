@@ -65,8 +65,9 @@ public:
     AndroidDevice(const AndroidDevice &) = delete;
 
     absl::Status Init();
-    absl::Status SetupDevice();
+    absl::Status SetupDevice(int numFrames = 0);
     absl::Status CleanupDevice();
+    void enableGfxr(bool enableGfxr);
 
     enum class PackageListOptions
     {
@@ -101,6 +102,7 @@ private:
     AdbSession                          m_adb;
     DeviceState                         m_original_state;
     std::unique_ptr<AndroidApplication> app;
+    bool kGfxrEnabled;
 };
 
 class DeviceManager

@@ -195,6 +195,11 @@ absl::Status VulkanApplication::Setup()
     absl::StrFormat("shell settings put global gpu_debug_layer_app %s", m_package)));
     RETURN_IF_ERROR(m_dev.Adb().Run(
     absl::StrFormat("shell settings put global gpu_debug_layers %s", kVkLayerName)));
+    if (kGfxrEnabled)
+    {
+        RETURN_IF_ERROR(m_dev.Adb().Run(
+        absl::StrFormat("shell settings put global gpu_debug_layers %s", kVkLayerName)));
+    }
     RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell setprop wrap.%s  LD_PRELOAD=%s/%s",
                                                     m_package,
                                                     kTargetPath,
@@ -220,6 +225,11 @@ absl::Status VulkanApplication::Cleanup()
     RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell setprop wrap.%s \\\"\\\"", m_package)));
     LOGD("Cleanup Vulkan application %s done", m_package.c_str());
     return absl::OkStatus();
+}
+
+void VulkanApplication::gfxrEnabled(bool enable)
+{
+    kGfxrEnabled = enable;
 }
 
 absl::Status OpenXRApplication::Setup()

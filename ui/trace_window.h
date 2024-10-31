@@ -17,6 +17,7 @@
 #include <QDialog>
 #include <QThread>
 #include <cstdint>
+#include <qspinbox.h>
 
 #include "capture_service/device_mgr.h"
 #include "package_filter.h"
@@ -33,6 +34,7 @@ class QComboBox;
 class QStandardItemModel;
 class QProgressDialog;
 class QLineEdit;
+class QSpinBox;
 
 class TraceWorker : public QThread
 {
@@ -80,6 +82,7 @@ public:
     void UpdateDeviceList(bool isInitialized);
     void UpdatePackageList();
     void Cleanup() { Dive::GetDeviceManager().RemoveDevice(); }
+    void useGfxrCapture(bool enable);
 
 private slots:
     void OnDeviceSelected(const QString &);
@@ -99,6 +102,7 @@ signals:
 
 private:
     bool StartPackage(Dive::AndroidDevice *device, const std::string &app_type);
+    bool kGfxrCapture;
 
     QHBoxLayout        *m_capture_layout;
     QLabel             *m_dev_label;
@@ -134,6 +138,10 @@ private:
     QHBoxLayout *m_args_layout;
     QLabel      *m_args_label;
     QLineEdit   *m_args_input_box;
+
+    QHBoxLayout *m_num_frames_layout;
+    QLabel      *m_num_frames_label;
+    QSpinBox    *m_num_frames_spin_box;
 
     QVBoxLayout                  *m_main_layout;
     std::vector<Dive::DeviceInfo> m_devices;

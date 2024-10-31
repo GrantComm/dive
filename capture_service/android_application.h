@@ -79,6 +79,9 @@ public:
     virtual ~VulkanApplication();
     virtual absl::Status Setup() override;
     virtual absl::Status Cleanup() override;
+    void gfxrEnabled(bool enable);
+private:
+    bool kGfxrEnabled;
 };
 
 class OpenXRApplication : public AndroidApplication
