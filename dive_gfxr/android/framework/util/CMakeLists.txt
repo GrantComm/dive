@@ -64,7 +64,7 @@ target_compile_definitions(gfxrecon_util
 
 target_include_directories(gfxrecon_util
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               ${GFXRECON_SOURCE_DIR}../../../external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
                                ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
                                ${GFXRECON_SOURCE_DIR}/framework)

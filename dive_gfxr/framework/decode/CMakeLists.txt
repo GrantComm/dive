@@ -204,53 +204,53 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_offscreen_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.h>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer.cpp>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.h>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.cpp>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>
-                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_json.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_json.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_json_consumer.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_json_consumer.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_feature_util.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_to_json.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_decoder.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_forward.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_consumer.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_replay_consumer.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_json_consumer.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_json_consumer.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_string.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_object_mappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_call_id_to_string.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_enum_to_json.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_to_json.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_to_json.cpp>
+                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_cpp_consumer.h>
+                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_cpp_consumer.cpp>
+                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_cpp_structs.h>
+                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_cpp_structs.cpp>
+                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_cpp_consumer_extension.h>
+                    $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_cpp_consumer_extension.cpp>
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_consumer.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_decoder.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_decoder.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_enum_to_json.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_enum_to_json.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_json_consumer.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_json_consumer.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_feature_util.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_referenced_resource_consumer.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_referenced_resource_consumer.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_replay_consumer.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_replay_consumer.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_replay_dump_resources.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_replay_dump_resources.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_decoders_forward.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_decoders.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_decoders.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_handle_mappers.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_handle_mappers.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_decode_pnext_struct.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_to_json.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_to_json.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_object_info_table_base2.h
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_decoder.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_decoder.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_decoders_forward.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_decoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_decoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_replay_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_replay_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_json_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_json_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_enum_to_string.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_enum_to_string.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_object_mappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_object_mappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_call_id_to_string.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_enum_to_json.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_decoders_to_json.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_decoders_to_json.cpp>
 )
 
 if (${GFXRECON_AGS_SUPPORT_FINAL})
@@ -283,17 +283,17 @@ if (WIN32)
         target_include_directories(gfxrecon_decode
                                PUBLIC
                                    ${CMAKE_BINARY_DIR}
-                                   ${CMAKE_SOURCE_DIR}/framework
-                                   ${CMAKE_SOURCE_DIR}/external
-                                   ${CMAKE_SOURCE_DIR}/external/precompiled/win64/include/
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/..
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/../../external
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/win64/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     else()
         target_include_directories(gfxrecon_decode
                                PUBLIC
                                    ${CMAKE_BINARY_DIR}
-                                   ${CMAKE_SOURCE_DIR}/framework
-                                   ${CMAKE_SOURCE_DIR}/external
-                                   ${CMAKE_SOURCE_DIR}/external/precompiled/win32/include/
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/..
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/../../external
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/win32/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
     endif()
 elseif(APPLE)
@@ -302,9 +302,9 @@ elseif(APPLE)
                                ${CMAKE_BINARY_DIR}
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_SOURCE_DIR}/framework
-                               ${CMAKE_SOURCE_DIR}/external
-                               ${CMAKE_SOURCE_DIR}/external/precompiled/macos/include/
+                               ${CMAKE_CURRENT_SOURCE_DIR}/..
+                               ${CMAKE_CURRENT_SOURCE_DIR}/../../external
+                               ${CMAKE_CURRENT_SOURCE_DIR}/../external/precompiled/macos/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 else()
     target_include_directories(gfxrecon_decode
@@ -312,9 +312,9 @@ else()
                                ${CMAKE_BINARY_DIR}
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_SOURCE_DIR}/framework
-                               ${CMAKE_SOURCE_DIR}/external
-                               ${CMAKE_SOURCE_DIR}/external/precompiled/linux/include/
+                               ${CMAKE_CURRENT_SOURCE_DIR}/..
+                               ${CMAKE_CURRENT_SOURCE_DIR}/../../external
+                               ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 endif()
 
@@ -322,25 +322,25 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (WIN32)
         target_link_directories(gfxrecon_decode
                                 PUBLIC
-                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win64/lib)
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/win64/lib)
     elseif(APPLE)
         target_link_directories(gfxrecon_decode
                                 PUBLIC
-                                    ${CMAKE_SOURCE_DIR}/external/precompiled/macos/lib)
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/macos/lib)
     else()
         target_link_directories(gfxrecon_decode
                                 PUBLIC
-                                    ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/linux/lib/x86_64)
     endif()
 else (CMAKE_SIZEOF_VOID_P EQUAL 4)
     if (WIN32)
         target_link_directories(gfxrecon_decode
                                 PUBLIC
-                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win32/lib)
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/win32/lib)
     else()
         target_link_directories(gfxrecon_decode
                                 PUBLIC
-                                    ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86)
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/precompiled/linux/lib/x86)
     endif()
 endif()
 

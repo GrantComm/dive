@@ -20,3 +20,13 @@
 [submodule "third_party/perfetto"]
 	path = third_party/perfetto
 	url = https://android.googlesource.com/platform/external/perfetto
+[submodule "dive_gfxr/external/Vulkan-Headers"]
+	path = dive_gfxr/external/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers.git
+[submodule "dive_gfxr/external/SPIRV-Headers"]
+	path = dive_gfxr/external/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "dive_gfxr/external/SPIRV-Reflect"]
+	path = dive_gfxr/external/SPIRV-Reflect
+	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
+
