@@ -101,7 +101,7 @@ if(NOT ANDROID)
     if (EXISTS "${CMAKE_SOURCE_DIR}/ui/CMakeLists.txt" AND NOT DIVE_NO_DISASSEMBLY)
         add_subdirectory(ui)
     endif()
-    
+
     add_subdirectory(third_party/gfxreconstruct)
 else()
 
@@ -126,9 +126,9 @@ else()
     INPUT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/gfxreconstruct/android/layer/build/outputs/aar/layer-release.aar"
     DESTINATION "${CMAKE_SOURCE_DIR}/build_android/Release/third_party/gfxreconstruct/android/layer"
     )
-    
+
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/third_party/gfxreconstruct/android/tools/replay/build/outputs/apk/debug DESTINATION ${CMAKE_SOURCE_DIR}/build_android/Debug/third_party/gfxreconstruct/android/tools/replay/build/outputs/apk/debug)
-    
+
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/third_party/gfxreconstruct/android/tools/replay/build/outputs/apk/release DESTINATION ${CMAKE_SOURCE_DIR}/build_android/Release/third_party/gfxreconstruct/android/tools/replay/build/outputs/apk/release)
 endif()
 
