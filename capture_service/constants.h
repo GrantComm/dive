@@ -30,6 +30,7 @@ inline constexpr char kGfxrTargetPath[] = "/data/data/";
 inline constexpr char kManifestFileName[] = "XrApiLayer_dive.json";
 inline constexpr char kManifestFilePath[] = "/system/etc/openxr/1/api_layers/implicit.d/";
 inline constexpr char kVulkanGlobalPath[] = "/data/local/debug/vulkan";
+inline constexpr char kGfxrCaptureDirectory[] = "/sdcard/Download/";
 inline constexpr int  kPort = 19999;
 inline constexpr int  kDownLoadFileChunkSize = 4096;
 }  // namespace Dive
