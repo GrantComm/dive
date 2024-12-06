@@ -34,7 +34,11 @@
 #include <QVBoxLayout>
 #include <cstdint>
 #include <filesystem>
+#include <qspinbox.h>
 #include <string>
+#include <QCheckBox>
+#include <QCoreApplication>
+#include <QDir>
 
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
@@ -59,6 +63,9 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_dev_label = new QLabel(tr("Devices:"));
     m_pkg_label = new QLabel(tr("Packages:"));
     m_app_type_label = new QLabel(tr("Application Type:"));
+    m_gfxr_capture_file_directory_label = new QLabel(tr("GFXR Capture File Directory Name:")); 
+    m_frame_num_label = new QLabel(tr("Frame number:"));
+    m_frame_range_label = new QLabel(tr("Frame range:")); 
 
     m_dev_model = new QStandardItemModel();
     m_pkg_model = new QStandardItemModel();
@@ -68,11 +75,30 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_pkg_box = new QComboBox();
     m_app_type_box = new QComboBox();
 
+    m_frame_num_spin_box = new QSpinBox();
+    m_frame_num_spin_box->setMinimum(1);
+    m_frame_num_spin_box->setMaximum(100);
+    m_frame_num_spin_box->setValue(0);
+
+    m_frame_range_min_spin_box = new QSpinBox();
+    m_frame_range_min_spin_box->setMinimum(1);
+    m_frame_range_min_spin_box->setMaximum(100);
+
+    m_frame_range_max_spin_box = new QSpinBox();
+    m_frame_range_max_spin_box->setMinimum(2);
+    m_frame_range_max_spin_box->setMaximum(100);
+
+    m_frame_type_checkbox = new QCheckBox("Capture Single Frame");
+
     m_button_layout = new QHBoxLayout();
     m_run_button = new QPushButton("&Start Application", this);
     m_run_button->setEnabled(false);
     m_capture_button = new QPushButton("&Trace", this);
     m_capture_button->setEnabled(false);
+    m_gfxr_capture_button = new QPushButton("&Start GFXR Capture", this);
+    m_gfxr_capture_button->setEnabled(false);
+    m_gfxr_capture_button->hide();
+
 
     m_dev_refresh_button = new QPushButton("&Refresh", this);
     m_pkg_refresh_button = new QPushButton("&Refresh", this);
@@ -148,14 +174,44 @@ TraceDialog::TraceDialog(QWidget *parent)
     m_type_layout->addWidget(m_app_type_label);
     m_type_layout->addWidget(m_app_type_box);
 
+    m_gfxr_capture_file_dir_layout = new QHBoxLayout();
+    m_gfxr_capture_file_directory_input_box = new QLineEdit();
+    m_gfxr_capture_file_directory_input_box->setPlaceholderText("Input a name for the directory");
+    m_gfxr_capture_file_dir_layout->addWidget(m_gfxr_capture_file_directory_label);
+    m_gfxr_capture_file_dir_layout->addWidget(m_gfxr_capture_file_directory_input_box);
+    m_gfxr_capture_file_directory_label->hide();
+    m_gfxr_capture_file_directory_input_box->hide();
+
+
+    m_frame_type_layout = new QHBoxLayout();
+    m_frame_type_layout->addWidget(m_frame_type_checkbox);
+    m_frame_type_checkbox->setCheckState(Qt::Checked);
+    m_frame_type_checkbox->hide();
+
+    m_frames_layout = new QHBoxLayout();
+    m_frames_layout->addWidget(m_frame_num_label);
+    m_frames_layout->addWidget(m_frame_num_spin_box);
+    m_frame_num_label->hide();
+    m_frame_num_spin_box->hide();
+    m_frames_layout->addWidget(m_frame_range_label);
+    m_frames_layout->addWidget(m_frame_range_min_spin_box);
+    m_frames_layout->addWidget(m_frame_range_max_spin_box);
+    m_frame_range_label->hide();
+    m_frame_range_min_spin_box->hide();
+    m_frame_range_max_spin_box->hide();
+
     m_button_layout->addWidget(m_run_button);
     m_button_layout->addWidget(m_capture_button);
+    m_button_layout->addWidget(m_gfxr_capture_button);
 
     m_main_layout->addLayout(m_capture_layout);
     m_main_layout->addLayout(m_cmd_layout);
     m_main_layout->addLayout(m_pkg_filter_layout);
     m_main_layout->addLayout(m_pkg_layout);
+    m_main_layout->addLayout(m_gfxr_capture_file_dir_layout);
     m_main_layout->addLayout(m_args_layout);
+    m_main_layout->addLayout(m_frame_type_layout);
+    m_main_layout->addLayout(m_frames_layout);
 
     m_main_layout->addLayout(m_type_layout);
 
@@ -176,6 +232,7 @@ TraceDialog::TraceDialog(QWidget *parent)
                      &QSortFilterProxyModel::setFilterFixedString);
     QObject::connect(m_run_button, &QPushButton::clicked, this, &TraceDialog::OnStartClicked);
     QObject::connect(m_capture_button, &QPushButton::clicked, this, &TraceDialog::OnTraceClicked);
+    QObject::connect(m_gfxr_capture_button, &QPushButton::clicked, this, &TraceDialog::OnGfxrCaptureClicked);
 
     QObject::connect(m_dev_refresh_button,
                      &QPushButton::clicked,
@@ -195,6 +252,7 @@ TraceDialog::TraceDialog(QWidget *parent)
                      &PackageFilter::filtersApplied,
                      this,
                      &TraceDialog::OnPackageListFilterApplied);
+    QObject::connect(m_frame_type_checkbox, &QCheckBox::stateChanged, this, &TraceDialog::OnGfxrCaptureFrameTypeSelection); 
 }
 
 TraceDialog::~TraceDialog()
@@ -335,11 +393,13 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
              << ", type: " << app_type.c_str() << ", args: " << m_command_args.c_str();
     if (app_type == "OpenXR APK")
     {
+        device->enableGfxr(m_gfxr_capture);
         ret = device
               ->SetupApp(m_cur_pkg, Dive::ApplicationType::OPENXR_APK, m_command_args, "", "", 0);
     }
     else if (app_type == "Vulkan APK")
     {
+        device->enableGfxr(m_gfxr_capture);
         ret = device
               ->SetupApp(m_cur_pkg, Dive::ApplicationType::VULKAN_APK, m_command_args, "", "", 0);
     }
@@ -393,7 +453,10 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     {
         m_run_button->setDisabled(false);
         m_run_button->setText("&Stop");
-        m_capture_button->setEnabled(true);
+        if (!m_gfxr_capture)
+        {
+            m_capture_button->setEnabled(true);
+        }
     }
     return true;
 }
@@ -438,6 +501,21 @@ void TraceDialog::OnStartClicked()
     {
         qDebug() << "Stop package " << m_cur_pkg.c_str();
         device->StopApp().IgnoreError();
+
+        if (m_gfxr_capture)
+        {
+            QString capturePath = QCoreApplication::applicationDirPath() + QDir::separator();
+            auto r = device->RetrieveTrace("/sdcard/Download/gfrx_capture.gfxr", (capturePath.toStdString() + "gfxr"), true);
+            if (r.ok())
+                qDebug() << "Gfxr capture saved";
+            else
+            {
+                std::string err_msg = absl::StrCat("Failed to retrieve trace file, error: ", r.message());
+                qDebug() << err_msg.c_str();
+                ShowErrorMessage(err_msg);
+                return;
+            }
+        }
         m_run_button->setText("&Start Application");
         m_capture_button->setEnabled(false);
     }
@@ -679,4 +757,115 @@ void TraceDialog::OnPackageListFilterApplied(QSet<QString> filters)
     UpdatePackageList();
     m_pkg_filter_label->hide();
     m_pkg_filter->hide();
+}
+
+void TraceDialog::OnGfxrCaptureFrameTypeSelection()
+{
+    useGfxrCapture(true);
+}
+
+void TraceDialog::useGfxrCapture(bool enable)
+{
+    if (enable)
+    {
+        m_frame_type_checkbox->show();
+        m_args_label->hide();
+        m_args_input_box->hide();
+        m_capture_button->hide();
+        m_run_button->hide();
+        m_gfxr_capture_button->show();
+        m_gfxr_capture_file_directory_label->show();
+        m_gfxr_capture_file_directory_input_box->show();
+        if (m_frame_type_checkbox->isChecked())
+        {
+            m_frame_num_label->show();
+            m_frame_num_spin_box->show();
+            m_frame_range_label->hide();
+            m_frame_range_min_spin_box->hide();
+            m_frame_range_max_spin_box->hide();
+        }
+        else
+        {
+            m_frame_range_label->show();
+            m_frame_range_min_spin_box->show();
+            m_frame_range_max_spin_box->show();
+            m_frame_num_label->hide();
+            m_frame_num_spin_box->hide();
+        }
+    }
+    else
+    {
+        m_args_label->show();
+        m_args_input_box->show();
+        m_capture_button->show();
+        m_run_button->show();
+        m_gfxr_capture_file_directory_label->hide();
+        m_gfxr_capture_file_directory_input_box->hide();
+        m_frame_type_checkbox->hide();
+        m_frame_num_label->hide();
+        m_frame_num_spin_box->hide();
+        m_frame_range_label->hide();
+        m_frame_range_min_spin_box->hide();
+        m_frame_range_max_spin_box->hide();
+    }
+    m_gfxr_capture = enable;
+}
+
+void TraceDialog::OnGfxrCaptureClicked()
+{
+    qDebug() << "Command: " << m_cmd_input_box->text();
+    auto device = Dive::GetDeviceManager().GetDevice();
+    if (!device)
+    {
+        std::string
+        err_msg = "No device/application selected. Please select a device and application and "
+                  "then try again.";
+        ShowErrorMessage(err_msg);
+        return;
+    }
+    absl::Status ret = device->SetupDevice();
+    if (!ret.ok())
+    {
+        std::string err_msg = absl::StrCat("Fail to setup device: ", ret.message());
+        qDebug() << err_msg.c_str();
+        ShowErrorMessage(err_msg);
+        return;
+    }
+    int ty = m_app_type_box->currentIndex();
+    if (ty == -1)
+    {
+        ShowErrorMessage("Please select application type");
+        return;
+    }
+    std::string ty_str = kAppTypes[ty];
+
+    if (m_run_button->text() == QString("&Start Application"))
+    {
+        if (!StartPackage(device, ty_str))
+        {
+            m_run_button->setDisabled(false);
+            m_run_button->setText("&Start Application");
+        }
+    }
+    else
+    {
+        qDebug() << "Stop package " << m_cur_pkg.c_str();
+        device->StopApp().IgnoreError();
+
+        if (m_gfxr_capture)
+        {
+            QString capturePath = QCoreApplication::applicationDirPath() + QDir::separator();
+            auto r = device->RetrieveTrace("/sdcard/Download/gfrx_capture.gfxr", (capturePath.toStdString() + "gfxr"), true);
+            if (r.ok())
+                qDebug() << "Gfxr capture saved";
+            else
+            {
+                std::string err_msg = absl::StrCat("Failed to retrieve trace file, error: ", r.message());
+                qDebug() << err_msg.c_str();
+                ShowErrorMessage(err_msg);
+                return;
+            }
+        }
+        m_gfxr_capture_button->setEnabled(false);
+    }
 }

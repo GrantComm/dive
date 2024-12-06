@@ -17,6 +17,7 @@
 #include <QDialog>
 #include <QThread>
 #include <cstdint>
+#include <qspinbox.h>
 
 #include "capture_service/device_mgr.h"
 #include "package_filter.h"
@@ -33,6 +34,8 @@ class QComboBox;
 class QStandardItemModel;
 class QProgressDialog;
 class QLineEdit;
+class QSpinBox;
+class QCheckBox;
 
 class TraceWorker : public QThread
 {
@@ -80,6 +83,7 @@ public:
     void UpdateDeviceList(bool isInitialized);
     void UpdatePackageList();
     void Cleanup() { Dive::GetDeviceManager().RemoveDevice(); }
+    void useGfxrCapture(bool enable);
 
 private slots:
     void OnDeviceSelected(const QString &);
@@ -93,6 +97,8 @@ private slots:
     void OnInputArgs(const QString &);
     void OnPackageListFilter();
     void OnPackageListFilterApplied(QSet<QString> filters);
+    void OnGfxrCaptureFrameTypeSelection();
+    void OnGfxrCaptureClicked();
 
 signals:
     void TraceAvailable(const QString &);
@@ -124,6 +130,7 @@ private:
 
     QPushButton *m_capture_button;
     QPushButton *m_run_button;
+    QPushButton *m_gfxr_capture_button;
     QHBoxLayout *m_button_layout;
 
     QHBoxLayout *m_cmd_layout;
@@ -135,6 +142,20 @@ private:
     QLabel      *m_args_label;
     QLineEdit   *m_args_input_box;
 
+    QHBoxLayout *m_gfxr_capture_file_dir_layout;
+    QLabel      *m_gfxr_capture_file_directory_label;
+    QLineEdit   *m_gfxr_capture_file_directory_input_box;
+
+    QHBoxLayout *m_frame_type_layout;
+    QCheckBox   *m_frame_type_checkbox;
+
+    QHBoxLayout *m_frames_layout;
+    QLabel      *m_frame_num_label;
+    QLabel      *m_frame_range_label;
+    QSpinBox    *m_frame_num_spin_box;
+    QSpinBox    *m_frame_range_min_spin_box;
+    QSpinBox    *m_frame_range_max_spin_box;
+
     QVBoxLayout                  *m_main_layout;
     std::vector<Dive::DeviceInfo> m_devices;
     std::string                   m_cur_dev;
@@ -142,4 +163,5 @@ private:
     std::string                   m_cur_pkg;
     std::string                   m_executable;
     std::string                   m_command_args;
+    bool                          m_gfxr_capture;
 };
