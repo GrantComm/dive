@@ -63,6 +63,11 @@ target_include_directories(VkLayer_gfxreconstruct
 
 target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
+if(MSVC)
+    target_link_libraries(VkLayer_gfxreconstruct psapi.lib)
+    set_target_properties(VkLayer_gfxreconstruct PROPERTIES FOLDER "gfxreconstruct")
+endif()
+
 common_build_directives(VkLayer_gfxreconstruct)
 
 # The json output file needs Unix "/" separators or Windows "\" separators
@@ -77,6 +82,10 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
         )
+
+if(MSVC)
+    set_target_properties(VkLayer_gfxreconstruct_json PROPERTIES FOLDER "gfxreconstruct")
+endif()
 
 if(UNIX)
         # Generate a JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
