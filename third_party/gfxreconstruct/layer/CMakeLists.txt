@@ -73,6 +73,7 @@ target_link_libraries(VkLayer_gfxreconstruct
 
 # Limit what symbols are exported
 if(MSVC)
+<<<<<<< HEAD
     target_sources(VkLayer_gfxreconstruct
                     PRIVATE
                         ${PROJECT_SOURCE_DIR}/version.rc
@@ -93,6 +94,10 @@ else()
                         PRIVATE
                             LINKER:--version-script=${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.map
                        )
+=======
+    target_link_libraries(VkLayer_gfxreconstruct psapi.lib)
+    set_target_properties(VkLayer_gfxreconstruct PROPERTIES FOLDER "gfxreconstruct")
+>>>>>>> 8bafc2569ae (Creates folders for gfxr and freedreno in dive solution (#151))
 endif()
 
 common_build_directives(VkLayer_gfxreconstruct)
@@ -119,6 +124,10 @@ if (OPENXR_SUPPORT_ENABLED)
             ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
             $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json
             )
+endif()
+
+if(MSVC)
+    set_target_properties(VkLayer_gfxreconstruct_json PROPERTIES FOLDER "gfxreconstruct")
 endif()
 
 if(UNIX)
