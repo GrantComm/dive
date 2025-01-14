@@ -367,6 +367,7 @@ public:
 
     LoadResult LoadCaptureFile(std::istream &capture_file);
     LoadResult LoadAdrenoRdFile(FileReader &capture_file);
+    LoadResult LoadGfxrCaptureFile(FileReader &capture_file);
 #if defined(DIVE_ENABLE_PERFETTO)
     LoadResult LoadPerfettoFile(const char *file_name);
 #endif
@@ -380,6 +381,7 @@ public:
 private:
     LoadResult LoadCaptureFile(const char *file_name);
     LoadResult LoadAdrenoRdFile(const char *file_name);
+    LoadResult LoadGfxrCaptureFile(const char *file_name);
     bool       LoadCapture(std::istream &capture_file, const CaptureDataHeader &data_header);
     bool       LoadMemoryAllocBlock(std::istream &capture_file);
     bool       LoadSubmitBlock(std::istream &capture_file);

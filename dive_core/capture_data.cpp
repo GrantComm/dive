@@ -893,6 +893,10 @@ CaptureData::LoadResult CaptureData::LoadFile(const char *file_name)
         return LoadPerfettoFile(file_name);
     }
 #endif
+    else if (file_extension.compare(".gfxr") == 0)
+    {
+        return LoadGfxrCaptureFile(file_name);
+    }
     else
     {
         std::cerr << "Unknown capture type: " << file_name << std::endl;
@@ -948,6 +952,28 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(const char *file_name)
         return LoadResult::kFileIoError;
     }
     auto result = LoadAdrenoRdFile(reader);
+    if (result != LoadResult::kSuccess)
+    {
+        std::cerr << "Error reading: " << file_name << " (" << result << ")" << std::endl;
+    }
+    else
+    {
+        m_cur_capture_file = std::string(file_name);
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult CaptureData::LoadGfxrCaptureFile(const char *file_name)
+{
+    FileReader reader(file_name);
+    if (reader.open() != 0)
+    {
+        std::cerr << "Not able to open: " << file_name << std::endl;
+        return LoadResult::kFileIoError;
+    }
+    auto result = LoadGfxrCaptureFile(reader);
     if (result != LoadResult::kSuccess)
     {
         std::cerr << "Error reading: " << file_name << " (" << result << ")" << std::endl;
@@ -1164,6 +1190,12 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(FileReader &capture_file)
         }
     }
     m_memory.Finalize(true, true);
+    return LoadResult::kSuccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult CaptureData::LoadGfxrCaptureFile(FileReader &capture_file)
+{
     return LoadResult::kSuccess;
 }
 
