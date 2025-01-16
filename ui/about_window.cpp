@@ -84,6 +84,6 @@ AboutDialog::AboutDialog(QWidget *parent)
     // Disable help icon, set size, title, and layout
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setMinimumSize(640, 480);
-    setWindowTitle("About Dive");
+    setWindowTitle("About Dive Test");
     setLayout(m_main_layout);
 }
