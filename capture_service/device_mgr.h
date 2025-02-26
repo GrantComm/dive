@@ -83,8 +83,7 @@ public:
     absl::Status SetupApp(const std::string    &package,
                           const ApplicationType type,
                           const std::string    &command_args,
-                          const std::string    &device_architecture,
-                          const std::string    &gfxr_capture_directory);
+                          const std::string    &device_architecture);
     absl::Status SetupApp(const std::string    &binary,
                           const std::string    &args,
                           const ApplicationType type);

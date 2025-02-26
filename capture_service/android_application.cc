@@ -267,11 +267,9 @@ absl::Status AndroidApplication::GfxrSetup()
     RETURN_IF_ERROR(m_dev.Adb().Run(
     absl::StrFormat("shell settings put global gpu_debug_layer_app %s", m_package)));
 
-    std::string capture_file_location = kGfxrCaptureDirectory + m_gfxr_capture_file_directory +
-                                        "/" + m_package + ".gfxr";
+    std::string capture_file_location = kGfxrCaptureDirectory + m_package + ".gfxr";
 
-    std::string gfxr_capture_directory = kGfxrCaptureDirectory + m_gfxr_capture_file_directory;
-    RETURN_IF_ERROR(CreateGfxrDirectory(gfxr_capture_directory));
+    RETURN_IF_ERROR(CreateGfxrDirectory(kGfxrCaptureDirectory));
 
     RETURN_IF_ERROR(
     m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_file " + capture_file_location));

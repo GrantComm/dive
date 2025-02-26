@@ -261,8 +261,7 @@ absl::Status AndroidDevice::CleanupDevice()
 absl::Status AndroidDevice::SetupApp(const std::string    &package,
                                      const ApplicationType type,
                                      const std::string    &command_args,
-                                     const std::string    &device_architecture,
-                                     const std::string    &gfxr_capture_directory)
+                                     const std::string    &device_architecture)
 {
     if (type == ApplicationType::VULKAN_APK)
     {
@@ -280,7 +279,6 @@ absl::Status AndroidDevice::SetupApp(const std::string    &package,
     if (m_gfxr_enabled)
     {
         m_app->SetArchitecture(device_architecture);
-        m_app->SetGfxrCaptureFileDirectory(gfxr_capture_directory);
         m_app->SetGfxrEnabled(true);
     }
     else

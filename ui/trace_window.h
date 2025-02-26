@@ -64,14 +64,17 @@ public:
         m_progress_bar(pd)
     {
     }
-    void                    SetGfxrCapturePath(const std::string &capture_path);
-    absl::StatusOr<int64_t> getGfxrCaptureDirectorySize(Dive::AndroidDevice *device);
+    void                        SetGfxrCapturePath(const std::string &capture_path);
+    void                        SetGfxrTargetCapturePath(const std::string &target_capture_path);
+    absl::StatusOr<std::string> GetGfxrCaptureFileName(Dive::AndroidDevice *device);
+    absl::StatusOr<int64_t>     GetGfxrCaptureSize(Dive::AndroidDevice *device);
 signals:
     void GfxrCaptureAvailable(const QString &);
 
 private:
     QProgressDialog *m_progress_bar;
     std::string      m_capture_path;
+    std::string      m_target_capture_path;
 };
 
 class ProgressBarWorker : public QThread
@@ -126,7 +129,6 @@ private slots:
     void OnPackageListFilter();
     void OnPackageListFilterApplied(QSet<QString> filters);
     void OnGfxrCaptureClicked();
-    void OnGfxrRetrieveClicked();
 
 signals:
     void TraceAvailable(const QString &);
@@ -138,7 +140,6 @@ private:
     const QString kStart_Application = "&Start Application";
     const QString kStart_Gfxr_Runtime_Capture = "&Start GFXR Capture";
     const QString kStop_Gfxr_Runtime_Capture = "&Stop GFXR Capture";
-    const QString kRetrieve_Gfxr_Capture = "&Retrieve GFXR Capture";
 
     QHBoxLayout        *m_capture_layout;
     QLabel             *m_dev_label;
@@ -165,7 +166,6 @@ private:
     QPushButton *m_capture_button;
     QPushButton *m_run_button;
     QPushButton *m_gfxr_capture_button;
-    QPushButton *m_gfxr_retrieve_button;
     QHBoxLayout *m_button_layout;
 
     QHBoxLayout *m_cmd_layout;
@@ -176,10 +176,6 @@ private:
     QHBoxLayout *m_args_layout;
     QLabel      *m_args_label;
     QLineEdit   *m_args_input_box;
-
-    QHBoxLayout *m_gfxr_capture_file_directory_layout;
-    QLabel      *m_gfxr_capture_file_on_device_directory_label;
-    QLineEdit   *m_gfxr_capture_file_directory_input_box;
 
     QHBoxLayout *m_gfxr_capture_file_local_directory_layout;
     QLabel      *m_gfxr_capture_file_local_directory_label;

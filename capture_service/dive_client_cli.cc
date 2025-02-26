@@ -126,11 +126,6 @@ ABSL_FLAG(std::string,
           "x86",
           "specify the device architecture to capture with gfxr (arm64-v8, armeabi-v7a, x86, or "
           "x86_64). If not specified, the default is x86.");
-ABSL_FLAG(std::string,
-          gfxr_capture_file_dir,
-          "gfxr_capture",
-          "specify the name of the directory for the gfxr capture. If not specified, the default "
-          "file name is gfxr_capture.");
 
 ABSL_FLAG(
 int,
@@ -201,7 +196,6 @@ bool run_package(Dive::DeviceManager& mgr,
                  const std::string&   command,
                  const std::string&   command_args,
                  const std::string&   device_architecture,
-                 const std::string&   gfxr_capture_directory,
                  bool                 is_gfxr_capture)
 {
     std::string serial = absl::GetFlag(FLAGS_device);
@@ -229,19 +223,11 @@ bool run_package(Dive::DeviceManager& mgr,
 
     if (app_type == "openxr")
     {
-        ret = dev->SetupApp(package,
-                            Dive::ApplicationType::OPENXR_APK,
-                            "",
-                            device_architecture,
-                            gfxr_capture_directory);
+        ret = dev->SetupApp(package, Dive::ApplicationType::OPENXR_APK, "", device_architecture);
     }
     else if (app_type == "vulkan")
     {
-        ret = dev->SetupApp(package,
-                            Dive::ApplicationType::VULKAN_APK,
-                            "",
-                            device_architecture,
-                            gfxr_capture_directory);
+        ret = dev->SetupApp(package, Dive::ApplicationType::VULKAN_APK, "", device_architecture);
     }
     else if (app_type == "vulkan_cli")
     {
@@ -307,11 +293,10 @@ bool trigger_capture(Dive::DeviceManager& mgr)
     return ret.ok();
 }
 
-absl::Status is_capture_directory_busy(Dive::DeviceManager& mgr,
-                                       const std::string&   gfxr_capture_directory)
+absl::Status is_capture_directory_busy(Dive::DeviceManager& mgr)
 {
-    std::string capture_directory = Dive::kGfxrCaptureDirectory + gfxr_capture_directory;
-    std::string command = "shell lsof " + capture_directory;
+    std::string                 capture_directory = Dive::kGfxrCaptureDirectory;
+    std::string                 command = "shell lsof " + capture_directory;
     absl::StatusOr<std::string> output = mgr.GetDevice()->Adb().RunAndGetResult(command);
 
     if (!output.ok())
@@ -331,9 +316,39 @@ absl::Status is_capture_directory_busy(Dive::DeviceManager& mgr,
                              absl::InternalError("Capture file operation in progress.");
 }
 
-void trigger_gfxr_capture(Dive::DeviceManager& mgr,
-                          const std::string&   package,
-                          const std::string&   gfxr_capture_directory)
+bool retrieve_gfxr_capture(Dive::DeviceManager& mgr)
+{
+    std::string           download_path = absl::GetFlag(FLAGS_download_path);
+    std::filesystem::path target_download_path(download_path);
+
+    std::cout << "Retrieving capture..." << std::endl;
+    if (!std::filesystem::exists(target_download_path))
+    {
+        std::error_code ec;
+        if (!std::filesystem::create_directories(target_download_path, ec))
+        {
+            std::cout << "error creating directory: " << ec << std::endl;
+        }
+    }
+
+    std::string                 command = "shell ls " + std::string(Dive::kGfxrCaptureDirectory);
+    absl::StatusOr<std::string> output = mgr.GetDevice()->Adb().RunAndGetResult(command);
+
+    if (!output.ok())
+    {
+        std::cout << "Error getting capture_file name: " << output.status().message() << std::endl;
+    }
+    std::string capture_path = Dive::kGfxrCaptureDirectory + std::string(output->data());
+
+    auto ret = mgr.GetDevice()->RetrieveTrace(capture_path, target_download_path.generic_string());
+    if (ret.ok())
+        std::cout << "GFXR capture directory saved at " << target_download_path << std::endl;
+    else
+        std::cout << "Failed to retrieve capture directory" << std::endl;
+    return ret.ok();
+}
+
+void trigger_gfxr_capture(Dive::DeviceManager& mgr, const std::string& package)
 {
     std::cout << "Press key g+enter to trigger a capture and g+enter to stop the capture. Press "
                  "any other key+enter to stop the application. Note that this may impact your "
@@ -348,7 +363,7 @@ void trigger_gfxr_capture(Dive::DeviceManager& mgr,
         {
             if (is_capturing)
             {
-                ret = is_capture_directory_busy(mgr, gfxr_capture_directory);
+                ret = is_capture_directory_busy(mgr);
                 while (!ret.ok())
                 {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -364,6 +379,7 @@ void trigger_gfxr_capture(Dive::DeviceManager& mgr,
                               << std::endl;
                     return;
                 }
+                retrieve_gfxr_capture(mgr);
                 is_capturing = false;
                 std::cout << "Capture complete." << std::endl;
             }
@@ -399,7 +415,7 @@ void trigger_gfxr_capture(Dive::DeviceManager& mgr,
                 std::cout << "GFXR capture in progress, please wait for capture to complete before "
                              "stopping the application."
                           << std::endl;
-                ret = is_capture_directory_busy(mgr, gfxr_capture_directory);
+                ret = is_capture_directory_busy(mgr);
                 while (!ret.ok())
                 {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -415,8 +431,10 @@ void trigger_gfxr_capture(Dive::DeviceManager& mgr,
                               << std::endl;
                     return;
                 }
+                retrieve_gfxr_capture(mgr);
                 is_capturing = false;
-                std::cout << "Capture complete." << std::endl;
+                std::cout << "Capture complete. Exiting..." << std::endl;
+                break;
             }
             else
             {
@@ -425,30 +443,13 @@ void trigger_gfxr_capture(Dive::DeviceManager& mgr,
             }
         }
     }
-}
-
-bool retrieve_gfxr_capture(Dive::DeviceManager& mgr, const std::string& gfxr_capture_directory)
-{
-    std::string           download_path = absl::GetFlag(FLAGS_download_path);
-    std::filesystem::path target_download_path(download_path);
-
-    std::cout << "Retrieving capture..." << std::endl;
-    if (!std::filesystem::exists(target_download_path))
+    ret = mgr.GetDevice()->Adb().Run(
+    absl::StrFormat("shell rm -rf %s", Dive::kGfxrCaptureDirectory));
+    if (!ret.ok())
     {
-        std::error_code ec;
-        if (!std::filesystem::create_directories(target_download_path, ec))
-        {
-            std::cout << "error creating directory: " << ec << std::endl;
-        }
+        std::cout << "There was an error deleting the gfxr runtime capture directory." << std::endl;
+        return;
     }
-    std::string capture_directory = Dive::kGfxrCaptureDirectory + gfxr_capture_directory;
-    auto        ret = mgr.GetDevice()->RetrieveTrace(capture_directory,
-                                              target_download_path.generic_string());
-    if (ret.ok())
-        std::cout << "GFXR capture directory saved at " << target_download_path << std::endl;
-    else
-        std::cout << "Failed to retrieve capture directory" << std::endl;
-    return ret.ok();
 }
 
 bool run_and_capture(Dive::DeviceManager& mgr,
@@ -457,7 +458,6 @@ bool run_and_capture(Dive::DeviceManager& mgr,
                      const std::string&   command,
                      const std::string&   command_args,
                      const std::string&   device_architecture,
-                     const std::string&   gfxr_capture_directory,
                      const bool           is_gfxr_capture)
 {
 
@@ -467,13 +467,12 @@ bool run_and_capture(Dive::DeviceManager& mgr,
                 command,
                 command_args,
                 device_architecture,
-                gfxr_capture_directory,
                 is_gfxr_capture);
 
     if (is_gfxr_capture)
     {
-        trigger_gfxr_capture(mgr, package, gfxr_capture_directory);
-        retrieve_gfxr_capture(mgr, gfxr_capture_directory);
+        trigger_gfxr_capture(mgr, package);
+        retrieve_gfxr_capture(mgr);
     }
     else
     {
@@ -548,7 +547,6 @@ int main(int argc, char** argv)
     std::string vulkan_command_args = absl::GetFlag(FLAGS_vulkan_command_args);
     std::string app_type = absl::GetFlag(FLAGS_type);
     std::string device_architecture = absl::GetFlag(FLAGS_device_architecture);
-    std::string gfxr_capture_file_dir = absl::GetFlag(FLAGS_gfxr_capture_file_dir);
 
     Dive::DeviceManager mgr;
     auto                list = mgr.ListDevice();
@@ -568,7 +566,6 @@ int main(int argc, char** argv)
                         vulkan_command,
                         vulkan_command_args,
                         device_architecture,
-                        gfxr_capture_file_dir,
                         true);
         break;
     }
@@ -585,7 +582,7 @@ int main(int argc, char** argv)
 
     case Command::kRunPackage:
     {
-        if (run_package(mgr, app_type, package, vulkan_command, vulkan_command_args, "", "", false))
+        if (run_package(mgr, app_type, package, vulkan_command, vulkan_command_args, "", false))
         {
             process_input(mgr);
         }
@@ -595,7 +592,7 @@ int main(int argc, char** argv)
 
     case Command::kRunAndCapture:
     {
-        run_and_capture(mgr, app_type, package, vulkan_command, vulkan_command_args, "", "", false);
+        run_and_capture(mgr, app_type, package, vulkan_command, vulkan_command_args, "", false);
         break;
     }
     case Command::kCleanup:
