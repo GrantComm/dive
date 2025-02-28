@@ -28,17 +28,11 @@
 
 add_executable(gfxrecon-extract "")
 
-if(MSVC)
-    target_compile_options(gfxrecon-extract PRIVATE /wd4244)
-    target_link_libraries(gfxrecon-extract psapi.lib)
-    set_target_properties(gfxrecon-extract PROPERTIES FOLDER "gfxreconstruct")
-endif()
-
 target_sources(gfxrecon-extract
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_SOURCE_DIR}/../../version.rc>
+                    $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
               )
 
 if (MSVC)

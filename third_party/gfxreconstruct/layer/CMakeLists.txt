@@ -50,23 +50,18 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.h
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
-                   ${CMAKE_CURRENT_SOURCE_DIR}/../framework/encode/custom_layer_func_table.h
-                   ${CMAKE_CURRENT_SOURCE_DIR}/../framework/generated/generated_layer_func_table.h
+                   ${CMAKE_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/trace_layer.def>
-                   $<$<BOOL:WIN32>:${CMAKE_CURRENT_SOURCE_DIR}/../version.rc>
+                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
               )
 
 target_include_directories(VkLayer_gfxreconstruct
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_CURRENT_SOURCE_DIR}/..)
+                               ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
-
-if(MSVC)
-    target_link_libraries(VkLayer_gfxreconstruct psapi.lib)
-    set_target_properties(VkLayer_gfxreconstruct PROPERTIES FOLDER "gfxreconstruct")
-endif()
 
 common_build_directives(VkLayer_gfxreconstruct)
 
@@ -82,10 +77,6 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
         )
-
-if(MSVC)
-    set_target_properties(VkLayer_gfxreconstruct_json PROPERTIES FOLDER "gfxreconstruct")
-endif()
 
 if(UNIX)
         # Generate a JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)

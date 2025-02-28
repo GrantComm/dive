@@ -28,18 +28,13 @@
 
 add_executable(gfxrecon-compress "")
 
-if(MSVC)
-    target_compile_options(gfxrecon-compress PRIVATE /wd4244)
-    set_target_properties(gfxrecon-compress PROPERTIES FOLDER "gfxreconstruct")
-endif()
-
 target_sources(gfxrecon-compress
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                   $<$<BOOL:WIN32>:${CMAKE_CURRENT_SOURCE_DIR}/../../version.rc>
+                   $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
 )
 
 if (MSVC)
