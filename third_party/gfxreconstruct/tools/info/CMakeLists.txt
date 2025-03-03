@@ -28,12 +28,14 @@
 
 add_executable(gfxrecon-info "")
 
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon-info PRIVATE /wd4244)
     target_link_libraries(gfxrecon-info psapi.lib)
     set_target_properties(gfxrecon-info PROPERTIES FOLDER "gfxreconstruct")
 endif()
 
+# GOOGLE: Add dive related compilation changes so that version.rc path is correct.
 target_sources(gfxrecon-info
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp

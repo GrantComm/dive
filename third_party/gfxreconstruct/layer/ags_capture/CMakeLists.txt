@@ -26,6 +26,7 @@
 add_library(ags_capture SHARED "")
 set_target_properties(ags_capture PROPERTIES OUTPUT_NAME "amd_ags_x64_capture")
 set(LINK_AGS_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/amd_ags_x64_orig.lib)
+# GOOGLE: Add dive related compilation changes so that version.rc path is correct.
 target_sources(ags_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/amd_ags_x64.def
@@ -36,7 +37,7 @@ target_include_directories(ags_capture PUBLIC
                            ${CMAKE_BINARY_DIR} 
                            ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 target_link_libraries(ags_capture gfxrecon_util ${LINK_AGS_OUTPUT})
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_link_libraries(ags_capture psapi.lib)
     set_target_properties(ags_capture PROPERTIES FOLDER "gfxreconstruct")

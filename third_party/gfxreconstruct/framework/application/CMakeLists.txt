@@ -27,7 +27,7 @@
 ###############################################################################
 
 add_library(gfxrecon_application STATIC "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon_application PRIVATE /wd4244 /wd4018)
     set_target_properties(gfxrecon_application PROPERTIES FOLDER "gfxreconstruct")

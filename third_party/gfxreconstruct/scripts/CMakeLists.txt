@@ -27,7 +27,7 @@
 if (D3D12_SUPPORT)
 
     add_custom_target(gfxrecon-optimize-renamed.py ALL)
-
+    # GOOGLE: Add dive related folder organization for windows build.
     if(MSVC)
         set_target_properties(gfxrecon-optimize-renamed.py PROPERTIES FOLDER "gfxreconstruct")
     endif()
@@ -40,7 +40,7 @@ if (D3D12_SUPPORT)
             OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
     add_custom_target(gfxrecon-replay-renamed.py ALL)
-
+    # GOOGLE: Add dive related folder organization for windows build.
     if(MSVC)
         set_target_properties(gfxrecon-replay-renamed.py PROPERTIES FOLDER "gfxreconstruct")
     endif()

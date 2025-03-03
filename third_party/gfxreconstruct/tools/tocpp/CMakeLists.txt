@@ -1,5 +1,5 @@
 add_executable(gfxrecon-tocpp "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon-tocpp PRIVATE /wd4244)
     target_link_libraries(gfxrecon-tocpp psapi.lib)

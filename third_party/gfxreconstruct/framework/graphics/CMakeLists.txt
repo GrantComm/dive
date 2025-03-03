@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2025 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +27,7 @@
 ###############################################################################
 
 add_library(gfxrecon_graphics STATIC "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon_graphics PRIVATE /wd4996 /wd4267 /wd4244)
     set_target_properties(gfxrecon_graphics PROPERTIES FOLDER "gfxreconstruct")
@@ -44,6 +45,9 @@ target_sources(gfxrecon_graphics
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_shader_id_map.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT_FINAL}>:${CMAKE_CURRENT_LIST_DIR}/dx12_ags_marker_injector.h>
+                    $<$<BOOL:${GFXRECON_AGS_SUPPORT_FINAL}>:${CMAKE_CURRENT_LIST_DIR}/dx12_ags_marker_injector.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.h
@@ -61,13 +65,21 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.cpp
               )
+    if (${GFXRECON_AGS_SUPPORT_FINAL})
+    target_sources(gfxrecon_graphics
+              PRIVATE
+                   ${CMAKE_CURRENT_LIST_DIR}/dx12_ags_marker_injector.h
+                   ${CMAKE_CURRENT_LIST_DIR}/dx12_ags_marker_injector.cpp
+              )
+    endif()
 
-target_include_directories(gfxrecon_graphics
-                           PUBLIC
-                               ${CMAKE_SOURCE_DIR}/build
-                               ${CMAKE_CURRENT_SOURCE_DIR}/..
-                               ${CMAKE_CURRENT_SOURCE_DIR}/../../external
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+    # GOOGLE: Add dive related compilation changes so that the cmake files paths are correct.
+    target_include_directories(gfxrecon_graphics
+                               PUBLIC
+                                   ${CMAKE_SOURCE_DIR}/build
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/..
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/../../external
+                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
 

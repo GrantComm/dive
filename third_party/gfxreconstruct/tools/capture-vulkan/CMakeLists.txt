@@ -1,9 +1,9 @@
 add_custom_target(gfxrecon-capture-vulkan.py ALL)
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     set_target_properties(gfxrecon-capture-vulkan.py PROPERTIES FOLDER "gfxreconstruct")
 endif()
-
+# GOOGLE: Add dive related compilation changes so that gfxrecon-capture-vulkan.py path is correct.
 add_custom_command(TARGET gfxrecon-capture-vulkan.py
                    DEPENDS ${CMAKE_SOURCE_SOURCE_DIR}/gfxrecon-capture-vulkan.py
                    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon-capture-vulkan.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon-capture-vulkan.py)

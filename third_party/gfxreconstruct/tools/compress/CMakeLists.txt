@@ -27,12 +27,13 @@
 ###############################################################################
 
 add_executable(gfxrecon-compress "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon-compress PRIVATE /wd4244)
     set_target_properties(gfxrecon-compress PROPERTIES FOLDER "gfxreconstruct")
 endif()
 
+# GOOGLE: Add dive related compilation changes so that version.rc path is correct.
 target_sources(gfxrecon-compress
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp

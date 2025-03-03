@@ -27,12 +27,13 @@
 ###############################################################################
 
 add_executable(gfxrecon-replay "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon-replay PRIVATE /wd4244)
     target_link_libraries(gfxrecon-replay psapi.lib)
 endif()
 
+# GOOGLE: Add dive related compilation changes so that version.rc path is correct.
 target_sources(gfxrecon-replay
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
@@ -58,6 +59,7 @@ target_link_libraries(gfxrecon-replay
 
 target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
 
+# GOOGLE: Add dive related folder organization for windows build.
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
     # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
@@ -77,6 +79,7 @@ find_package(Threads REQUIRED)
 target_link_libraries(gfxrecon-replay Threads::Threads)
 
 common_build_directives(gfxrecon-replay)
+# GOOGLE: Add dive related compilation changes so that cmake file paths are correct.
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/AgilitySDK.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/InstallDXC.cmake)
 

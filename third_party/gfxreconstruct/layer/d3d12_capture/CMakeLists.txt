@@ -27,11 +27,12 @@
 ###############################################################################
 
 add_library(d3d12_capture SHARED "")
+# GOOGLE: Add dive related compilation changes so that version.rc path is correct.
 target_sources(d3d12_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                 ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def
                 $<$<BOOL:WIN32>:${CMAKE_CURRENT_SOURCE_DIR}/../../version.rc>)
-
+# GOOGLE: Add dive related compilation changes so that the cmake files paths are correct.
 target_include_directories(d3d12_capture 
                            PUBLIC 
                                ${CMAKE_BINARY_DIR} 
@@ -39,7 +40,7 @@ target_include_directories(d3d12_capture
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(d3d12_capture gfxrecon_encode gfxrecon_format gfxrecon_util platform_specific)
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_link_libraries(d3d12_capture psapi.lib)
     set_target_properties(d3d12_capture PROPERTIES FOLDER "gfxreconstruct")

@@ -27,7 +27,7 @@
 ###############################################################################
 
 add_library(gfxrecon_encode STATIC "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon_encode PRIVATE /wd4267 /wd4244)
     set_target_properties(gfxrecon_encode PROPERTIES FOLDER "gfxreconstruct")
@@ -129,12 +129,12 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_state_table.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_command_list_util.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_command_list_util.cpp>
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_encode_pnext_struct.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_api_call_encoders.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_api_call_encoders.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_command_buffer_util.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_command_buffer_util.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_dispatch_table.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_pnext_struct_encoder.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_encoders.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_encoders.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_handle_wrappers.h

@@ -27,13 +27,13 @@
 ###############################################################################
 
 add_executable(gfxrecon-optimize "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon-optimize PRIVATE /wd4244)
     target_link_libraries(gfxrecon-optimize psapi.lib)
     set_target_properties(gfxrecon-optimize PROPERTIES FOLDER "gfxreconstruct")
 endif()
-
+# GOOGLE: Add dive related compilation changes so that version.rc path is correct.
 target_sources(gfxrecon-optimize
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
@@ -76,6 +76,7 @@ target_link_libraries(gfxrecon-optimize
 
 common_build_directives(gfxrecon-optimize)
 
+# GOOGLE: Add dive related compilation changes so that the cmake files paths are correct.
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/AgilitySDK.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/InstallDXC.cmake)
 

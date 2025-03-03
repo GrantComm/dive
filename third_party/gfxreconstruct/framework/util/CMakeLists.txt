@@ -27,7 +27,7 @@
 ###############################################################################
 
 add_library(gfxrecon_util STATIC "")
-
+# GOOGLE: Add dive related folder organization for windows build.
 if(MSVC)
     target_compile_options(gfxrecon_util PRIVATE /wd4996 /wd4267 /wd4334)
     set_target_properties(gfxrecon_util PROPERTIES FOLDER "gfxreconstruct")
@@ -224,6 +224,7 @@ if (${RUN_TESTS})
     target_sources(gfxrecon_util_test PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
