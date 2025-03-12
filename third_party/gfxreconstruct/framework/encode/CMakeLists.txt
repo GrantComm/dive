@@ -28,12 +28,6 @@
 
 add_library(gfxrecon_encode STATIC "")
 
-# GOOGLE: Add folder organization for windows build in dive.
-if(MSVC)
-    target_compile_options(gfxrecon_encode PRIVATE /wd4267 /wd4244)
-    set_target_properties(gfxrecon_encode PROPERTIES FOLDER "gfxreconstruct")
-endif()
-
 target_sources(gfxrecon_encode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/api_capture_manager.h
@@ -116,31 +110,31 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_track_struct.h
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_api_call_encoders.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_api_call_encoders.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_unwrappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_wrappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_wrappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_struct_unwrappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_wrappers.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_wrappers.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_wrapper_creators.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_wrapper_creators.cpp>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_add_entries.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_state_table.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_command_list_util.h>
-                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_command_list_util.cpp>
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_api_call_encoders.h
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_api_call_encoders.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_command_buffer_util.h
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_command_buffer_util.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_dispatch_table.h
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_pnext_struct_encoder.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_encoders.h
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_encoders.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_handle_wrappers.h
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_handle_wrappers.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_state_table.h
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_wrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrapper_creators.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_add_entries.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_state_table.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_encoder.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
 
 )
 
@@ -149,11 +143,10 @@ if (MSVC)
     target_compile_options(gfxrecon_encode PRIVATE /bigobj)
 endif()
 
-# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
 target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_CURRENT_SOURCE_DIR}/..
+                               ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)

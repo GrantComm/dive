@@ -729,6 +729,39 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
     // Emit in json output the references to vertex and index buffers dumped files
     if (options_.dump_resources_dump_vertex_index_buffer)
     {
+        // Emmit vertex bindings info
+        if (!draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map.empty())
+        {
+            auto& vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
+
+            auto&    bindings_json_entry = vertex_input_state_json_entry["bindings"];
+            uint32_t i                   = 0;
+            for (const auto& vb_binding : draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map)
+            {
+                bindings_json_entry[i]["binding"]   = vb_binding.first;
+                bindings_json_entry[i]["stride"]    = vb_binding.second.stride;
+                bindings_json_entry[i]["inputRate"] = util::ToString<VkVertexInputRate>(vb_binding.second.inputRate);
+                ++i;
+            }
+        }
+
+        // Emmit vertex attributes info
+        if (!draw_call_info.dc_param->vertex_input_state.vertex_input_attribute_map.empty())
+        {
+            auto&    vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
+            auto&    attributes_json_entry         = vertex_input_state_json_entry["attributes"];
+            uint32_t i                             = 0;
+            for (const auto& vb_attribute : draw_call_info.dc_param->vertex_input_state.vertex_input_attribute_map)
+            {
+                attributes_json_entry[i]["location"] = vb_attribute.first;
+                attributes_json_entry[i]["binding"]  = vb_attribute.second.binding;
+                attributes_json_entry[i]["format"]   = vb_attribute.second.format;
+                attributes_json_entry[i]["offset"]   = vb_attribute.second.offset;
+                ++i;
+            }
+        }
+
+        // Emmit bound index buffer info
         if (DrawCallsDumpingContext::IsDrawCallIndexed(draw_call_info.dc_param->type))
         {
             if (draw_call_info.dc_param->referenced_index_buffer.buffer_info != nullptr)
@@ -738,17 +771,23 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                 res_info.index_type                     = draw_call_info.dc_param->referenced_index_buffer.index_type;
                 const std::string index_buffer_filename = GenerateIndexBufferFilename(res_info);
 
-                auto& json_entry = draw_call_entry["indexBuffer"];
+                auto& vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
+                auto& json_entry                    = vertex_input_state_json_entry["indexBuffer"];
 
-                dump_json_.InsertBufferInfo(
-                    json_entry, draw_call_info.dc_param->referenced_index_buffer.buffer_info, index_buffer_filename);
+                json_entry["bufferId"] = draw_call_info.dc_param->referenced_index_buffer.buffer_info->capture_id;
+                json_entry["file"]     = index_buffer_filename;
+                json_entry["offset"]   = draw_call_info.dc_param->index_buffer_dumped_at_offset;
+                json_entry["indexType"] =
+                    util::ToString<VkIndexType>(draw_call_info.dc_param->referenced_index_buffer.index_type);
             }
         }
 
+        // Emmit bound vertex buffers info
         if (!draw_call_info.dc_param->referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty() &&
             !draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map.empty())
         {
-            auto& json_entry = draw_call_entry["vertexBuffers"];
+            auto& vertex_input_state_json_entry = draw_call_entry["vertexInputState"];
+            auto& json_entry                    = vertex_input_state_json_entry["vertexBuffers"];
 
             uint32_t i = 0;
             for (const auto& vb_binding : draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map)
@@ -769,6 +808,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(const Vu
                     json_entry[i]["bufferId"]            = vb_binding_buffer->second.buffer_info->capture_id;
                     json_entry[i]["vertexBufferBinding"] = vb_binding.first;
                     json_entry[i]["file"]                = vb_filename;
+
+                    auto offset_entry = draw_call_info.dc_param->vertex_buffer_dumped_at_offset.find(vb_binding.first);
+                    if (offset_entry != draw_call_info.dc_param->vertex_buffer_dumped_at_offset.end())
+                    {
+                        json_entry[i]["offset"] = offset_entry->second;
+                    }
                     ++i;
                 }
             }
