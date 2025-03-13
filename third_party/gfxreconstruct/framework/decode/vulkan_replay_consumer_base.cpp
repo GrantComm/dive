@@ -249,10 +249,10 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 {
-    for (const std::pair<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>>& elt :
-         tracked_pipeline_caches_)
+    for (const auto& [handle_id, cache_pair] : tracked_pipeline_caches_)
     {
-        SavePipelineCache(elt.first, elt.second.first, elt.second.second);
+        const auto& [device_info, pipeline_cache] = cache_pair;
+        SavePipelineCache(handle_id, device_info, pipeline_cache);
     }
 
     // Idle all devices before destroying other resources.
@@ -260,6 +260,10 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     // free replacer internal vulkan-resources
     _device_address_replacers.clear();
+
+    // process queued async tasks
+    background_queue_.join_all();
+    main_thread_queue_.poll();
 
     // Cleanup screenshot resources before destroying device.
     object_info_table_->VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) {
@@ -298,7 +302,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         graphics::ReleaseLoader(loader_handle_);
     }
 
-    delete resource_dumper_;
     resource_dumper_ = nullptr;
 
     CommonObjectInfoTable::ReleaseSingleton();
@@ -1068,8 +1071,10 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
 void VulkanReplayConsumerBase::SetFatalErrorHandler(std::function<void(const char*)> handler)
 {
     fatal_error_handler_ = handler;
-    assert(resource_dumper_);
-    resource_dumper_->DumpResourcesSetFatalErrorHandler(handler);
+    if (resource_dumper_)
+    {
+        resource_dumper_->DumpResourcesSetFatalErrorHandler(handler);
+    }
 }
 
 void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
@@ -1723,7 +1728,7 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
 {
     if (resource_dumper_ == nullptr)
     {
-        resource_dumper_ = new VulkanReplayDumpResources(options_, object_info_table_);
+        resource_dumper_ = std::make_unique<VulkanReplayDumpResources>(options_, object_info_table_);
         GFXRECON_ASSERT(resource_dumper_);
     }
 }
