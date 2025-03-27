@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
+#include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -59,10 +60,11 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
                                                  CommonObjectInfoTable&                    object_info_table,
                                                  const VulkanReplayOptions&                options,
                                                  VulkanDumpResourcesDelegate&              delegate) :
-    original_command_buffer_info(nullptr), current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices),
-    active_renderpass(nullptr), active_framebuffer(nullptr), bound_pipelines{ nullptr }, current_renderpass(0),
-    current_subpass(0), dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE),
-    aux_fence(VK_NULL_HANDLE), device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
+    original_command_buffer_info(nullptr),
+    current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices), active_renderpass(nullptr),
+    active_framebuffer(nullptr), bound_gr_pipeline{ nullptr }, current_renderpass(0), current_subpass(0),
+    dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE), aux_fence(VK_NULL_HANDLE),
+    device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
     replay_device_phys_mem_props(nullptr), delegate_(delegate), dump_depth(options.dump_resources_dump_depth),
     color_attachment_to_dump(options.dump_resources_color_attachment_index),
     dump_vertex_index_buffers(options.dump_resources_dump_vertex_index_buffer),
@@ -143,6 +145,8 @@ void DrawCallsDumpingContext::InsertNewDrawParameters(
         std::forward_as_tuple(index),
         std::forward_as_tuple(DrawCallTypes::kDraw, vertex_count, instance_count, first_vertex, first_instance));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
@@ -158,6 +162,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
         std::forward_as_tuple(
             DrawCallTypes::kDrawIndexed, index_count, instance_count, first_index, vertexOffset, first_instance));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
@@ -168,6 +174,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
                                  std::forward_as_tuple(index),
                                  std::forward_as_tuple(kDrawIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
@@ -178,6 +186,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
         std::forward_as_tuple(index),
         std::forward_as_tuple(DrawCallTypes::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t                index,
@@ -198,6 +208,8 @@ void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t         
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
@@ -218,6 +230,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t                index,
@@ -238,6 +252,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t  
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uint64_t                index,
@@ -258,15 +274,12 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uin
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
-VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
+VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParameters& dc_params)
 {
-    auto entry = draw_call_params.find(index);
-    assert(entry != draw_call_params.end());
-
-    DrawCallParameters& dc_params = entry->second;
-
     assert(IsDrawCallIndirect(dc_params.type));
 
     if (IsDrawCallIndirectCount(dc_params.type))
@@ -519,109 +532,126 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
     return VK_SUCCESS;
 }
 
-void DrawCallsDumpingContext::SnapshotBoundDescriptors(uint64_t index)
+void DrawCallsDumpingContext::SnapshotState(DrawCallParameters& dc_params)
 {
-    const VulkanPipelineInfo* gr_pipeline_info = bound_pipelines[kBindPoint_graphics];
-    if (gr_pipeline_info != nullptr)
+    // Copy all bound descriptors that are compatible with the current pipeline layout
+    if (bound_gr_pipeline != nullptr)
     {
-        auto entry = draw_call_params.find(index);
-        assert(entry != draw_call_params.end());
-
-        DrawCallParameters& dc_params = entry->second;
-
-        // Iterate all shader stages
-        for (const auto& shader_stage : gr_pipeline_info->shaders)
+        for (const auto& [desc_set_index, set_info] : bound_descriptor_sets_gr)
         {
-            const VkShaderStageFlagBits shader_stage_flag = shader_stage.first;
-
-            // Iterate all referenced descriptor sets in each shader stage
-            for (const auto& shader_desc_set : shader_stage.second.used_descriptors_info)
+            // Check against pipeline layout
+            if (bound_gr_pipeline->desc_set_layouts.size() <= desc_set_index)
             {
-                const uint32_t desc_set_index = shader_desc_set.first;
+                continue;
+            }
 
-                const auto& ppl_desc_set = bound_descriptor_sets_gr.find(desc_set_index);
-                assert(ppl_desc_set != bound_descriptor_sets_gr.end());
-
-                if (ppl_desc_set == bound_descriptor_sets_gr.end())
+            for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+            {
+                // Check against pipeline layout
+                const auto layout_entry = bound_gr_pipeline->desc_set_layouts[desc_set_index].find(desc_binding_index);
+                if (layout_entry == bound_gr_pipeline->desc_set_layouts[desc_set_index].end())
                 {
                     continue;
                 }
 
-                for (const auto& shader_desc_binding : shader_desc_set.second)
+                dc_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type = binding_info.desc_type;
+                dc_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
+                    binding_info.stage_flags;
+
+                switch (binding_info.desc_type)
                 {
-                    const uint32_t desc_set_binding_index = shader_desc_binding.first;
-
-                    // if (!shader_desc_binding.second.accessed)
-                    // {
-                    //     continue;
-                    // }
-
-                    const auto& ppl_desc_binding = ppl_desc_set->second.descriptors.find(desc_set_binding_index);
-                    assert(ppl_desc_binding != ppl_desc_set->second.descriptors.end());
-                    if (ppl_desc_binding == ppl_desc_set->second.descriptors.end())
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        continue;
-                    }
+                        for (const auto& [array_idx, img_info] : binding_info.image_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
 
-                    if (!CheckDescriptorCompatibility(shader_desc_binding.second.type,
-                                                      ppl_desc_binding->second.desc_type))
+                            dc_params.referenced_descriptors[desc_set_index][desc_binding_index].image_info[array_idx] =
+                                img_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                     {
-                        GFXRECON_LOG_WARNING("Descriptors are incompatible:");
-                        GFXRECON_LOG_WARNING("shader stage: %s",
-                                             util::ToString<VkShaderStageFlagBits>(shader_stage_flag).c_str());
-                        GFXRECON_LOG_WARNING("desc_set_index: %u", desc_set_index);
-                        GFXRECON_LOG_WARNING("desc_set_binding_index: %u", desc_set_binding_index);
-                        GFXRECON_LOG_WARNING("shader_desc_binding.second.type: %s",
-                                             util::ToString<VkDescriptorType>(shader_desc_binding.second.type).c_str());
-                        GFXRECON_LOG_WARNING(
-                            "ppl_desc_binding->second.desc_type: %s",
-                            util::ToString<VkDescriptorType>(ppl_desc_binding->second.desc_type).c_str());
-                    }
+                        for (const auto& [array_idx, buf_info] : binding_info.buffer_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
 
-                    dc_params.referenced_descriptors[shader_stage_flag][desc_set_index][desc_set_binding_index] =
-                        ppl_desc_binding->second;
+                            dc_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .buffer_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        dc_params.referenced_descriptors[desc_set_index][desc_binding_index].inline_uniform_block =
+                            binding_info.inline_uniform_block;
+                    }
+                    break;
+
+                    default:
+                        break;
                 }
             }
         }
     }
+
+    // Copy vertex input information
+    CopyVertexInputStateInfo(dc_params);
+
+    // Copy indirect draw params
+    if (IsDrawCallIndirect(dc_params.type))
+    {
+        CopyDrawIndirectParameters(dc_params);
+    }
 }
 
-void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
+void DrawCallsDumpingContext::CopyVertexInputStateInfo(DrawCallParameters& dc_params)
 {
-    auto entry = draw_call_params.find(dc_index);
-    assert(entry != draw_call_params.end());
-
-    DrawCallParameters& dc_params = entry->second;
-
-    const VulkanPipelineInfo* gr_pipeline_info = bound_pipelines[kBindPoint_graphics];
-    assert(gr_pipeline_info != nullptr);
-
     // Pipeline has no vertex binding and/or attribute information.
     // This can be a case of shader generated vertices, or vertex buffer is bound as a UBO
-    if (gr_pipeline_info != nullptr &&
-        (!gr_pipeline_info->vertex_input_attribute_map.size() &&
-         !gr_pipeline_info->vertex_input_attribute_map.size()) &&
-        (!gr_pipeline_info->dynamic_vertex_input && !gr_pipeline_info->dynamic_vertex_binding_stride))
+    if (bound_gr_pipeline != nullptr &&
+        (!bound_gr_pipeline->vertex_input_attribute_map.size() &&
+         !bound_gr_pipeline->vertex_input_attribute_map.size()) &&
+        (!bound_gr_pipeline->dynamic_vertex_input && !bound_gr_pipeline->dynamic_vertex_binding_stride))
     {
         return;
     }
 
     // If VK_DYNAMIC_STATE_VERTEX_INPUT_EXT is enabled then get all vertex input state from
     // vkCmdSetVertexInputEXT
-    if (gr_pipeline_info == nullptr || gr_pipeline_info->dynamic_vertex_input)
+    if (bound_gr_pipeline == nullptr || bound_gr_pipeline->dynamic_vertex_input)
     {
         dc_params.vertex_input_state = dynamic_vertex_input_state;
     }
     else
     {
-        if (gr_pipeline_info)
+        if (bound_gr_pipeline)
         {
             // Copy vertex input binding state
-            dc_params.vertex_input_state.vertex_input_binding_map = gr_pipeline_info->vertex_input_binding_map;
+            dc_params.vertex_input_state.vertex_input_binding_map = bound_gr_pipeline->vertex_input_binding_map;
 
             // If VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT is enabled, ignore strides from
             // pipeline and get them from vkCmdBindVertexBuffers2EXT instead
-            if (gr_pipeline_info->dynamic_vertex_binding_stride)
+            if (bound_gr_pipeline->dynamic_vertex_binding_stride)
             {
                 for (auto& vb_binding : dc_params.vertex_input_state.vertex_input_binding_map)
                 {
@@ -635,7 +665,7 @@ void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
             }
 
             // Copy vertex attributes info
-            dc_params.vertex_input_state.vertex_input_attribute_map = gr_pipeline_info->vertex_input_attribute_map;
+            dc_params.vertex_input_state.vertex_input_attribute_map = bound_gr_pipeline->vertex_input_attribute_map;
         }
     }
 
@@ -872,7 +902,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             GFXRECON_ASSERT(dc_param_entry != draw_call_params.end());
             draw_call_info.dc_param = &dc_param_entry->second;
 
-            delegate_.DumpDrawCallInfo(draw_call_info);
+            delegate_.DumpDrawCallInfo(draw_call_info, instance_table);
         }
 
         res = RevertRenderTargetImageLayouts(queue, cb);
@@ -1126,95 +1156,89 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     };
     std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
 
-    auto                      dc_param_entry = draw_call_params.find(dc_index);
-    const DrawCallParameters& dc_params      = dc_param_entry->second;
-    for (const auto& shader_stage : dc_params.referenced_descriptors)
+    auto dc_param_entry = draw_call_params.find(dc_index);
+    GFXRECON_ASSERT(dc_param_entry != draw_call_params.end());
+
+    const DrawCallParameters& dc_params = dc_param_entry->second;
+    for (const auto& desc_set : dc_params.referenced_descriptors)
     {
-        for (const auto& desc_set : shader_stage.second)
+        const uint32_t desc_set_index = desc_set.first;
+        for (const auto& desc_binding : desc_set.second)
         {
-            const uint32_t desc_set_index = desc_set.first;
-            for (const auto& desc_binding : desc_set.second)
+            const uint32_t desc_binding_index = desc_binding.first;
+            switch (desc_binding.second.desc_type)
             {
-                const uint32_t desc_binding_index = desc_binding.first;
-                switch (desc_binding.second.desc_type)
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    for (const auto& img_desc_info : desc_binding.second.image_info)
                     {
-                        for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
+                        if (img_desc_info.second.image_view_info != nullptr)
                         {
-                            if (desc_binding.second.image_info[img].image_view_info != nullptr)
+                            const VulkanImageInfo* img_info =
+                                object_info_table.GetVkImageInfo(img_desc_info.second.image_view_info->image_id);
+                            if (img_info != nullptr &&
+                                (render_pass_dumped_descriptors[rp].image_descriptors.find(img_info) ==
+                                 render_pass_dumped_descriptors[rp].image_descriptors.end()))
                             {
-                                const VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(
-                                    desc_binding.second.image_info[img].image_view_info->image_id);
-                                assert(img_info);
-
-                                if (render_pass_dumped_descriptors[rp].image_descriptors.find(img_info) ==
-                                    render_pass_dumped_descriptors[rp].image_descriptors.end())
-                                {
-                                    image_descriptors.insert(img_info);
-                                    render_pass_dumped_descriptors[rp].image_descriptors.insert(img_info);
-                                }
+                                image_descriptors.insert(img_info);
+                                render_pass_dumped_descriptors[rp].image_descriptors.insert(img_info);
                             }
                         }
                     }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                    {
-                        for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
-                        {
-                            const VulkanBufferInfo* buffer_info = desc_binding.second.buffer_info[buf].buffer_info;
-                            if (buffer_info != nullptr)
-                            {
-                                if (render_pass_dumped_descriptors[rp].buffer_descriptors.find(buffer_info) ==
-                                    render_pass_dumped_descriptors[rp].buffer_descriptors.end())
-                                {
-                                    buffer_descriptors.emplace(std::piecewise_construct,
-                                                               std::forward_as_tuple(buffer_info),
-                                                               std::forward_as_tuple(buffer_descriptor_info{
-                                                                   desc_binding.second.buffer_info[buf].offset,
-                                                                   desc_binding.second.buffer_info[buf].range }));
-                                    render_pass_dumped_descriptors[rp].buffer_descriptors.insert(buffer_info);
-                                }
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        if (render_pass_dumped_descriptors[rp].inline_uniform_blocks.find(
-                                &desc_binding.second.inline_uniform_block) ==
-                            render_pass_dumped_descriptors[rp].inline_uniform_blocks.end())
-                        {
-                            inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
-                                desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
-                            };
-                            render_pass_dumped_descriptors[rp].inline_uniform_blocks.insert(
-                                &desc_binding.second.inline_uniform_block);
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                    case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        break;
-
-                    default:
-                        GFXRECON_LOG_WARNING_ONCE(
-                            "%s(): Descriptor type (%s) not handled",
-                            __func__,
-                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
-                        break;
                 }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                {
+                    for (const auto& buf_desc_info : desc_binding.second.buffer_info)
+                    {
+                        const VulkanBufferInfo* buffer_info = buf_desc_info.second.buffer_info;
+                        if (buffer_info != nullptr &&
+                            (render_pass_dumped_descriptors[rp].buffer_descriptors.find(buffer_info) ==
+                             render_pass_dumped_descriptors[rp].buffer_descriptors.end()))
+                        {
+                            buffer_descriptors.emplace(std::piecewise_construct,
+                                                       std::forward_as_tuple(buffer_info),
+                                                       std::forward_as_tuple(buffer_descriptor_info{
+                                                           buf_desc_info.second.offset, buf_desc_info.second.range }));
+                            render_pass_dumped_descriptors[rp].buffer_descriptors.insert(buffer_info);
+                        }
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                {
+                    if (render_pass_dumped_descriptors[rp].inline_uniform_blocks.find(
+                            &desc_binding.second.inline_uniform_block) ==
+                        render_pass_dumped_descriptors[rp].inline_uniform_blocks.end())
+                    {
+                        inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
+                            desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
+                        };
+                        render_pass_dumped_descriptors[rp].inline_uniform_blocks.insert(
+                            &desc_binding.second.inline_uniform_block);
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    break;
+
+                default:
+                    GFXRECON_LOG_WARNING_ONCE("%s(): Descriptor type (%s) not handled",
+                                              __func__,
+                                              util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
+                    break;
             }
         }
     }
@@ -1479,7 +1503,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     assert(dc_params_entry != draw_call_params.end());
     DrawCallParameters& dc_params = dc_params_entry->second;
 
-    std::pair<uint32_t, uint32_t> min_max_vertex_indices(std::numeric_limits<uint32_t>::max(), 0);
+    MinMaxVertexIndex min_max_vertex_indices = MinMaxVertexIndex{ 0, 0 };
 
     VulkanDumpResourceInfo res_info_base{};
     res_info_base.device_info                  = device_info;
@@ -1494,13 +1518,21 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
     {
-        // Store all (indexCount, firstIndex) pairs used by all draw calls (in case of indirect)
-        // associated with this index buffer. Then we will parse the index buffer using all these pairs in order to
-        // detect the greatest index.
-        std::vector<std::pair<uint32_t, uint32_t>> index_count_first_index_pairs;
+        min_max_vertex_indices.min = std::numeric_limits<uint32_t>::max();
 
-        uint32_t abs_index_count        = 0;
-        int32_t  greatest_vertex_offset = 0;
+        struct DrawIndexedParams
+        {
+            uint32_t index_count;
+            uint32_t first_index;
+            int32_t  vertex_offset;
+        };
+
+        // Store all indexCount, firstIndex and vertexOffset used by all draw calls (in case of indirect)
+        // associated with this index buffer. Then we will parse the index buffer using all these pairs
+        // in order to detect the greatest index which should help calculate the size of the vertex buffer
+        // actually used by the draw calls.
+        std::vector<DrawIndexedParams> indexed_params;
+        uint32_t                       abs_index_count = 0;
 
         if (IsDrawCallIndirect(dc_params.type))
         {
@@ -1517,18 +1549,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].indexCount;
                         const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].firstIndex;
 
-                        index_count_first_index_pairs.emplace_back(
-                            std::make_pair(indirect_index_count, indirect_first_index));
+                        abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
 
-                        if (abs_index_count < indirect_index_count + indirect_first_index)
-                        {
-                            abs_index_count = indirect_index_count + indirect_first_index;
-                        }
-
-                        if (greatest_vertex_offset < ic_params.draw_indexed_params[d].vertexOffset)
-                        {
-                            greatest_vertex_offset = ic_params.draw_indexed_params[d].vertexOffset;
-                        }
+                        indexed_params.emplace_back(DrawIndexedParams{ indirect_index_count,
+                                                                       indirect_first_index,
+                                                                       ic_params.draw_indexed_params[d].vertexOffset });
                     }
                 }
             }
@@ -1545,18 +1570,10 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         const uint32_t indirect_index_count = i_params.draw_indexed_params[d].indexCount;
                         const uint32_t indirect_first_index = i_params.draw_indexed_params[d].firstIndex;
 
-                        index_count_first_index_pairs.emplace_back(
-                            std::make_pair(indirect_index_count, indirect_first_index));
+                        abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
 
-                        if (abs_index_count < indirect_index_count + indirect_first_index)
-                        {
-                            abs_index_count = indirect_index_count + indirect_first_index;
-                        }
-
-                        if (greatest_vertex_offset < i_params.draw_indexed_params[d].vertexOffset)
-                        {
-                            greatest_vertex_offset = i_params.draw_indexed_params[d].vertexOffset;
-                        }
+                        indexed_params.emplace_back(DrawIndexedParams{
+                            indirect_index_count, indirect_first_index, i_params.draw_indexed_params[d].vertexOffset });
                     }
                 }
             }
@@ -1565,10 +1582,10 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         {
             const uint32_t index_count = dc_params.dc_params_union.draw_indexed.indexCount;
             const uint32_t first_index = dc_params.dc_params_union.draw_indexed.firstIndex;
+            abs_index_count            = index_count + first_index;
 
-            index_count_first_index_pairs.emplace_back(std::make_pair(index_count, first_index));
-            abs_index_count        = index_count + first_index;
-            greatest_vertex_offset = dc_params.dc_params_union.draw_indexed.vertexOffset;
+            indexed_params.emplace_back(
+                DrawIndexedParams{ index_count, first_index, dc_params.dc_params_union.draw_indexed.vertexOffset });
         }
 
         if (abs_index_count)
@@ -1576,6 +1593,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             const VkIndexType index_type = dc_params.referenced_index_buffer.index_type;
             const uint32_t    index_size = VkIndexTypeToBytes(index_type);
             const uint32_t    offset     = dc_params.referenced_index_buffer.offset;
+
+            dc_params.index_buffer_dumped_at_offset = offset;
 
             // Check if the exact size has been provided by vkCmdBindIndexBuffer2
             uint32_t total_size = (dc_params.referenced_index_buffer.size != 0)
@@ -1614,18 +1633,18 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             }
 
             // Parse all indices in order to find the smallest and greatest index
-            for (const auto& pairs : index_count_first_index_pairs)
+            for (const auto& params : indexed_params)
             {
-                const std::pair<uint32_t, uint32_t> min_max_indices = FindMinMaxVertexIndices(
-                    res_info.data, pairs.first, pairs.second, greatest_vertex_offset, index_type);
-                if (min_max_indices.first < min_max_vertex_indices.first)
+                MinMaxVertexIndex min_max_indices = FindMinMaxVertexIndices(
+                    res_info.data, params.index_count, params.first_index, params.vertex_offset, index_type);
+                if (min_max_indices.min < min_max_vertex_indices.min)
                 {
-                    min_max_vertex_indices.first = min_max_indices.first;
+                    min_max_vertex_indices.min = min_max_indices.min;
                 }
 
-                if (min_max_indices.second > min_max_vertex_indices.second)
+                if (min_max_indices.max > min_max_vertex_indices.max)
                 {
-                    min_max_vertex_indices.second = min_max_indices.second;
+                    min_max_vertex_indices.max = min_max_indices.max;
                 }
             }
         }
@@ -1636,12 +1655,13 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     {
         uint32_t vertex_count   = 0;
         uint32_t instance_count = 0;
+        uint32_t first_vertex   = 0;
 
         if (IsDrawCallIndexed(dc_params.type))
         {
             // For indexed draw calls the greatest vertex index will be used as the max vertex count
-            GFXRECON_ASSERT(min_max_vertex_indices.second >= min_max_vertex_indices.first);
-            vertex_count = (min_max_vertex_indices.second - min_max_vertex_indices.first) + 1;
+            GFXRECON_ASSERT(min_max_vertex_indices.max >= min_max_vertex_indices.min);
+            vertex_count = (min_max_vertex_indices.max - min_max_vertex_indices.min) + 1;
 
             if (IsDrawCallIndirect(dc_params.type))
             {
@@ -1656,10 +1676,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         assert(ic_params.draw_params == nullptr);
                         for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
                         {
-                            if (instance_count < ic_params.draw_indexed_params[d].instanceCount)
-                            {
-                                instance_count = ic_params.draw_indexed_params[d].instanceCount;
-                            }
+                            instance_count = std::max(instance_count, ic_params.draw_indexed_params[d].instanceCount);
                         }
                     }
                 }
@@ -1674,10 +1691,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         assert(i_params.draw_params == nullptr);
                         for (uint32_t d = 0; d < i_params.draw_count; ++d)
                         {
-                            if (instance_count < i_params.draw_indexed_params[d].instanceCount)
-                            {
-                                instance_count = i_params.draw_indexed_params[d].instanceCount;
-                            }
+                            instance_count = std::max(instance_count, i_params.draw_indexed_params[d].instanceCount);
                         }
                     }
                 }
@@ -1691,6 +1705,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         {
             if (IsDrawCallIndirect(dc_params.type))
             {
+                first_vertex = std::numeric_limits<uint32_t>::max();
+
                 if (IsDrawCallIndirectCount(dc_params.type))
                 {
                     const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
@@ -1702,15 +1718,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         assert(ic_params.draw_indexed_params == nullptr);
                         for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
                         {
-                            if (vertex_count < ic_params.draw_params[d].vertexCount)
-                            {
-                                vertex_count = ic_params.draw_params[d].vertexCount;
-                            }
-
-                            if (instance_count < ic_params.draw_params[d].instanceCount)
-                            {
-                                instance_count = ic_params.draw_params[d].instanceCount;
-                            }
+                            vertex_count   = std::max(vertex_count, ic_params.draw_params[d].vertexCount);
+                            instance_count = std::max(instance_count, ic_params.draw_params[d].instanceCount);
+                            first_vertex   = std::min(first_vertex, ic_params.draw_params[d].firstVertex);
                         }
                     }
                 }
@@ -1725,23 +1735,23 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         assert(i_params.draw_indexed_params == nullptr);
                         for (uint32_t d = 0; d < i_params.draw_count; ++d)
                         {
-                            if (vertex_count < i_params.draw_params[d].vertexCount)
-                            {
-                                vertex_count = i_params.draw_params[d].vertexCount;
-                            }
-
-                            if (instance_count < i_params.draw_params[d].instanceCount)
-                            {
-                                instance_count = i_params.draw_params[d].instanceCount;
-                            }
+                            vertex_count   = std::max(vertex_count, i_params.draw_params[d].vertexCount);
+                            instance_count = std::max(instance_count, i_params.draw_params[d].instanceCount);
+                            first_vertex   = std::min(first_vertex, i_params.draw_params[d].firstVertex);
                         }
                     }
+                }
+
+                if (first_vertex == std::numeric_limits<uint32_t>::max())
+                {
+                    first_vertex = 0;
                 }
             }
             else
             {
                 vertex_count   = dc_params.dc_params_union.draw.vertexCount;
                 instance_count = dc_params.dc_params_union.draw.instanceCount;
+                first_vertex   = dc_params.dc_params_union.draw.firstVertex;
             }
         }
 
@@ -1816,7 +1826,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 }
 
                 // Calculate offset including vertexOffset
-                const uint32_t offset = vb_entry->second.offset + (min_max_vertex_indices.first * binding_stride);
+                const uint32_t offset =
+                    vb_entry->second.offset + ((min_max_vertex_indices.min + first_vertex) * binding_stride);
 
                 assert(total_size <= vb_entry->second.buffer_info->size - offset);
                 // There is something wrong with the calculations if this is true
@@ -1824,6 +1835,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 {
                     total_size = vb_entry->second.buffer_info->size - offset;
                 }
+
+                dc_params.vertex_buffer_dumped_at_offset[binding] = offset;
 
                 vb_entry->second.actual_size    = total_size;
                 VulkanDumpResourceInfo res_info = res_info_base;
@@ -2383,9 +2396,12 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
 
 void DrawCallsDumpingContext::BindPipeline(VkPipelineBindPoint pipeline_bind_point, const VulkanPipelineInfo* pipeline)
 {
-    PipelineBindPoints bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
+    if (pipeline_bind_point != VK_PIPELINE_BIND_POINT_GRAPHICS)
+    {
+        return;
+    }
 
-    bound_pipelines[bind_point] = pipeline;
+    bound_gr_pipeline = pipeline;
 }
 
 void DrawCallsDumpingContext::EndRenderPass()

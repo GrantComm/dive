@@ -28,12 +28,6 @@
 
 add_library(gfxrecon_graphics STATIC "")
 
-# GOOGLE: Add folder organization for windows build in dive.
-if(MSVC)
-    target_compile_options(gfxrecon_graphics PRIVATE /wd4996 /wd4267 /wd4244)
-    set_target_properties(gfxrecon_graphics PROPERTIES FOLDER "gfxreconstruct")
-endif()
-
 target_sources(gfxrecon_graphics
                PRIVATE
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_gpu_va_map.h>
@@ -54,6 +48,8 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_deep_copy.h
@@ -72,12 +68,11 @@ target_sources(gfxrecon_graphics
                )
 endif()
 
-# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
 target_include_directories(gfxrecon_graphics
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/build
-                               ${CMAKE_CURRENT_SOURCE_DIR}/..
-                               ${CMAKE_CURRENT_SOURCE_DIR}/../../external
+                               ${CMAKE_SOURCE_DIR}/framework
+                               ${CMAKE_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
