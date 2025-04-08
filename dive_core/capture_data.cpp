@@ -30,6 +30,7 @@
 #    include "perfetto_trace/trace_reader.h"
 #endif
 #include "pm4_info.h"
+#include "third_party/gfxreconstruct/framework/decode/file_processor.h"
 
 namespace Dive
 {
@@ -887,6 +888,10 @@ CaptureData::LoadResult CaptureData::LoadFile(const char *file_name)
 #endif
         return LoadAdrenoRdFile(file_name);
     }
+    else if (file_extension.compare(".gfxr") == 0)
+    {
+        return LoadGFXRFile(file_name);
+    }
 #if defined(DIVE_ENABLE_PERFETTO)
     else if (file_extension.compare(".perfetto") == 0)
     {
@@ -948,6 +953,28 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(const char *file_name)
         return LoadResult::kFileIoError;
     }
     auto result = LoadAdrenoRdFile(reader);
+    if (result != LoadResult::kSuccess)
+    {
+        std::cerr << "Error reading: " << file_name << " (" << result << ")" << std::endl;
+    }
+    else
+    {
+        m_cur_capture_file = std::string(file_name);
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult CaptureData::LoadGFXRFile(const char *file_name)
+{
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(file_name) == 0)
+    {
+        std::cerr << "Not able to initialize file processor and open: " << file_name << std::endl;
+        return LoadResult::kFileIoError;
+    }
+    auto result = LoadGFXRFile(file_processor);
     if (result != LoadResult::kSuccess)
     {
         std::cerr << "Error reading: " << file_name << " (" << result << ")" << std::endl;
@@ -1164,6 +1191,12 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(FileReader &capture_file)
         }
     }
     m_memory.Finalize(true, true);
+    return LoadResult::kSuccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult CaptureData::LoadGFXRFile(gfxrecon::decode::FileProcessor &file_processor)
+{
     return LoadResult::kSuccess;
 }
 

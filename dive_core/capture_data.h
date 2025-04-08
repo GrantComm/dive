@@ -26,6 +26,7 @@
 #include "dive_core/common/memory_manager_base.h"
 #include "log.h"
 #include "progress_tracker.h"
+#include "third_party/gfxreconstruct/framework/decode/file_processor.h"
 
 // Forward declarations
 struct SqttFileChunkAsicInfo;
@@ -367,6 +368,7 @@ public:
 
     LoadResult LoadCaptureFile(std::istream &capture_file);
     LoadResult LoadAdrenoRdFile(FileReader &capture_file);
+    LoadResult LoadGFXRFile(gfxrecon::decode::FileProcessor &file_processor);
 #if defined(DIVE_ENABLE_PERFETTO)
     LoadResult LoadPerfettoFile(const char *file_name);
 #endif
@@ -380,6 +382,7 @@ public:
 private:
     LoadResult LoadCaptureFile(const char *file_name);
     LoadResult LoadAdrenoRdFile(const char *file_name);
+    LoadResult LoadGFXRFile(const char *file_name);
     bool       LoadCapture(std::istream &capture_file, const CaptureDataHeader &data_header);
     bool       LoadMemoryAllocBlock(std::istream &capture_file);
     bool       LoadSubmitBlock(std::istream &capture_file);
