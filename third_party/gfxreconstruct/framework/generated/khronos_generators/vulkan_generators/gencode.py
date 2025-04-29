@@ -63,6 +63,8 @@ from vulkan_cpp_consumer_body_generator import VulkanCppConsumerBodyGenerator,Vu
 from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerator, VulkanCppConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
+from vulkan_dive_consumer_header_generator import VulkanExportDiveConsumerHeaderGenerator, VulkanExportDiveConsumerHeaderGeneratorOptions
+from vulkan_dive_consumer_body_generator import VulkanExportDiveConsumerBodyGenerator, VulkanExportDiveConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
 from vulkan_replay_dump_resources_body_generator import VulkanReplayDumpResourcesBodyGenerator, VulkanReplayDumpResourcesBodyGeneratorOptions
 from vulkan_replay_dump_resources_header_generator import VulkanReplayDumpResourcesHeaderGenerator, VulkanReplayDumpResourcesHeaderGeneratorOptions
@@ -799,6 +801,37 @@ def make_gen_opts(args):
         VulkanExportJsonConsumerBodyGenerator,
         VulkanExportJsonConsumerBodyGeneratorOptions(
             filename='generated_vulkan_json_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_dive_consumer.h'] = [
+        VulkanExportDiveConsumerHeaderGenerator,
+        VulkanExportDiveConsumerHeaderGeneratorOptions(
+            class_name='VulkanExportDiveConsumer',
+            base_class_header='vulkan_dive_consumer_base.h',
+            is_override=True,
+            filename='generated_vulkan_dive_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_dive_consumer.cpp'] = [
+        VulkanExportDiveConsumerBodyGenerator,
+        VulkanExportDiveConsumerBodyGeneratorOptions(
+            filename='generated_vulkan_dive_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

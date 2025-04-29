@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2022 Valve Corporation
+** Copyright (c) 2023 Valve Corporation
+** Copyright (c) 2023 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,35 +21,33 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ANNOTATION_HANDLER_DECODER_H
-#define GFXRECON_ANNOTATION_HANDLER_DECODER_H
+#ifndef GFXRECON_DECODE_MARKER_JSON_CONSUMER_BASE_H
+#define GFXRECON_DECODE_MARKER_JSON_CONSUMER_BASE_H
 
-#include "format/format.h"
 #include "util/defines.h"
-
-#include <cstdint>
-#include <iostream>
-#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class AnnotationHandler
+/// Template shim for turning markers into json using a JsonWriter pointed to by
+// a protected pointer called writer_ in a base class.
+template <class Base>
+class MarkerDiveConsumer : public Base
 {
   public:
-    virtual ~AnnotationHandler() {}
+    virtual void ProcessStateBeginMarker(uint64_t frame_number)
+    {
+    }
+    virtual void ProcessStateEndMarker(uint64_t frame_number)
+    {
+    }
 
-    virtual void ProcessAnnotation(uint64_t               block_index,
-                                   format::AnnotationType type,
-                                   const std::string&     label,
-                                   const std::string&     data) = 0;
-
-    void WriteBlockStart();
-    void WriteBlockEnd();
-    virtual void WriteBlockEnd(std::string name, uint32_t cmd_buffer_index = 0){}
+    virtual void ProcessFrameEndMarker(uint64_t frame_number)
+    {
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ANNOTATION_HANDLER_DECODER_H
+#endif // GFXRECON_DECODE_MARKER_JSON_CONSUMER_BASE_H

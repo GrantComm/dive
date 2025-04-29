@@ -31,6 +31,7 @@
 #include "dive_core/common/pm4_packets/pfp_pm4_packets.h"
 #include "dive_core/stl_replacement.h"
 #include "gpudefs.h"
+#include "dive_core/dive_annotation_processor.h"
 
 namespace Dive
 {
@@ -99,12 +100,19 @@ class IEmulateCallbacks
 public:
     bool ProcessSubmits(const DiveVector<SubmitInfo> &submits, const IMemoryManager &mem_manager);
 
+    bool ProcessGfxrSubmits(const DiveVector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &submits, const IMemoryManager &mem_manager);
+
     // Callback on an IB start. Also called for all call/chain IBs
     // A return value of false indicates to the emulator to skip parsing this IB
     virtual bool OnIbStart(uint32_t                  submit_index,
                            uint32_t                  ib_index,
                            const IndirectBufferInfo &ib_info,
                            IbType                    type)
+    {
+        return true;
+    }
+
+    virtual bool OnCmd(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
     {
         return true;
     }
@@ -129,6 +137,8 @@ public:
 
     virtual void OnSubmitStart(uint32_t submit_index, const SubmitInfo &submit_info) = 0;
     virtual void OnSubmitEnd(uint32_t submit_index, const SubmitInfo &submit_info) = 0;
+    virtual void OnGfxrSubmitStart(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info) {};
+    virtual void OnGfxrSubmitEnd(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info) {};
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +235,11 @@ public:
                        uint32_t                  submit_index,
                        uint32_t                  num_ibs,
                        const IndirectBufferInfo *ib_ptr);
+
+    bool ExecuteGfxrSubmit(IEmulateCallbacks        &callbacks,
+                        const IMemoryManager     &mem_manager,
+                        uint32_t                  submit_index,
+                        const DiveVector<DiveAnnotationProcessor::VulkanCommandInfo> &vkCmds);
 
 private:
     // Keep all emulation state together

@@ -78,6 +78,8 @@ generate_targets = [
     'generated_vulkan_state_table.h',
     'generated_vulkan_json_consumer.h',
     'generated_vulkan_json_consumer.cpp',
+    'generated_vulkan_dive_consumer.h',
+    'generated_vulkan_dive_consumer.cpp',
     'generated_vulkan_struct_to_json.h',
     'generated_vulkan_struct_to_json.cpp',
     'generated_vulkan_enum_to_json.h',

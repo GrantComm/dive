@@ -430,6 +430,13 @@ uint64_t CommandHierarchy::AddNode(NodeType      type,
 }
 
 //--------------------------------------------------------------------------------------------------
+uint64_t CommandHierarchy::AddGfxrNode(NodeType type,
+    std::string &&desc, char *metadata_ptr, uint32_t metadata_size)
+{
+    return m_nodes.AddGfxrNode(type, std::move(desc), metadata_ptr, metadata_size);
+}
+
+//--------------------------------------------------------------------------------------------------
 size_t CommandHierarchy::GetEventIndex(uint64_t node_index) const
 {
     const DiveVector<uint64_t> &indices = m_nodes.m_event_node_indices;
@@ -466,6 +473,46 @@ uint64_t CommandHierarchy::Nodes::AddNode(NodeType      type,
     }
     else
         m_metadata.resize(m_metadata.size() + 1);
+    if (m_description.back() == "IB: 0, Address: 0x4001599000, Size (DWORDS): 58" || m_node_type.size() - 1 == 65)
+    {
+        std::cout <<"THIS IS THE NODE" <<std::endl;
+        std::cout << m_description.back() << std::endl;
+        std::cout << "Index: " << std::to_string(m_node_type.size() - 1) << std::endl;
+    } else if (m_node_type.size() - 1 == 7)
+    {
+        std::cout <<"THIS IS THE PARENT" <<std::endl;
+        std::cout << m_description.back() << std::endl;
+        std::cout << "Index: " << std::to_string(m_node_type.size() - 1) << std::endl;
+    }
+    return m_node_type.size() - 1;
+}
+
+// =================================================================================================
+// CommandHierarchy::Nodes
+// =================================================================================================
+uint64_t CommandHierarchy::Nodes::AddGfxrNode(NodeType type,
+    std::string &&desc, char *metadata_ptr, uint32_t metadata_size)
+{
+    DIVE_ASSERT(m_node_type.size() == m_description.size());
+
+    m_node_type.push_back(type);
+
+    m_description.push_back(std::move(desc));
+
+
+
+    //m_metadata.resize(m_metadata.size() + 1);
+
+    if (metadata_ptr != nullptr)
+    {
+        DiveVector<uint8_t> temp(metadata_size);
+        memcpy(&temp[0], metadata_ptr, metadata_size);
+        m_metadata.push_back(std::move(temp));
+    }
+    else
+    {
+        m_metadata.resize(m_metadata.size() + 1);
+    }
 
     return m_node_type.size() - 1;
 }
@@ -559,6 +606,12 @@ CommandHierarchyCreator::CommandHierarchyCreator(EmulateStateTracker &state_trac
     m_state_tracker(state_tracker)
 {
     m_state_tracker.Reset();
+}
+
+EmulateStateTracker CommandHierarchyCreator::defaultStateTracker;
+
+CommandHierarchyCreator::CommandHierarchyCreator() : m_state_tracker(defaultStateTracker)
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -843,6 +896,13 @@ bool CommandHierarchyCreator::OnIbStart(uint32_t                  submit_index,
 
     // Determine parent node
     uint64_t parent_node_index = m_cur_submit_node_index;
+    if (ib_string_stream.str() == "IB: 0, Address: 0x4001599000, Size (DWORDS): 58" || ib_string_stream.str() == "Call IB, Address: 0x400002a000, Size (DWORDS): 93")
+    {
+        std::cout << "FOUND IT!" << std::endl;
+        std:: cout << "FOUND INDEX: " << std::to_string(ib_node_index) << std::endl;
+        std:: cout << "FOUND SUBMIT (Parent) INDEX: " << std::to_string(parent_node_index) << std::endl;
+
+    }
     if (!m_ib_stack.empty())
     {
         parent_node_index = m_ib_stack.back();
@@ -2434,6 +2494,11 @@ void CommandHierarchyCreator::CreateTopologies()
         for (uint64_t node_index = 0; node_index < num_nodes; ++node_index)
         {
             DIVE_ASSERT(m_node_children[topology][0].size() == m_node_children[topology][1].size());
+            if (node_index == 8)
+            {
+                std::cout << "Curr node_index: " << std::to_string(node_index) << std::endl;
+                std::cout << "Submit Size: " << std::to_string(m_node_children[topology][0][node_index].size()) << std::endl;
+            }
             cur_topology.AddChildren(node_index, m_node_children[topology][0][node_index]);
             cur_topology.AddSharedChildren(node_index, m_node_children[topology][1][node_index]);
         }

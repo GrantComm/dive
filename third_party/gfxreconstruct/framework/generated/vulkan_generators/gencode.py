@@ -809,6 +809,37 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_vulkan_dive_consumer.h'] = [
+        VulkanExportDiveConsumerHeaderGenerator,
+        VulkanExportDiveConsumerHeaderGeneratorOptions(
+            class_name='VulkanExportDiveConsumer',
+            base_class_header='vulkan_dive_consumer_base.h',
+            is_override=True,
+            filename='generated_vulkan_dive_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_dive_consumer.cpp'] = [
+        VulkanExportDiveConsumerBodyGenerator,
+        VulkanExportDiveConsumerBodyGeneratorOptions(
+            filename='generated_vulkan_dive_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
     gen_opts['generated_vulkan_struct_to_json.h'] = [
         VulkanStructToJsonHeaderGenerator,
         VulkanStructToJsonHeaderGeneratorOptions(
