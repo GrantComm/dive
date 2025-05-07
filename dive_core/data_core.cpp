@@ -43,7 +43,6 @@ DataCore::DataCore(ProgressTracker *progress_tracker, ILog *log_ptr) :
 //--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult DataCore::LoadCaptureData(const char *file_name)
 {
-    std::cout << "DataCore, LoadCaptureData" << std::endl;
     m_capture_data = CaptureData(m_progress_tracker,
                                  m_log_ptr);  // Clear any previously loaded data
     m_capture_metadata = CaptureMetadata();
@@ -55,7 +54,6 @@ bool DataCore::CreateCommandHierarchy(bool isGfxrCapture)
 {
     if (isGfxrCapture)
     {
-        std::cout << "DataCore, CreateCommandHierarchy" << std::endl;
         uint64_t reserve_size = m_capture_metadata.m_num_pm4_packets * 10;
         VulkanCommandHierarchyCreator vk_cmd_creator;
         if (!vk_cmd_creator.CreateTrees(&m_capture_metadata.m_command_hierarchy, m_capture_data, reserve_size))
@@ -118,7 +116,6 @@ bool DataCore::ParseCaptureData(bool isGfxrCapture)
 
     if (isGfxrCapture)
     {
-        std::cout << "DataCore, ParseCaptureData" << std::endl;
         if (!CreateCommandHierarchy(isGfxrCapture))
         {
             return false;

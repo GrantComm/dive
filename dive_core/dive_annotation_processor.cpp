@@ -49,13 +49,26 @@ void DiveAnnotationProcessor::WriteBlockEnd(std::string function_name, uint32_t 
             submit_ptr->AppendVkCmd(*it);
         }
         m_pre_submit_commands.clear();
-
+        submit_ptr->SetCommandBufferCount(m_command_buffer_count);
         m_submits.push_back(std::move(submit_ptr));
         m_curr_submit = nullptr;
+        m_command_buffer_count = 0;
     }
-    else if (function_name.find("vkCmd") != std::string::npos)
+    else if (function_name.find("vkCmd") != std::string::npos || function_name.find("vkBeginCommandBuffer") != std::string::npos)
     {
+        // Don't include the vkEndCommandBuffer call
+        if (function_name.find("vkEndCommandBuffer") != std::string::npos)
+        {
+            return;
+        }
+
         VulkanCommandInfo vkCmd(function_name, cmd_buffer_index);
+
+        if (function_name.find("vkBeginCommandBuffer") != std::string::npos)
+        {
+            m_command_buffer_count++;
+        }
+
         if (m_curr_submit) // Check if the pointer is not null
         {
             m_curr_submit->AppendVkCmd(vkCmd);
@@ -64,8 +77,6 @@ void DiveAnnotationProcessor::WriteBlockEnd(std::string function_name, uint32_t 
         {
             // No active submit, so buffer the command
             m_pre_submit_commands.push_back(vkCmd);
-            std::cerr << "Buffering command '" << function_name
-                      << "' as no active submit has started." << std::endl;
         }
     }
 }

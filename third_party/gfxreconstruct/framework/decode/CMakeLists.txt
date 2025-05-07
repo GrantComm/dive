@@ -81,6 +81,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/json_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/decode_dive_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/decode_dive_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
@@ -234,6 +236,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_decoder.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_enum_to_json.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_enum_to_json.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_enum_to_dive.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_enum_to_dive.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_json_consumer.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_json_consumer.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_dive_consumer.h
@@ -253,6 +257,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_handle_mappers.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_to_json.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_to_json.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_to_dive.h
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_struct_to_dive.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_vulkan_object_info_table_base2.h
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_decoder.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated/generated_dx12_decoder.cpp>

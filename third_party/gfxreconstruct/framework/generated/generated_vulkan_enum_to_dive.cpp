@@ -1,0 +1,2063 @@
+/*
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+/*
+** This file is generated from the Khronos Vulkan XML API Registry.
+**
+*/
+
+#include "generated_vulkan_enum_to_dive.h"
+#include "util/to_string.h"
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
+using util::to_hex_fixed_width;
+
+template<typename TFlags, typename ToStringFunctionType>
+std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)
+{
+    if (flags == 0)
+    {
+        return to_hex_fixed_width(flags);
+    }
+    uint32_t bit_number = 0;
+    bool first = true;
+    std::ostringstream ostr;
+    while (flags != 0)
+    {
+        if (flags & 1)
+        {
+            if (!first) ostr << "|";
+            ostr << toString((flags & 1) << bit_number);
+            first = false;
+        }
+        bit_number++;
+        flags = flags >> 1;
+    }
+    return ostr.str();
+}
+
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1ChromaSamplePosition& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1ColorPrimaries& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1FrameRestorationType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1FrameType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1InterpolationFilter& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1Level& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1MatrixCoefficients& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1Profile& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1ReferenceName& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1TransferCharacteristics& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoAV1TxMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoDecodeH264FieldOrderCount& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264AspectRatioIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264CabacInitIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264ChromaFormatIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264DisableDeblockingFilterIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264LevelIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264MemMgmtControlOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264ModificationOfPicNumsIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264NonVclNaluType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264PictureType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264PocType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264ProfileIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264SliceType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH264WeightedBipredIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH265AspectRatioIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH265ChromaFormatIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH265LevelIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH265PictureType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH265ProfileIdc& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StdVideoH265SliceType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccelerationStructureBuildTypeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccelerationStructureCompatibilityKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccelerationStructureCreateFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccelerationStructureMemoryRequirementsTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccelerationStructureMotionInstanceTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccelerationStructureTypeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccessFlagBits& value)
+{
+}
+
+void FieldToDive(VkAccessFlagBits2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccessFlagBits2& value)
+{
+}
+
+void FieldToDive(VkAccessFlagBits3KHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAccessFlagBits3KHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAcquireProfilingLockFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAntiLagModeAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAntiLagStageAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAttachmentDescriptionFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAttachmentLoadOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkAttachmentStoreOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBlendFactor& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBlendOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBlendOverlapEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBlockMatchWindowCompareModeQCOM& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBorderColor& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBufferCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBufferUsageFlagBits& value)
+{
+}
+
+void FieldToDive(VkBufferUsageFlagBits2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBufferUsageFlagBits2& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBuildAccelerationStructureFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBuildAccelerationStructureModeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBuildMicromapFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkBuildMicromapModeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkChromaLocation& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCoarseSampleOrderTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkColorComponentFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkColorSpaceKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCommandBufferLevel& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCommandBufferResetFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCommandBufferUsageFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCommandPoolCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCommandPoolResetFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCompareOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkComponentSwizzle& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkComponentTypeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCompositeAlphaFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkConditionalRenderingFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkConservativeRasterizationModeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCooperativeVectorMatrixLayoutNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCopyAccelerationStructureModeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCopyMicromapModeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCoverageModulationModeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCoverageReductionModeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCubicFilterWeightsQCOM& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkCullModeFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDebugReportFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDebugReportObjectTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDebugUtilsMessageSeverityFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDebugUtilsMessageTypeFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDependencyFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDepthBiasRepresentationEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDepthClampModeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDescriptorBindingFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDescriptorPoolCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDescriptorSetLayoutCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDescriptorType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDescriptorUpdateTemplateType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceAddressBindingFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceAddressBindingTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceDiagnosticsConfigFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceEventTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceFaultAddressTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceFaultVendorBinaryHeaderVersionEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceGroupPresentModeFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceMemoryReportEventTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDeviceQueueCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDirectDriverLoadingModeLUNARG& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDiscardRectangleModeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDisplacementMicromapFormatNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDisplayEventTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDisplayPlaneAlphaFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDisplayPowerStateEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDisplaySurfaceStereoTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDriverId& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkDynamicState& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkEventCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalFenceFeatureFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalFenceHandleTypeFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalMemoryFeatureFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalMemoryFeatureFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalMemoryHandleTypeFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalMemoryHandleTypeFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalSemaphoreFeatureFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkExternalSemaphoreHandleTypeFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFenceCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFenceImportFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFilter& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFormat& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFormatFeatureFlagBits& value)
+{
+}
+
+void FieldToDive(VkFormatFeatureFlagBits2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFormatFeatureFlagBits2& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFragmentShadingRateCombinerOpKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFragmentShadingRateNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFragmentShadingRateTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFrameBoundaryFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFramebufferCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFrontFace& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFullScreenExclusiveEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkGeometryFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkGeometryInstanceFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkGeometryTypeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkGraphicsPipelineLibraryFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkHostImageCopyFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageAspectFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageCompressionFixedRateFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageCompressionFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageLayout& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageTiling& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageUsageFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageViewCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkImageViewType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndexType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectCommandsInputModeFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectCommandsLayoutUsageFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectCommandsLayoutUsageFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectCommandsTokenTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectCommandsTokenTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectExecutionSetInfoTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkIndirectStateFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkInstanceCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkInternalAllocationType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkLatencyMarkerNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkLayerSettingTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkLayeredDriverUnderlyingApiMSFT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkLineRasterizationMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkLogicOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMemoryAllocateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMemoryHeapFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMemoryMapFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMemoryOverallocationBehaviorAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMemoryPropertyFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMemoryUnmapFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMicromapCreateFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkMicromapTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkObjectType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpacityMicromapFormatEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpacityMicromapSpecialIndexEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpticalFlowExecuteFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpticalFlowGridSizeFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpticalFlowPerformanceLevelNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpticalFlowSessionBindingPointNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpticalFlowSessionCreateFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOpticalFlowUsageFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkOutOfBandQueueTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPartitionedAccelerationStructureInstanceFlagBitsNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPartitionedAccelerationStructureOpTypeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPeerMemoryFeatureFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceConfigurationTypeINTEL& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceCounterDescriptionFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceCounterScopeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceCounterStorageKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceCounterUnitKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceOverrideTypeINTEL& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceParameterTypeINTEL& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPerformanceValueTypeINTEL& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPhysicalDeviceLayeredApiKHR& value)
+{
+}
+
+void FieldToDive(VkPhysicalDeviceSchedulingControlsFlagBitsARM_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPhysicalDeviceType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineBindPoint& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineCacheCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineCacheHeaderVersion& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineColorBlendStateCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineCompilerControlFlagBitsAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineCreateFlagBits& value)
+{
+}
+
+void FieldToDive(VkPipelineCreateFlagBits2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineCreateFlagBits2& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineCreationFeedbackFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineDepthStencilStateCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineExecutableStatisticFormatKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineLayoutCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineRobustnessBufferBehavior& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineRobustnessImageBehavior& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineShaderStageCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineStageFlagBits& value)
+{
+}
+
+void FieldToDive(VkPipelineStageFlagBits2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPipelineStageFlagBits2& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPointClippingBehavior& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPolygonMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPresentGravityFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPresentModeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPresentScalingFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkPrimitiveTopology& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkProvokingVertexModeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueryControlFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueryPipelineStatisticFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueryPoolSamplingModeINTEL& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueryResultFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueryResultStatusKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueryType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueueFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkQueueGlobalPriority& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRasterizationOrderAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRayTracingInvocationReorderModeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRayTracingLssIndexingModeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRayTracingLssPrimitiveEndCapsModeNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRayTracingShaderGroupTypeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRenderPassCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkRenderingFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkResolveModeFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkResult& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSampleCountFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSamplerAddressMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSamplerCreateFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSamplerMipmapMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSamplerReductionMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSamplerYcbcrModelConversion& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSamplerYcbcrRange& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkScopeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSemaphoreImportFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSemaphoreType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSemaphoreWaitFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderCodeTypeEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderCorePropertiesFlagBitsAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderCreateFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderFloatControlsIndependence& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderGroupShaderKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderInfoTypeAMD& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShaderStageFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkShadingRatePaletteEntryNV& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSharingMode& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSparseImageFormatFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSparseMemoryBindFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkStencilFaceFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkStencilOp& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkStructureType& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSubgroupFeatureFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSubmitFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSubpassContents& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSubpassDescriptionFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSubpassMergeStatusEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSurfaceCounterFlagBitsEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSurfaceTransformFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSwapchainCreateFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkSystemAllocationScope& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkTessellationDomainOrigin& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkTimeDomainKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkToolPurposeFlagBits& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkValidationCacheHeaderVersionEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkValidationCheckEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkValidationFeatureDisableEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkValidationFeatureEnableEXT& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVendorId& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVertexInputRate& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoCapabilityFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoChromaSubsamplingFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoCodecOperationFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoCodingControlFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoComponentBitDepthFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoDecodeCapabilityFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoDecodeH264PictureLayoutFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoDecodeUsageFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeAV1CapabilityFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeAV1PredictionModeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeAV1RateControlFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeAV1RateControlGroupKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeAV1StdFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeCapabilityFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeContentFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeFeedbackFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH264CapabilityFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH264RateControlFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH264StdFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH265CapabilityFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH265CtbSizeFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH265RateControlFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH265StdFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeH265TransformBlockSizeFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeRateControlModeFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeTuningModeKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoEncodeUsageFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoSessionCreateFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkVideoSessionParametersCreateFlagBitsKHR& value)
+{
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const VkViewportCoordinateSwizzleNV& value)
+{
+}
+
+void FieldToDive(VkAccelerationStructureCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkAccelerationStructureMotionInfoFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkAccelerationStructureMotionInstanceFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkAccessFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkAccessFlags2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkAccessFlags3KHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkAcquireProfilingLockFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkAndroidSurfaceCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkAttachmentDescriptionFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkBufferCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkBufferUsageFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkBufferUsageFlags2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkBufferViewCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkBuildAccelerationStructureFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkBuildMicromapFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkColorComponentFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCommandBufferResetFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCommandBufferUsageFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCommandPoolCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCommandPoolResetFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCommandPoolTrimFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCompositeAlphaFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkConditionalRenderingFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkCullModeFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDebugReportFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDebugUtilsMessageSeverityFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDebugUtilsMessageTypeFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDebugUtilsMessengerCallbackDataFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDebugUtilsMessengerCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDependencyFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDescriptorBindingFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDescriptorPoolCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDescriptorPoolResetFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDescriptorSetLayoutCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDescriptorUpdateTemplateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDeviceAddressBindingFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDeviceCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDeviceDiagnosticsConfigFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDeviceGroupPresentModeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDeviceMemoryReportFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDeviceQueueCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDirectDriverLoadingFlagsLUNARG_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDirectFBSurfaceCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDisplayModeCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDisplayPlaneAlphaFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkDisplaySurfaceCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkEventCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalFenceFeatureFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalFenceHandleTypeFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalMemoryFeatureFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalMemoryFeatureFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalMemoryHandleTypeFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalMemoryHandleTypeFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalSemaphoreFeatureFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkExternalSemaphoreHandleTypeFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkFenceCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkFenceImportFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkFormatFeatureFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkFormatFeatureFlags2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkFrameBoundaryFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkFramebufferCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkGeometryFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkGeometryInstanceFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkGraphicsPipelineLibraryFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkHeadlessSurfaceCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkHostImageCopyFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkIOSSurfaceCreateFlagsMVK_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImageAspectFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImageCompressionFixedRateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImageCompressionFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImageCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImagePipeSurfaceCreateFlagsFUCHSIA_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImageUsageFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkImageViewCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkIndirectCommandsInputModeFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkIndirectCommandsLayoutUsageFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkIndirectCommandsLayoutUsageFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkIndirectStateFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkInstanceCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMacOSSurfaceCreateFlagsMVK_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMemoryAllocateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMemoryHeapFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMemoryMapFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMemoryPropertyFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMemoryUnmapFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMetalSurfaceCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkMicromapCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkOpticalFlowExecuteFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkOpticalFlowGridSizeFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkOpticalFlowSessionCreateFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkOpticalFlowUsageFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPartitionedAccelerationStructureInstanceFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPeerMemoryFeatureFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPerformanceCounterDescriptionFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPhysicalDeviceSchedulingControlsFlagsARM_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkPipelineCacheCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineColorBlendStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineCompilerControlFlagsAMD_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineCoverageModulationStateCreateFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineCoverageReductionStateCreateFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineCoverageToColorStateCreateFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineCreateFlags2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkPipelineCreationFeedbackFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineDepthStencilStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineDiscardRectangleStateCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineDynamicStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineInputAssemblyStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineLayoutCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineMultisampleStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineRasterizationConservativeStateCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineRasterizationDepthClipStateCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineRasterizationStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineRasterizationStateStreamCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineShaderStageCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineStageFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineStageFlags2_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags64 flags)
+{
+}
+
+void FieldToDive(VkPipelineTessellationStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineVertexInputStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineViewportStateCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPipelineViewportSwizzleStateCreateFlagsNV_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPresentGravityFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPresentScalingFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkPrivateDataSlotCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkQueryControlFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkQueryPipelineStatisticFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkQueryPoolCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkQueryResultFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkQueueFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkRenderPassCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkRenderingFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkResolveModeFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSampleCountFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSamplerCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkScreenSurfaceCreateFlagsQNX_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSemaphoreCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSemaphoreImportFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSemaphoreWaitFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkShaderCorePropertiesFlagsAMD_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkShaderCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkShaderModuleCreateFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkShaderStageFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSparseImageFormatFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSparseMemoryBindFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkStencilFaceFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkStreamDescriptorSurfaceCreateFlagsGGP_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSubgroupFeatureFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSubmitFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSubpassDescriptionFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSurfaceCounterFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSurfaceTransformFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkSwapchainCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkToolPurposeFlags_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkValidationCacheCreateFlagsEXT_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkViSurfaceCreateFlagsNN_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoBeginCodingFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoCapabilityFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoChromaSubsamplingFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoCodecOperationFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoCodingControlFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoComponentBitDepthFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoDecodeCapabilityFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoDecodeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoDecodeH264PictureLayoutFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoDecodeUsageFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeAV1CapabilityFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeAV1RateControlFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeAV1StdFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeAV1SuperblockSizeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeCapabilityFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeContentFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeFeedbackFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH264CapabilityFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH264RateControlFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH264StdFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH265CapabilityFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH265CtbSizeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH265RateControlFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH265StdFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeH265TransformBlockSizeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeRateControlFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeRateControlModeFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEncodeUsageFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoEndCodingFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoSessionCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkVideoSessionParametersCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkWaylandSurfaceCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkWin32SurfaceCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkXcbSurfaceCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+void FieldToDive(VkXlibSurfaceCreateFlagsKHR_t, std::map<std::string, std::map<std::string, std::string>>& data_map, const VkFlags flags)
+{
+}
+
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

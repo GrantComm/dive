@@ -93,5 +93,44 @@ class KhronosExportDiveConsumerBodyGenerator():
         """Return ExportDiveConsumer class member function definition."""
         body = ''
         body += f'    std::string name = "{name}";\n'
-        body += f'    std::string args[{len(values)}];\n'
+        '''
+        if len(values) > 0:
+             # Handle function arguments
+            for value in values:
+                flagsEnumType = value.base_type
+
+                # Default to letting the right function overload to be resolved based on argument types,
+                # including enums, strings ints, floats etc.:
+                # Note there are overloads for scalars and pointers/arrays.
+                body += f'    std::map<std::string, std::map<std::string, std::string>> {value.name}_args;\n'
+                to_dive = 'FieldToDive({0}_args, {0})'
+
+                # Special cases:
+                if self.is_boolean_type(value.base_type):
+                    to_dive = 'Bool32ToDive({0}_args, {0})'
+                elif value.name == 'ppData' or self.decode_as_hex(value):
+                    to_dive = 'FieldToDiveAsHex({0}_args, {0})'
+                elif self.decode_as_handle(value):
+                    to_dive = 'HandleToDive({0}_args, {0})'
+                elif self.is_flags(value.base_type):
+                    if value.base_type in self.flags_type_aliases:
+                        flagsEnumType = self.flags_type_aliases[value.base_type
+                                                                ]
+                    if not (value.is_pointer or value.is_array):
+                        to_dive = 'FieldToDive({2}_t(), {0}_args, {0})'
+                    else:
+                        # Default to outputting as the raw type but warn:
+                        print(
+                            "Missing conversion of pointers to",
+                            flagsEnumType,
+                            "in",
+                            name,
+                            file=sys.stderr
+                        )
+
+                to_dive = to_dive.format(
+                    value.name, value.base_type, flagsEnumType
+                )
+                body += '    {0};\n'.format(to_dive)
+                '''
         return body

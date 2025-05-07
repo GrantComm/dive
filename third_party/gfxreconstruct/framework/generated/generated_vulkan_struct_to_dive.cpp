@@ -1,0 +1,5806 @@
+/*
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+/*
+** This file is generated from the Khronos Vulkan XML API Registry.
+**
+*/
+
+#include "generated_vulkan_struct_to_dive.h"
+#include "generated_vulkan_enum_to_dive.h"
+#include "util/to_string.h"
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
+using util::to_hex_variable_width;
+using util::uuid_to_string;
+
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264SpsVuiFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264HrdParameters* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264SequenceParameterSetVui* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264SpsFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264ScalingLists* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264SequenceParameterSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264PpsFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH264PictureParameterSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH264PictureInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH264PictureInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH264ReferenceInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH264ReferenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264WeightTableFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264WeightTable* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264SliceHeaderFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264PictureInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264ReferenceInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264ReferenceListsInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264RefListModEntry* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264RefPicMarkingEntry* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264ReferenceListsInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264PictureInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264ReferenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH264SliceHeader* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265ProfileTierLevelFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265ProfileTierLevel* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265DecPicBufMgr* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265SubLayerHrdParameters* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265HrdFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265HrdParameters* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265VpsFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265VideoParameterSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265ScalingLists* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265ShortTermRefPicSetFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265ShortTermRefPicSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265LongTermRefPicsSps* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265SpsVuiFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265SequenceParameterSetVui* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265PredictorPaletteEntries* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265SpsFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265SequenceParameterSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265PpsFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoH265PictureParameterSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH265PictureInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH265PictureInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH265ReferenceInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeH265ReferenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265WeightTableFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265WeightTable* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265LongTermRefPics* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265SliceSegmentHeader* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265ReferenceListsInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265PictureInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265PictureInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265ReferenceInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeH265ReferenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1ColorConfigFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1ColorConfig* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1TimingInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1TimingInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1SequenceHeaderFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1SequenceHeader* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1LoopFilterFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1LoopFilter* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1QuantizationFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1Quantization* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1Segmentation* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1TileInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1TileInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1CDEF* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1LoopRestoration* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1GlobalMotion* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1FilmGrainFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoAV1FilmGrain* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeAV1PictureInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeAV1PictureInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeAV1ReferenceInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoDecodeAV1ReferenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1ExtensionHeader* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1DecoderModelInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1OperatingPointInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1OperatingPointInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1PictureInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1PictureInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1ReferenceInfoFlags* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_StdVideoEncodeAV1ReferenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExtent2D* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExtent3D* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOffset2D* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOffset3D* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRect2D* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferMemoryBarrier* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDispatchIndirectCommand* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrawIndexedIndirectCommand* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrawIndirectCommand* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageSubresourceRange* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageMemoryBarrier* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryBarrier* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCacheHeaderVersionOne* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAllocationCallbacks* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkApplicationInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFormatProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageFormatProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkInstanceCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryHeap* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryType* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLimits* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMemoryProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSparseProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceQueueCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExtensionProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLayerProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubmitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMappedMemoryRange* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryRequirements* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseMemoryBind* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseBufferMemoryBindInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageOpaqueMemoryBindInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageSubresource* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageMemoryBind* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageMemoryBindInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindSparseInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageFormatProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageMemoryRequirements* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFenceCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkEventCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueryPoolCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferViewCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubresourceLayout* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkComponentMapping* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSpecializationMapEntry* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSpecializationInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineShaderStageCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkComputePipelineCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVertexInputBindingDescription* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVertexInputAttributeDescription* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineVertexInputStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineInputAssemblyStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineTessellationStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkViewport* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineMultisampleStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkStencilOpState* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineDepthStencilStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineColorBlendAttachmentState* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineColorBlendStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineDynamicStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGraphicsPipelineCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPushConstantRange* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineLayoutCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyDescriptorSet* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorBufferInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorPoolSize* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorPoolCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetLayoutBinding* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetLayoutCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentDescription* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentReference* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFramebufferCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassDescription* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassDependency* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandPoolCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferInheritanceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferBeginInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferCopy* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageSubresourceLayers* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferImageCopy* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkClearDepthStencilValue* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkClearAttachment* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkClearRect* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageBlit* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageCopy* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageResolve* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassBeginInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSubgroupProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindBufferMemoryInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindImageMemoryInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevice16BitStorageFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryDedicatedRequirements* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryDedicatedAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryAllocateFlagsInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupRenderPassBeginInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupCommandBufferBeginInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupSubmitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupBindSparseInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindBufferMemoryDeviceGroupInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindImageMemoryDeviceGroupInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceGroupProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupDeviceCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferMemoryRequirementsInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageMemoryRequirementsInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageSparseMemoryRequirementsInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryRequirements2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageMemoryRequirements2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFeatures2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceProperties2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFormatProperties2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageFormatProperties2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageFormatInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyProperties2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMemoryProperties2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSparseImageFormatProperties2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSparseImageFormatInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePointClippingProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkInputAttachmentAspectReference* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassInputAttachmentAspectCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewUsageCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineTessellationDomainOriginStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassMultiviewCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiviewFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiviewProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVariablePointersFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceProtectedMemoryFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceProtectedMemoryProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceQueueInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkProtectedSubmitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerYcbcrConversionCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerYcbcrConversionInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindImagePlaneMemoryInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImagePlaneMemoryRequirementsInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerYcbcrConversionImageFormatProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorUpdateTemplateEntry* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorUpdateTemplateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalMemoryProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalImageFormatInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalImageFormatProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalBufferInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalBufferProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceIDProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalMemoryImageCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalMemoryBufferCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportMemoryAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalFenceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalFenceProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportFenceCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportSemaphoreCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalSemaphoreInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalSemaphoreProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance3Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetLayoutSupport* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderDrawParametersFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan11Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan11Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan12Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkConformanceVersion* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan12Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageFormatListCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentDescription2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentReference2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassDescription2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassDependency2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassCreateInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassBeginInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassEndInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevice8BitStorageFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDriverProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderAtomicInt64Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderFloat16Int8Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFloatControlsProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDescriptorIndexingFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDescriptorIndexingProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassDescriptionDepthStencilResolve* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDepthStencilResolveProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageStencilUsageCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerReductionModeCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImagelessFramebufferFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFramebufferAttachmentImageInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFramebufferAttachmentsCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassAttachmentBeginInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentReferenceStencilLayout* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentDescriptionStencilLayout* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceHostQueryResetFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTimelineSemaphoreProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreTypeCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkTimelineSemaphoreSubmitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreWaitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreSignalInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferDeviceAddressInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferOpaqueCaptureAddressCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan13Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan13Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCreationFeedback* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCreationFeedbackCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceToolProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePrivateDataFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDevicePrivateDataCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPrivateDataSlotCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryBarrier2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferMemoryBarrier2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageMemoryBarrier2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDependencyInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreSubmitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferSubmitInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubmitInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSynchronization2Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageRobustnessFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferCopy2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyBufferInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageCopy2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyImageInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferImageCopy2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyBufferToImageInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyImageToBufferInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageBlit2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBlitImageInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageResolve2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkResolveImageInfo2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSubgroupSizeControlProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceInlineUniformBlockFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceInlineUniformBlockProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWriteDescriptorSetInlineUniformBlock* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingAttachmentInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRenderingCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDynamicRenderingFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferInheritanceRenderingInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFormatProperties3* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance4Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance4Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceBufferMemoryRequirements* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceImageMemoryRequirements* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan14Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVulkan14Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceQueueGlobalPriorityCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyGlobalPriorityProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderSubgroupRotateFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderFloatControls2Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderExpectAssumeFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLineRasterizationFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLineRasterizationProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationLineStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVertexAttributeDivisorProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVertexInputBindingDivisorDescription* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineVertexInputDivisorStateCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVertexAttributeDivisorFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceIndexTypeUint8Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryMapInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryUnmapInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance5Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance5Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingAreaInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageSubresource2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceImageSubresourceInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubresourceLayout2* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCreateFlags2CreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferUsageFlags2CreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePushDescriptorProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingAttachmentLocationInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingInputAttachmentIndexInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance6Features* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance6Properties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindMemoryStatus* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindDescriptorSetsInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPushConstantsInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPushDescriptorSetInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineRobustnessFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineRobustnessProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRobustnessCreateInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceHostImageCopyFeatures* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceHostImageCopyProperties* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryToImageCopy* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageToMemoryCopy* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyMemoryToImageInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyImageToMemoryInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyImageToImageInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkHostImageLayoutTransitionInfo* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubresourceHostMemcpySize* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkHostImageCopyDevicePerformanceQuery* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceFormatKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageSwapchainCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindImageMemorySwapchainInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAcquireNextImageInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupPresentCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupPresentInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceGroupSwapchainCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayModeParametersKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayModeCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayModePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPlaneCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPlanePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplaySurfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPresentInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkXlibSurfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkXcbSurfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWaylandSurfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAndroidSurfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWin32SurfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyQueryResultStatusPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyVideoPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoProfileListInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVideoFormatInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoFormatPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoPictureResourceInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoReferenceSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoSessionMemoryRequirementsKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindVideoSessionMemoryInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoSessionCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoSessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoSessionParametersUpdateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoBeginCodingInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEndCodingInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoCodingControlInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeUsageInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264CapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264QpKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264QualityLevelPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264SessionCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264SessionParametersAddInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264SessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264NaluSliceInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264PictureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264DpbSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264ProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264RateControlInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264FrameSizeKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264RateControlLayerInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265CapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265SessionCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265QpKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265NaluSliceSegmentInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265PictureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265DpbSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265ProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265RateControlInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265FrameSizeKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265RateControlLayerInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264ProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264CapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264PictureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264DpbSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportMemoryWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportMemoryWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryWin32HandlePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryGetWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportMemoryFdInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryFdPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryGetFdInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportSemaphoreWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportSemaphoreWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkD3D12FenceSubmitInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreGetWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportSemaphoreFdInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreGetFdInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRectLayerKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentRegionKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentRegionsKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSharedPresentSurfaceCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportFenceWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportFenceWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFenceGetWin32HandleInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportFenceFdInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFenceGetFdInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceCounterKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceCounterDescriptionKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueryPoolPerformanceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAcquireProfilingLockInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceQuerySubmitInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSurfaceInfo2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceCapabilities2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceFormat2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayProperties2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPlaneProperties2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayModeProperties2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPlaneInfo2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPlaneCapabilities2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderClockFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265ProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265CapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265PictureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265DpbSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFragmentShadingRateAttachmentInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShadingRateFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShadingRatePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShadingRateKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceProtectedCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePresentWaitFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineExecutablePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineExecutableInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineExecutableInternalRepresentationKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineLibraryCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentIdKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePresentIdFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeUsageInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeRateControlLayerInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeRateControlInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeQualityLevelPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeQualityLevelInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeSessionParametersGetInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeSessionParametersFeedbackInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkTraceRaysIndirectCommand2KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineBinaryFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineBinaryPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDevicePipelineBinaryInternalCacheControlKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryKeyKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryDataKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryKeysAndDataKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkReleaseCapturedPipelineDataInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryDataInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineBinaryHandlesInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCooperativeMatrixPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeAV1ProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeAV1CapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeAV1SessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeAV1PictureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeAV1DpbSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVideoEncodeAV1FeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1CapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1QIndexKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1QualityLevelPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1SessionCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1SessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1PictureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1DpbSlotInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1ProfileInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1FrameSizeKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1GopRemainingFrameInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1RateControlInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1RateControlLayerInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoInlineQueryInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCalibratedTimestampInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSetDescriptorBufferOffsetsInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeQuantizationMapCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoFormatQuantizationMapPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeQuantizationMapInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH264QuantizationMapCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeH265QuantizationMapCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoFormatH265QuantizationMapPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoEncodeAV1QuantizationMapCapabilitiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoFormatAV1QuantizationMapPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance7FeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance7PropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLayeredApiPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLayeredApiPropertiesListKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMaintenance8FeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryBarrierAccessFlags3KHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVideoMaintenance2FeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH264InlineSessionParametersInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeH265InlineSessionParametersInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVideoDecodeAV1InlineSessionParametersInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugReportCallbackCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationStateRasterizationOrderAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugMarkerObjectNameInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugMarkerObjectTagInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugMarkerMarkerInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDedicatedAllocationImageCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDedicatedAllocationBufferCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewHandleInfoNVX* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewAddressPropertiesNVX* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkTextureLODGatherFormatPropertiesAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkShaderResourceUsageAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkShaderStatisticsInfoAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkStreamDescriptorSurfaceCreateInfoGGP* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalImageFormatPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalMemoryImageCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportMemoryAllocateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportMemoryWin32HandleInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExportMemoryWin32HandleInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkValidationFlagsEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkViSurfaceCreateInfoNN* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewASTCDecodeModeEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkConditionalRenderingBeginInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkViewportWScalingNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportWScalingStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceCapabilities2EXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayPowerInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceEventInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayEventInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainCounterCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRefreshCycleDurationGOOGLE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPastPresentationTimingGOOGLE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentTimeGOOGLE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentTimesInfoGOOGLE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMultiviewPerViewAttributesInfoNVX* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkViewportSwizzleNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportSwizzleStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDiscardRectanglePropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkXYColorEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkHdrMetadataEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIOSSurfaceCreateInfoMVK* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMacOSSurfaceCreateInfoMVK* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugUtilsLabelEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugUtilsObjectNameInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugUtilsMessengerCallbackDataEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugUtilsMessengerCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDebugUtilsObjectTagInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAndroidHardwareBufferUsageANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAndroidHardwareBufferPropertiesANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportAndroidHardwareBufferInfoANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalFormatANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentSampleCountInfoAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSampleLocationEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSampleLocationsInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAttachmentSampleLocationsEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassSampleLocationsEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassSampleLocationsBeginInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineSampleLocationsStateCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSampleLocationsPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMultisamplePropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineColorBlendAdvancedStateCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCoverageToColorStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCoverageModulationStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrmFormatModifierPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrmFormatModifierPropertiesListEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageDrmFormatModifierInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageDrmFormatModifierListCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageDrmFormatModifierExplicitCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageDrmFormatModifierPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrmFormatModifierProperties2EXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrmFormatModifierPropertiesList2EXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkValidationCacheCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkShaderModuleValidationCacheCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkShadingRatePaletteNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShadingRateImagePropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCoarseSampleLocationNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCoarseSampleOrderCustomNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRayTracingShaderGroupCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRayTracingPipelineCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeometryTrianglesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeometryAABBNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeometryDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeometryNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindAccelerationStructureMemoryInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWriteDescriptorSetAccelerationStructureNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureMemoryRequirementsInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkTransformMatrixKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAabbPositionsKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureInstanceKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportMemoryHostPointerInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryHostPointerPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCompilerControlCreateInfoAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderCorePropertiesAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceMemoryOverallocationCreateInfoAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPresentFrameTokenGGP* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMeshShaderFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMeshShaderPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrawMeshTasksIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportExclusiveScissorStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExclusiveScissorFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyCheckpointPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCheckpointDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueueFamilyCheckpointProperties2NV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCheckpointData2NV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkInitializePerformanceApiInfoINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceMarkerInfoINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceStreamMarkerInfoINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceOverrideInfoINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPerformanceConfigurationAcquireInfoINTEL* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMetalSurfaceCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderCoreProperties2AMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCoherentMemoryFeaturesAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryPriorityAllocateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBufferDeviceAddressCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkValidationFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCooperativeMatrixPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineCoverageReductionStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFramebufferMixedSamplesCombinationNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceProvokingVertexFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceProvokingVertexPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceFullScreenExclusiveInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkHeadlessSurfaceCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryMapPlacedInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfacePresentModeEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfacePresentScalingCapabilitiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfacePresentModeCompatibilityEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainPresentFenceInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainPresentModesCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainPresentModeInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainPresentScalingCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkReleaseSwapchainImagesInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGraphicsShaderGroupCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindShaderGroupIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindIndexBufferIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindVertexBufferIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSetStateFlagsIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsStreamNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsLayoutTokenNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsLayoutCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeneratedCommandsInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferInheritanceViewportScissorInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassTransformBeginInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDepthBiasControlFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDepthBiasInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDepthBiasRepresentationInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceMemoryReportCallbackDataEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRobustness2FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRobustness2PropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerCustomBorderColorCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePresentBarrierFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSurfaceCapabilitiesPresentBarrierNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainPresentBarrierCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceDiagnosticsConfigCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkQueryLowLatencySupportNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGraphicsPipelineLibraryCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureGeometryMotionTrianglesDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureMotionInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureMatrixMotionInstanceNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSRTDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureSRTMotionInstanceNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyCommandTransformInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageCompressionControlEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageCompressionPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevice4444FormatsFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFaultFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceFaultCountsEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceFaultAddressInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceFaultVendorInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceFaultInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceFaultVendorBinaryHeaderVersionOneEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDirectFBSurfaceCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMutableDescriptorTypeListEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMutableDescriptorTypeCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVertexInputBindingDescription2EXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkVertexInputAttributeDescription2EXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDrmPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAddressBindingReportFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceAddressBindingCallbackDataEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDepthClipControlFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportDepthClipControlCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportMemoryZirconHandleInfoFUCHSIA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryZirconHandlePropertiesFUCHSIA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryGetZirconHandleInfoFUCHSIA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryGetRemoteAddressInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkFrameBoundaryEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassResolvePerformanceQueryEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMultisampledRenderToSingleSampledInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkScreenSurfaceCreateInfoQNX* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineColorWriteCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewMinLodCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiDrawPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMultiDrawInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMultiDrawIndexedInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMicromapUsageEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMicromapBuildInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMicromapCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceOpacityMicromapFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceOpacityMicromapPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMicromapVersionInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyMicromapToMemoryInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyMemoryToMicromapInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyMicromapInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMicromapBuildSizesInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMicromapTriangleEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderCorePropertiesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceQueueShaderCoreControlCreateInfoARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSchedulingControlsFeaturesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSchedulingControlsPropertiesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewSlicedCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetBindingReferenceVALVE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRenderPassStripedFeaturesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRenderPassStripedPropertiesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassStripeInfoARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassStripeBeginInfoARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassStripeSubmitInfoARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkComputePipelineIndirectBufferInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineIndirectDeviceAddressInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindPipelineIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureGeometryLinearSweptSpheresDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureGeometrySpheresDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageViewSampleWeightCreateInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkExternalMemoryAcquireUnmodifiedEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkColorBlendEquationEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkColorBlendAdvancedEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassCreationControlEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassCreationFeedbackInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassCreationFeedbackCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassSubpassFeedbackInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDirectDriverLoadingInfoLUNARG* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDirectDriverLoadingListLUNARG* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkShaderModuleIdentifierEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceOpticalFlowFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceOpticalFlowPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOpticalFlowImageFormatInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOpticalFlowImageFormatPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOpticalFlowSessionCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOpticalFlowSessionCreatePrivateDataInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOpticalFlowExecuteInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLegacyDitheringFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAntiLagFeaturesAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAntiLagPresentationInfoAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAntiLagDataAMD* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkShaderCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDepthClampRangeEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkTilePropertiesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAmigoProfilingSubmitInfoSEC* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeVectorPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeVectorFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCooperativeVectorPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkConvertCooperativeVectorMatrixInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLayerSettingEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLayerSettingsCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLatencySleepModeInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLatencySleepInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSetLatencyMarkerInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLatencyTimingsFrameReportNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGetLatencyMarkerInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLatencySubmissionPresentIdNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSwapchainLatencyCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkOutOfBandQueueTypeInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkLatencySurfaceCapabilitiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePerStageDescriptorSetFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerCubicWeightsCreateInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBlitImageCubicWeightsInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplaySurfaceStereoCreateInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDisplayModeStereoPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPartitionedAccelerationStructureFlagsNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkStridedDeviceAddressNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBuildPartitionedAccelerationStructureIndirectCommandNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPartitionedAccelerationStructureWriteInstanceDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPartitionedAccelerationStructureUpdateInstanceDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPartitionedAccelerationStructureWritePartitionTranslationDataNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWriteDescriptorSetPartitionedAccelerationStructureNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPartitionedAccelerationStructureInstancesInputNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBuildPartitionedAccelerationStructureInfoNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureBuildSizesInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectExecutionSetPipelineInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectExecutionSetShaderInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeneratedCommandsInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWriteIndirectExecutionSetPipelineEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsPushConstantTokenEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsVertexBufferTokenEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsIndexBufferTokenEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsExecutionSetTokenEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkIndirectCommandsLayoutCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrawIndirectCountIndirectCommandEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindVertexBufferIndirectCommandEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkBindIndexBufferIndirectCommandEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeneratedCommandsPipelineInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkGeneratedCommandsShaderInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWriteIndirectExecutionSetShaderEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImageAlignmentControlCreateInfoMESA* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceHdrVividFeaturesHUAWEI* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkHdrVividDynamicMetadataHUAWEI* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCooperativeMatrixFlexibleDimensionsPropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeMatrix2FeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceCooperativeMatrix2PropertiesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkImportMemoryMetalHandleInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryMetalHandlePropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkMemoryGetMetalHandleInfoEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkSetPresentConfigNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDevicePresentMeteringFeaturesNV* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureGeometryAabbsDataKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureGeometryInstancesDataKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkWriteDescriptorSetAccelerationStructureKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAccelerationStructureFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceAccelerationStructurePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureDeviceAddressInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkAccelerationStructureVersionInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyAccelerationStructureToMemoryInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyMemoryToAccelerationStructureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkCopyAccelerationStructureInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRayTracingShaderGroupCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkRayTracingPipelineCreateInfoKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingPipelineFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayTracingPipelinePropertiesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkStridedDeviceAddressRegionKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkTraceRaysIndirectCommandKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceRayQueryFeaturesKHR* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMeshShaderFeaturesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT* data)
+{
+
+}
+
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDrawMeshTasksIndirectCommandEXT* data)
+{
+
+}
+
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

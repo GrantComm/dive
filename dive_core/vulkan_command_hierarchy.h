@@ -50,6 +50,7 @@ class VulkanCommandHierarchyCreator : public CommandHierarchyCreator
                     uint64_t                       root_node_index);
         bool OnCmd(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info);
         uint64_t m_cur_submit_node_index = 0;     // Current submit node being processed
+        uint64_t m_cur_command_buffer_node_index = 0; // Current command buffer node being processed
         CommandHierarchy  *m_command_hierarchy_ptr = nullptr;  // Pointer to class being created
         const CaptureData *m_capture_data_ptr = nullptr;
         // This is a list of child indices per node, ie. topology info

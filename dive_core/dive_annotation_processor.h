@@ -36,9 +36,12 @@ class DiveAnnotationProcessor : public gfxrecon::decode::AnnotationHandler
       VulkanCommandInfo(std::string name, uint32_t index) {m_name = name; m_index = index;}
       const std::string GetVkCmdName() { return m_name; }
       uint32_t GetVkCmdIndex() { return m_index; }
+      void SetCmdCount(uint32_t cmd_count) { m_cmd_count = cmd_count; }
+      uint32_t GetCmdCount() { return m_cmd_count; }
     private:
       std::string m_name;
       uint32_t m_index;
+      uint32_t m_cmd_count; // Only used by vkBeginCommandBuffers
       // Args need to be added
   };
 
@@ -47,10 +50,13 @@ public:
     SubmitInfo() = default;
     SubmitInfo(std::string name) : m_name(name) {}
     std::string GetSubmitText() const { return m_name; }
+    void SetCommandBufferCount(uint32_t cmd_buffer_count) { m_cmd_buffer_count = cmd_buffer_count; }
+    uint32_t GetCommandBufferCount() const { return m_cmd_buffer_count; }
     const DiveVector<VulkanCommandInfo>& GetVkCmds() const { return vulkan_cmds; }
     void AppendVkCmd(VulkanCommandInfo vkCmd) { vulkan_cmds.push_back(vkCmd); }
 private:
     std::string m_name;
+    uint32_t m_cmd_buffer_count;
     DiveVector<VulkanCommandInfo> vulkan_cmds;
     // Args need to be added
 };
@@ -105,6 +111,7 @@ private:
   private:
     DiveVector<std::unique_ptr<SubmitInfo>> m_submits;
     SubmitInfo* m_curr_submit = nullptr;
+    uint32_t m_command_buffer_count = 0;
     std::vector<VulkanCommandInfo> m_pre_submit_commands; // Buffer for commands before a submit
     uint64_t               block_index_;
     uint32_t               num_streams_{ 0 };

@@ -21,6 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
+from base_generator import BaseGenerator
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 from khronos_dive_consumer_body_generator import KhronosExportDiveConsumerBodyGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
@@ -55,11 +56,17 @@ class VulkanExportDiveConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions, K
         self.begin_end_file_data.specific_headers.extend((
             'util/defines.h',
             'generated/generated_vulkan_dive_consumer.h',
+            'decode/custom_vulkan_struct_to_dive.h',
+            'decode/decode_dive_util.h',
+        ))
+        self.begin_end_file_data.system_headers.extend((
+            'string',
+            'map',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
 
-class VulkanExportDiveConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportDiveConsumerBodyGenerator):
+class VulkanExportDiveConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportDiveConsumerBodyGenerator, BaseGenerator):
     """VulkanExportDiveConsumerBodyGenerator - subclass of VulkanBaseGenerator.
     Generates C++ member definitions for the VulkanExportDiveConsumer class responsible for
     generating a textfile containing decoded Vulkan API call parameter data.
@@ -99,7 +106,6 @@ class VulkanExportDiveConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportDi
             "vkQueuePresentKHR",
             "vkQueueSubmit2KHR",
             }
-
     def endFile(self):
         """Method override."""
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
@@ -144,5 +150,6 @@ class VulkanExportDiveConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportDi
         body += KhronosExportDiveConsumerBodyGenerator.make_consumer_func_body(self, return_type, name, values)
         if KhronosExportDiveConsumerBodyGenerator.is_command_buffer_cmd(self, name):
             body += '    uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);\n'
+            body += '    uint64_t block_index = call_info.index;\n'
         return body
     # yapf: enable

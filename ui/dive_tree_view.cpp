@@ -26,6 +26,7 @@
 #    include <iostream>
 #endif
 #include "command_model.h"
+#include "gfxr_vulkan_command_model.h"
 #include "dive_core/command_hierarchy.h"
 #include "dive_core/common.h"
 #include "dive_core/common/common.h"
@@ -147,7 +148,7 @@ bool DiveTreeView::RenderBranch(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::setCurrentNode(uint64_t node_index)
 {
-    auto        m = dynamic_cast<CommandModel *>(model());
+    auto        m = dynamic_cast<GfxrVulkanCommandModel *>(model());
     QModelIndex ix = m->findNode(node_index);
     ix = m->index(ix.row(), 1, ix.parent());
     curr_node_selected = ix;
@@ -204,7 +205,7 @@ void DiveTreeView::gotoEvent(bool is_above)
     if (!current_idx.isValid())
         return;
 
-    auto m = dynamic_cast<CommandModel *>(model());
+    auto m = dynamic_cast<GfxrVulkanCommandModel *>(model());
     auto next_node_idx = is_above ? indexAbove(current_idx) : indexBelow(current_idx);
     while (next_node_idx.isValid())
     {
@@ -249,7 +250,7 @@ void DiveTreeView::RetainCurrentNode()
 {
     if (!curr_node_selected.isValid())
         return;
-    auto     m = dynamic_cast<CommandModel *>(model());
+    auto     m = dynamic_cast<GfxrVulkanCommandModel *>(model());
     uint64_t node_index = (uint64_t)(curr_node_selected.internalPointer());
     curr_node_selected = m->findNode(node_index);
     curr_node_selected = m->index(curr_node_selected.row(), 1, curr_node_selected.parent());
@@ -311,7 +312,7 @@ void DiveTreeView::keyPressEvent(QKeyEvent *event)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::setAndScrollToNode(QModelIndex &idx)
 {
-    auto     m = dynamic_cast<CommandModel *>(model());
+    auto     m = dynamic_cast<GfxrVulkanCommandModel *>(model());
     uint64_t node_index = (uint64_t)(idx.internalPointer());
     idx = m->findNode(node_index);
     idx = m->index(idx.row(), 1, idx.parent());
@@ -328,7 +329,7 @@ void DiveTreeView::searchNodeByText(const QString &search_text)
     if (search_text.isEmpty())
         return;
 
-    auto m = dynamic_cast<CommandModel *>(model());
+    auto m = dynamic_cast<GfxrVulkanCommandModel *>(model());
     search_indexes = m->search(m->index(0, 0), QVariant::fromValue(search_text));
     search_index_it = search_indexes.begin();
 

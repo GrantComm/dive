@@ -297,6 +297,9 @@ void HoverHelp::SetCurItem(Item        item,
          "IB.<br><br> Note: The driver can insert up to 3 preamble IBs and 2 postamble IBs for "
          "driver purposes. This means that a vkQueueSubmit with 1 command buffer may result in a "
          "Submit with 6 IBs");
+    CASE(kGfxrVulkanCommandsView,
+            "This view shows all the vulkan commands that were capture by gfxr, in the order they "
+            "were submitted.");
     CASE(kVulkanEventsView,
          "This view shows, for each submit, the list of Vulkan Events associated with that submit. "
          "A Vulkan Event is a Vulkan command that causes the GPU to do actual work (as opposed to, "

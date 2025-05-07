@@ -25,7 +25,6 @@ namespace Dive
         const CaptureData      &capture_data,
         std::optional<uint64_t> reserve_size)
     {
-        std::cout << "VulkanCommandHierarchyCreator, CreateTrees" << std::endl;
         m_command_hierarchy_ptr = command_hierarchy_ptr;
         m_capture_data_ptr = &capture_data;
 
@@ -34,8 +33,6 @@ namespace Dive
 
         if (reserve_size.has_value())
         {
-            std::cout << "Topology Count: " << std::to_string(CommandHierarchy::kTopologyTypeCount)<< std::endl;
-
             for (uint32_t topology = 0; topology < (CommandHierarchy::kTopologyTypeCount); ++topology)
             {
                 m_node_root_node_index[topology].reserve(*reserve_size);
@@ -129,25 +126,33 @@ namespace Dive
     }
 
     //--------------------------------------------------------------------------------------------------
-    bool VulkanCommandHierarchyCreator::OnCmd(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
+    bool VulkanCommandHierarchyCreator::OnCmd(uint32_t parent_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
     {
-        std::cout << "OnCmd, submit_index: " << std::to_string(submit_index) << std::endl;
         std::ostringstream vk_cmd_string_stream;
         vk_cmd_string_stream << vk_cmd_info.GetVkCmdName();
-        vk_cmd_string_stream << ", cmdBufferIndex: " << std::to_string(vk_cmd_info.GetVkCmdIndex());
-        uint64_t vk_cmd_index = AddNode(NodeType::kPacketNode, vk_cmd_string_stream.str());
-        AddChild(CommandHierarchy::TopologyType::kEngineTopology, m_cur_submit_node_index, vk_cmd_index);
-        AddChild(CommandHierarchy::TopologyType::kSubmitTopology, m_cur_submit_node_index, vk_cmd_index);
+        if (vk_cmd_info.GetVkCmdName() == "vkBeginCommandBuffer")
+        {
+            uint64_t cmd_buffer_index = AddNode(NodeType::kPacketNode, vk_cmd_string_stream.str());
+            m_cur_command_buffer_node_index = cmd_buffer_index;
+            AddChild(CommandHierarchy::TopologyType::kEngineTopology, m_cur_submit_node_index, cmd_buffer_index);
+            AddChild(CommandHierarchy::TopologyType::kSubmitTopology, m_cur_submit_node_index, cmd_buffer_index);
+        }
+        else
+        {
+            vk_cmd_string_stream << ", Command Buffer Index: " << std::to_string(vk_cmd_info.GetVkCmdIndex());
+            uint64_t vk_cmd_index = AddNode(NodeType::kPacketNode, vk_cmd_string_stream.str());
+            AddChild(CommandHierarchy::TopologyType::kEngineTopology, m_cur_command_buffer_node_index, vk_cmd_index);
+            AddChild(CommandHierarchy::TopologyType::kSubmitTopology, m_cur_command_buffer_node_index, vk_cmd_index);
+        }
         return true;
     }
 
     //--------------------------------------------------------------------------------------------------
     void VulkanCommandHierarchyCreator::OnGfxrSubmitStart(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info)
     {
-        std::cout << "VulkanCommandHierarchyCreator, OnGfxrSubmitStart" << std::endl;
         std::ostringstream submit_string_stream;
-        submit_string_stream << submit_info.GetSubmitText() << ":"<< submit_index;
-        submit_string_stream << ", Submit Count: " << std::to_string(1) << ", Command Buffer Count: " << std::to_string(submit_info.GetVkCmds().size());
+        submit_string_stream << submit_info.GetSubmitText() << ": "<< submit_index;
+        submit_string_stream << ", Command Buffer Count: " << std::to_string(submit_info.GetCommandBufferCount());
         // Create submit node
         uint64_t submit_node_index = AddNode(NodeType::kSubmitNode,
                                             submit_string_stream.str());
@@ -155,8 +160,6 @@ namespace Dive
         uint64_t engine_node_index = GetChildNodeIndex(CommandHierarchy::kEngineTopology, Topology::kRootNodeIndex, 0);
         AddChild(CommandHierarchy::kEngineTopology, engine_node_index, submit_node_index);
 
-        std::cout << "Submit Top, index: " << std::to_string(submit_node_index) << std::endl;
-        std::cout << "Engine Top, index: " << std::to_string(submit_node_index) << std::endl;      
         // Add submit node to the other topologies as children to the root node
         AddChild(CommandHierarchy::kSubmitTopology, Topology::kRootNodeIndex, submit_node_index);
         AddChild(CommandHierarchy::kAllEventTopology, Topology::kRootNodeIndex, submit_node_index);
@@ -166,8 +169,6 @@ namespace Dive
     //--------------------------------------------------------------------------------------------------
     void VulkanCommandHierarchyCreator::OnGfxrSubmitEnd(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info)
     {
-        std::cout<< "VulkanCommandHierarchyCreator, OnGfxrSubmitEnd, submit_index: " << std::to_string(submit_index)<< std::endl;
-
     }
     void VulkanCommandHierarchyCreator::CreateTopologies()
     {
@@ -208,7 +209,6 @@ namespace Dive
         for (uint32_t topology = 0; topology < CommandHierarchy::kTopologyTypeCount; ++topology)
         {
             num_nodes = m_node_children[topology][0].size();
-            std::cout << "SIZE of num_nodes: " << std::to_string(num_nodes) << std::endl;
             Topology &cur_topology = m_command_hierarchy_ptr->m_topology[topology];
             cur_topology.SetNumNodes(num_nodes);
 

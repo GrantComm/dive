@@ -874,7 +874,6 @@ CaptureData::CaptureData(ProgressTracker *progress_tracker, ILog *log_ptr) :
 //--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult CaptureData::LoadFile(const char *file_name)
 {
-    std::cout << "CaptureData, LoadFile" << std::endl;
     std::string file_name_(file_name);
     std::string file_extension = std::filesystem::path(file_name_).extension().generic_string();
 
@@ -977,7 +976,6 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(const char *file_name)
 //--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult CaptureData::LoadGFXRFile(const char *file_name)
 {
-    std::cout << "CaptureData, LoadGFXRFile started" << std::endl;
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(file_name) == 0)
     {
@@ -1208,18 +1206,12 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(FileReader &capture_file)
 //--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult CaptureData::LoadGFXRFile(gfxrecon::decode::FileProcessor &file_processor)
 {
-    std::cout << "CaptureData, LoadGFXRFile" << std::endl;
-
     VulkanDiveConsumer dive_consumer;
     gfxrecon::decode::VulkanDecoder decoder;
     decoder.AddConsumer(&dive_consumer);
-    std::cout << "CaptureData, LoadGFXRFile, addConsumer" << std::endl;
     file_processor.AddDecoder(&decoder);
-    std::cout << "CaptureData, LoadGFXRFile, addDecoder" << std::endl;
-
 
     DiveAnnotationProcessor dive_annotation_processor;
-    std::cout << "CaptureData, LoadGFXRFile, setProcessor" << std::endl;
     file_processor.SetAnnotationProcessor(&dive_annotation_processor);
 
     bool success = true;

@@ -100,8 +100,12 @@ from vulkan_state_table_header_generator import VulkanStateTableHeaderGenerator,
 
 from vulkan_enum_to_json_body_generator import VulkanEnumToJsonBodyGenerator, VulkanEnumToJsonBodyGeneratorOptions
 from vulkan_enum_to_json_header_generator import VulkanEnumToJsonHeaderGenerator, VulkanEnumToJsonHeaderGeneratorOptions
+from vulkan_enum_to_dive_body_generator import VulkanEnumToDiveBodyGenerator, VulkanEnumToDiveBodyGeneratorOptions
+from vulkan_enum_to_dive_header_generator import VulkanEnumToDiveHeaderGenerator, VulkanEnumToDiveHeaderGeneratorOptions
 from vulkan_struct_to_json_header_generator import VulkanStructToJsonHeaderGenerator, VulkanStructToJsonHeaderGeneratorOptions
 from vulkan_struct_to_json_body_generator import VulkanStructToJsonBodyGenerator, VulkanStructToJsonBodyGeneratorOptions
+from vulkan_struct_to_dive_header_generator import VulkanStructToDiveHeaderGenerator, VulkanStructToDiveHeaderGeneratorOptions
+from vulkan_struct_to_dive_body_generator import VulkanStructToDiveBodyGenerator, VulkanStructToDiveBodyGeneratorOptions
 
 # Constants
 from vulkan_constant_maps_generator import VulkanConstantMapsGenerator, VulkanConstantMapsGeneratorOptions
@@ -870,6 +874,34 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_vulkan_struct_to_dive.h'] = [
+        VulkanStructToDiveHeaderGenerator,
+        VulkanStructToDiveHeaderGeneratorOptions(
+            filename='generated_vulkan_struct_to_dive.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_to_dive.cpp'] = [
+        VulkanStructToDiveBodyGenerator,
+        VulkanStructToDiveBodyGeneratorOptions(
+            filename='generated_vulkan_struct_to_dive.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
     gen_opts['generated_vulkan_enum_to_json.h'] = [
         VulkanEnumToJsonHeaderGenerator,
         VulkanEnumToJsonHeaderGeneratorOptions(
@@ -888,6 +920,34 @@ def make_gen_opts(args):
         VulkanEnumToJsonBodyGenerator,
         VulkanEnumToJsonBodyGeneratorOptions(
             filename='generated_vulkan_enum_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_enum_to_dive.h'] = [
+        VulkanEnumToDiveHeaderGenerator,
+        VulkanEnumToDiveHeaderGeneratorOptions(
+            filename='generated_vulkan_enum_to_dive.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefixText=prefix_strings + vk_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_enum_to_dive.cpp'] = [
+        VulkanEnumToDiveBodyGenerator,
+        VulkanEnumToDiveBodyGeneratorOptions(
+            filename='generated_vulkan_enum_to_dive.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

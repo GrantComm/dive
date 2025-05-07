@@ -582,8 +582,6 @@ bool clean_up_app_and_device(Dive::DeviceManager& mgr, const std::string& packag
                      "clean up package specific settings.";
     }
 
-    std::string gfxr_cleanup = absl::GetFlag(FLAGS_device);
-
     return mgr.Cleanup(serial, package).ok();
 }
 

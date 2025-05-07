@@ -29,6 +29,8 @@
 
 #include "util/defines.h"
 #include "generated/generated_vulkan_dive_consumer.h"
+#include "decode/custom_vulkan_struct_to_dive.h"
+#include "decode/decode_dive_util.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
@@ -38,6 +40,9 @@
 #include "vk_video/vulkan_video_codec_h265std_decode.h"
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
+
+#include <string>
+#include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -50,7 +55,6 @@ void VulkanExportDiveConsumer::Process_vkCreateInstance(
     HandlePointerDecoder<VkInstance>*           pInstance)
 {
     std::string name = "vkCreateInstance";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -60,7 +64,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyInstance";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -72,7 +75,6 @@ void VulkanExportDiveConsumer::Process_vkEnumeratePhysicalDevices(
     HandlePointerDecoder<VkPhysicalDevice>*     pPhysicalDevices)
 {
     std::string name = "vkEnumeratePhysicalDevices";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -82,7 +84,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFeatures(
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>* pFeatures)
 {
     std::string name = "vkGetPhysicalDeviceFeatures";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -93,7 +94,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFormatProperties(
     StructPointerDecoder<Decoded_VkFormatProperties>* pFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceFormatProperties";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -109,7 +109,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
     StructPointerDecoder<Decoded_VkImageFormatProperties>* pImageFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceImageFormatProperties";
-    std::string args[7];
     WriteBlockEnd(name);
 }
 
@@ -119,7 +118,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceProperties";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -130,7 +128,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
     StructPointerDecoder<Decoded_VkQueueFamilyProperties>* pQueueFamilyProperties)
 {
     std::string name = "vkGetPhysicalDeviceQueueFamilyProperties";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -140,7 +137,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties)
 {
     std::string name = "vkGetPhysicalDeviceMemoryProperties";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -153,7 +149,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDevice(
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
     std::string name = "vkCreateDevice";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -163,7 +158,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDevice";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -175,7 +169,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceQueue(
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
     std::string name = "vkGetDeviceQueue";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -188,7 +181,6 @@ void VulkanExportDiveConsumer::Process_vkQueueSubmit(
     format::HandleId                            fence)
 {
     std::string name = "vkQueueSubmit";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -198,7 +190,6 @@ void VulkanExportDiveConsumer::Process_vkQueueWaitIdle(
     format::HandleId                            queue)
 {
     std::string name = "vkQueueWaitIdle";
-    std::string args[1];
     WriteBlockEnd(name);
 }
 
@@ -208,7 +199,6 @@ void VulkanExportDiveConsumer::Process_vkDeviceWaitIdle(
     format::HandleId                            device)
 {
     std::string name = "vkDeviceWaitIdle";
-    std::string args[1];
     WriteBlockEnd(name);
 }
 
@@ -221,7 +211,6 @@ void VulkanExportDiveConsumer::Process_vkAllocateMemory(
     HandlePointerDecoder<VkDeviceMemory>*       pMemory)
 {
     std::string name = "vkAllocateMemory";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -232,7 +221,6 @@ void VulkanExportDiveConsumer::Process_vkFreeMemory(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkFreeMemory";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -247,7 +235,6 @@ void VulkanExportDiveConsumer::Process_vkMapMemory(
     PointerDecoder<uint64_t, void*>*            ppData)
 {
     std::string name = "vkMapMemory";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -257,7 +244,6 @@ void VulkanExportDiveConsumer::Process_vkUnmapMemory(
     format::HandleId                            memory)
 {
     std::string name = "vkUnmapMemory";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -269,7 +255,6 @@ void VulkanExportDiveConsumer::Process_vkFlushMappedMemoryRanges(
     StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
     std::string name = "vkFlushMappedMemoryRanges";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -281,7 +266,6 @@ void VulkanExportDiveConsumer::Process_vkInvalidateMappedMemoryRanges(
     StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges)
 {
     std::string name = "vkInvalidateMappedMemoryRanges";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -292,7 +276,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceMemoryCommitment(
     PointerDecoder<VkDeviceSize>*               pCommittedMemoryInBytes)
 {
     std::string name = "vkGetDeviceMemoryCommitment";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -305,7 +288,6 @@ void VulkanExportDiveConsumer::Process_vkBindBufferMemory(
     VkDeviceSize                                memoryOffset)
 {
     std::string name = "vkBindBufferMemory";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -318,7 +300,6 @@ void VulkanExportDiveConsumer::Process_vkBindImageMemory(
     VkDeviceSize                                memoryOffset)
 {
     std::string name = "vkBindImageMemory";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -329,7 +310,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferMemoryRequirements(
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
 {
     std::string name = "vkGetBufferMemoryRequirements";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -340,7 +320,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageMemoryRequirements(
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
 {
     std::string name = "vkGetImageMemoryRequirements";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -352,7 +331,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSparseMemoryRequirements(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements>* pSparseMemoryRequirements)
 {
     std::string name = "vkGetImageSparseMemoryRequirements";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -368,7 +346,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPrope
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceSparseImageFormatProperties";
-    std::string args[8];
     WriteBlockEnd(name);
 }
 
@@ -381,7 +358,6 @@ void VulkanExportDiveConsumer::Process_vkQueueBindSparse(
     format::HandleId                            fence)
 {
     std::string name = "vkQueueBindSparse";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -394,7 +370,6 @@ void VulkanExportDiveConsumer::Process_vkCreateFence(
     HandlePointerDecoder<VkFence>*              pFence)
 {
     std::string name = "vkCreateFence";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -405,7 +380,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyFence(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyFence";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -417,7 +391,6 @@ void VulkanExportDiveConsumer::Process_vkResetFences(
     HandlePointerDecoder<VkFence>*              pFences)
 {
     std::string name = "vkResetFences";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -428,7 +401,6 @@ void VulkanExportDiveConsumer::Process_vkGetFenceStatus(
     format::HandleId                            fence)
 {
     std::string name = "vkGetFenceStatus";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -442,7 +414,6 @@ void VulkanExportDiveConsumer::Process_vkWaitForFences(
     uint64_t                                    timeout)
 {
     std::string name = "vkWaitForFences";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -455,7 +426,6 @@ void VulkanExportDiveConsumer::Process_vkCreateSemaphore(
     HandlePointerDecoder<VkSemaphore>*          pSemaphore)
 {
     std::string name = "vkCreateSemaphore";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -466,7 +436,6 @@ void VulkanExportDiveConsumer::Process_vkDestroySemaphore(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroySemaphore";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -479,7 +448,6 @@ void VulkanExportDiveConsumer::Process_vkCreateEvent(
     HandlePointerDecoder<VkEvent>*              pEvent)
 {
     std::string name = "vkCreateEvent";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -490,7 +458,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyEvent(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyEvent";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -501,7 +468,6 @@ void VulkanExportDiveConsumer::Process_vkGetEventStatus(
     format::HandleId                            event)
 {
     std::string name = "vkGetEventStatus";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -512,7 +478,6 @@ void VulkanExportDiveConsumer::Process_vkSetEvent(
     format::HandleId                            event)
 {
     std::string name = "vkSetEvent";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -523,7 +488,6 @@ void VulkanExportDiveConsumer::Process_vkResetEvent(
     format::HandleId                            event)
 {
     std::string name = "vkResetEvent";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -536,7 +500,6 @@ void VulkanExportDiveConsumer::Process_vkCreateQueryPool(
     HandlePointerDecoder<VkQueryPool>*          pQueryPool)
 {
     std::string name = "vkCreateQueryPool";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -547,7 +510,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyQueryPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyQueryPool";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -564,7 +526,6 @@ void VulkanExportDiveConsumer::Process_vkGetQueryPoolResults(
     VkQueryResultFlags                          flags)
 {
     std::string name = "vkGetQueryPoolResults";
-    std::string args[8];
     WriteBlockEnd(name);
 }
 
@@ -577,7 +538,6 @@ void VulkanExportDiveConsumer::Process_vkCreateBuffer(
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
     std::string name = "vkCreateBuffer";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -588,7 +548,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyBuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyBuffer";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -601,7 +560,6 @@ void VulkanExportDiveConsumer::Process_vkCreateBufferView(
     HandlePointerDecoder<VkBufferView>*         pView)
 {
     std::string name = "vkCreateBufferView";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -612,7 +570,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyBufferView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyBufferView";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -625,7 +582,6 @@ void VulkanExportDiveConsumer::Process_vkCreateImage(
     HandlePointerDecoder<VkImage>*              pImage)
 {
     std::string name = "vkCreateImage";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -636,7 +592,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyImage(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyImage";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -648,7 +603,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSubresourceLayout(
     StructPointerDecoder<Decoded_VkSubresourceLayout>* pLayout)
 {
     std::string name = "vkGetImageSubresourceLayout";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -661,7 +615,6 @@ void VulkanExportDiveConsumer::Process_vkCreateImageView(
     HandlePointerDecoder<VkImageView>*          pView)
 {
     std::string name = "vkCreateImageView";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -672,7 +625,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyImageView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyImageView";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -683,7 +635,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyShaderModule(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyShaderModule";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -694,7 +645,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyPipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyPipelineCache";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -707,7 +657,6 @@ void VulkanExportDiveConsumer::Process_vkMergePipelineCaches(
     HandlePointerDecoder<VkPipelineCache>*      pSrcCaches)
 {
     std::string name = "vkMergePipelineCaches";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -722,7 +671,6 @@ void VulkanExportDiveConsumer::Process_vkCreateGraphicsPipelines(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     std::string name = "vkCreateGraphicsPipelines";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -737,7 +685,6 @@ void VulkanExportDiveConsumer::Process_vkCreateComputePipelines(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     std::string name = "vkCreateComputePipelines";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -748,7 +695,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyPipeline(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyPipeline";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -761,7 +707,6 @@ void VulkanExportDiveConsumer::Process_vkCreatePipelineLayout(
     HandlePointerDecoder<VkPipelineLayout>*     pPipelineLayout)
 {
     std::string name = "vkCreatePipelineLayout";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -772,7 +717,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyPipelineLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyPipelineLayout";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -785,7 +729,6 @@ void VulkanExportDiveConsumer::Process_vkCreateSampler(
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
     std::string name = "vkCreateSampler";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -796,7 +739,6 @@ void VulkanExportDiveConsumer::Process_vkDestroySampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroySampler";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -809,7 +751,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDescriptorSetLayout(
     HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout)
 {
     std::string name = "vkCreateDescriptorSetLayout";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -820,7 +761,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDescriptorSetLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDescriptorSetLayout";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -833,7 +773,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDescriptorPool(
     HandlePointerDecoder<VkDescriptorPool>*     pDescriptorPool)
 {
     std::string name = "vkCreateDescriptorPool";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -844,7 +783,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDescriptorPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDescriptorPool";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -856,7 +794,6 @@ void VulkanExportDiveConsumer::Process_vkResetDescriptorPool(
     VkDescriptorPoolResetFlags                  flags)
 {
     std::string name = "vkResetDescriptorPool";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -868,7 +805,6 @@ void VulkanExportDiveConsumer::Process_vkAllocateDescriptorSets(
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
     std::string name = "vkAllocateDescriptorSets";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -881,7 +817,6 @@ void VulkanExportDiveConsumer::Process_vkFreeDescriptorSets(
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
     std::string name = "vkFreeDescriptorSets";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -894,7 +829,6 @@ void VulkanExportDiveConsumer::Process_vkUpdateDescriptorSets(
     StructPointerDecoder<Decoded_VkCopyDescriptorSet>* pDescriptorCopies)
 {
     std::string name = "vkUpdateDescriptorSets";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -907,7 +841,6 @@ void VulkanExportDiveConsumer::Process_vkCreateFramebuffer(
     HandlePointerDecoder<VkFramebuffer>*        pFramebuffer)
 {
     std::string name = "vkCreateFramebuffer";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -918,7 +851,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyFramebuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyFramebuffer";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -931,7 +863,6 @@ void VulkanExportDiveConsumer::Process_vkCreateRenderPass(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     std::string name = "vkCreateRenderPass";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -942,7 +873,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyRenderPass(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyRenderPass";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -953,7 +883,6 @@ void VulkanExportDiveConsumer::Process_vkGetRenderAreaGranularity(
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
     std::string name = "vkGetRenderAreaGranularity";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -966,7 +895,6 @@ void VulkanExportDiveConsumer::Process_vkCreateCommandPool(
     HandlePointerDecoder<VkCommandPool>*        pCommandPool)
 {
     std::string name = "vkCreateCommandPool";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -977,7 +905,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyCommandPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyCommandPool";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -989,7 +916,6 @@ void VulkanExportDiveConsumer::Process_vkResetCommandPool(
     VkCommandPoolResetFlags                     flags)
 {
     std::string name = "vkResetCommandPool";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1001,7 +927,6 @@ void VulkanExportDiveConsumer::Process_vkAllocateCommandBuffers(
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
     std::string name = "vkAllocateCommandBuffers";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1013,7 +938,6 @@ void VulkanExportDiveConsumer::Process_vkFreeCommandBuffers(
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
     std::string name = "vkFreeCommandBuffers";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -1024,7 +948,6 @@ void VulkanExportDiveConsumer::Process_vkBeginCommandBuffer(
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
 {
     std::string name = "vkBeginCommandBuffer";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -1034,7 +957,6 @@ void VulkanExportDiveConsumer::Process_vkEndCommandBuffer(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkEndCommandBuffer";
-    std::string args[1];
     WriteBlockEnd(name);
 }
 
@@ -1045,7 +967,6 @@ void VulkanExportDiveConsumer::Process_vkResetCommandBuffer(
     VkCommandBufferResetFlags                   flags)
 {
     std::string name = "vkResetCommandBuffer";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -1056,8 +977,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindPipeline(
     format::HandleId                            pipeline)
 {
     std::string name = "vkCmdBindPipeline";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1069,8 +990,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewport(
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
     std::string name = "vkCmdSetViewport";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1082,8 +1003,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetScissor(
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
     std::string name = "vkCmdSetScissor";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1093,8 +1014,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLineWidth(
     float                                       lineWidth)
 {
     std::string name = "vkCmdSetLineWidth";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1106,8 +1027,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBias(
     float                                       depthBiasSlopeFactor)
 {
     std::string name = "vkCmdSetDepthBias";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1117,8 +1038,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetBlendConstants(
     PointerDecoder<float>*                      blendConstants)
 {
     std::string name = "vkCmdSetBlendConstants";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1129,8 +1050,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBounds(
     float                                       maxDepthBounds)
 {
     std::string name = "vkCmdSetDepthBounds";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1141,8 +1062,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilCompareMask(
     uint32_t                                    compareMask)
 {
     std::string name = "vkCmdSetStencilCompareMask";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1153,8 +1074,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilWriteMask(
     uint32_t                                    writeMask)
 {
     std::string name = "vkCmdSetStencilWriteMask";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1165,8 +1086,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilReference(
     uint32_t                                    reference)
 {
     std::string name = "vkCmdSetStencilReference";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1182,8 +1103,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindDescriptorSets(
     PointerDecoder<uint32_t>*                   pDynamicOffsets)
 {
     std::string name = "vkCmdBindDescriptorSets";
-    std::string args[8];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1195,8 +1116,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindIndexBuffer(
     VkIndexType                                 indexType)
 {
     std::string name = "vkCmdBindIndexBuffer";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1209,8 +1130,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindVertexBuffers(
     PointerDecoder<VkDeviceSize>*               pOffsets)
 {
     std::string name = "vkCmdBindVertexBuffers";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1223,8 +1144,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDraw(
     uint32_t                                    firstInstance)
 {
     std::string name = "vkCmdDraw";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1238,8 +1159,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndexed(
     uint32_t                                    firstInstance)
 {
     std::string name = "vkCmdDrawIndexed";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1252,8 +1173,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndirect(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndirect";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1266,8 +1187,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndexedIndirect(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndexedIndirect";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1279,8 +1200,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDispatch(
     uint32_t                                    groupCountZ)
 {
     std::string name = "vkCmdDispatch";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1291,8 +1212,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDispatchIndirect(
     VkDeviceSize                                offset)
 {
     std::string name = "vkCmdDispatchIndirect";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1305,8 +1226,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyBuffer(
     StructPointerDecoder<Decoded_VkBufferCopy>* pRegions)
 {
     std::string name = "vkCmdCopyBuffer";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1321,8 +1242,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyImage(
     StructPointerDecoder<Decoded_VkImageCopy>*  pRegions)
 {
     std::string name = "vkCmdCopyImage";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1338,8 +1259,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBlitImage(
     VkFilter                                    filter)
 {
     std::string name = "vkCmdBlitImage";
-    std::string args[8];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1353,8 +1274,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyBufferToImage(
     StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
 {
     std::string name = "vkCmdCopyBufferToImage";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1368,8 +1289,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyImageToBuffer(
     StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions)
 {
     std::string name = "vkCmdCopyImageToBuffer";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1382,8 +1303,8 @@ void VulkanExportDiveConsumer::Process_vkCmdUpdateBuffer(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkCmdUpdateBuffer";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1396,8 +1317,8 @@ void VulkanExportDiveConsumer::Process_vkCmdFillBuffer(
     uint32_t                                    data)
 {
     std::string name = "vkCmdFillBuffer";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1411,8 +1332,8 @@ void VulkanExportDiveConsumer::Process_vkCmdClearColorImage(
     StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
 {
     std::string name = "vkCmdClearColorImage";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1426,8 +1347,8 @@ void VulkanExportDiveConsumer::Process_vkCmdClearDepthStencilImage(
     StructPointerDecoder<Decoded_VkImageSubresourceRange>* pRanges)
 {
     std::string name = "vkCmdClearDepthStencilImage";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1440,8 +1361,8 @@ void VulkanExportDiveConsumer::Process_vkCmdClearAttachments(
     StructPointerDecoder<Decoded_VkClearRect>*  pRects)
 {
     std::string name = "vkCmdClearAttachments";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1456,8 +1377,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResolveImage(
     StructPointerDecoder<Decoded_VkImageResolve>* pRegions)
 {
     std::string name = "vkCmdResolveImage";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1468,8 +1389,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetEvent(
     VkPipelineStageFlags                        stageMask)
 {
     std::string name = "vkCmdSetEvent";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1480,8 +1401,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResetEvent(
     VkPipelineStageFlags                        stageMask)
 {
     std::string name = "vkCmdResetEvent";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1500,8 +1421,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWaitEvents(
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
     std::string name = "vkCmdWaitEvents";
-    std::string args[11];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1519,8 +1440,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPipelineBarrier(
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
     std::string name = "vkCmdPipelineBarrier";
-    std::string args[10];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1532,8 +1453,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginQuery(
     VkQueryControlFlags                         flags)
 {
     std::string name = "vkCmdBeginQuery";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1544,8 +1465,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndQuery(
     uint32_t                                    query)
 {
     std::string name = "vkCmdEndQuery";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1557,8 +1478,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResetQueryPool(
     uint32_t                                    queryCount)
 {
     std::string name = "vkCmdResetQueryPool";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1570,8 +1491,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteTimestamp(
     uint32_t                                    query)
 {
     std::string name = "vkCmdWriteTimestamp";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1587,8 +1508,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyQueryPoolResults(
     VkQueryResultFlags                          flags)
 {
     std::string name = "vkCmdCopyQueryPoolResults";
-    std::string args[8];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1599,8 +1520,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginRenderPass(
     VkSubpassContents                           contents)
 {
     std::string name = "vkCmdBeginRenderPass";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1610,8 +1531,8 @@ void VulkanExportDiveConsumer::Process_vkCmdNextSubpass(
     VkSubpassContents                           contents)
 {
     std::string name = "vkCmdNextSubpass";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1620,8 +1541,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndRenderPass(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkCmdEndRenderPass";
-    std::string args[1];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1632,8 +1553,8 @@ void VulkanExportDiveConsumer::Process_vkCmdExecuteCommands(
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
     std::string name = "vkCmdExecuteCommands";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1645,7 +1566,6 @@ void VulkanExportDiveConsumer::Process_vkBindBufferMemory2(
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
     std::string name = "vkBindBufferMemory2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1657,7 +1577,6 @@ void VulkanExportDiveConsumer::Process_vkBindImageMemory2(
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
     std::string name = "vkBindImageMemory2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1670,7 +1589,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceGroupPeerMemoryFeatures(
     PointerDecoder<VkPeerMemoryFeatureFlags>*   pPeerMemoryFeatures)
 {
     std::string name = "vkGetDeviceGroupPeerMemoryFeatures";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -1680,8 +1598,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDeviceMask(
     uint32_t                                    deviceMask)
 {
     std::string name = "vkCmdSetDeviceMask";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1696,8 +1614,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDispatchBase(
     uint32_t                                    groupCountZ)
 {
     std::string name = "vkCmdDispatchBase";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1709,7 +1627,6 @@ void VulkanExportDiveConsumer::Process_vkEnumeratePhysicalDeviceGroups(
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
     std::string name = "vkEnumeratePhysicalDeviceGroups";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1720,7 +1637,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageMemoryRequirements2(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetImageMemoryRequirements2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1731,7 +1647,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferMemoryRequirements2(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetBufferMemoryRequirements2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1743,7 +1658,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSparseMemoryRequirements2(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     std::string name = "vkGetImageSparseMemoryRequirements2";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -1753,7 +1667,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFeatures2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures)
 {
     std::string name = "vkGetPhysicalDeviceFeatures2";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -1763,7 +1676,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceProperties2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceProperties2";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -1774,7 +1686,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
     StructPointerDecoder<Decoded_VkFormatProperties2>* pFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceFormatProperties2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1786,7 +1697,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2
     StructPointerDecoder<Decoded_VkImageFormatProperties2>* pImageFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceImageFormatProperties2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1797,7 +1707,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2
     StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
 {
     std::string name = "vkGetPhysicalDeviceQueueFamilyProperties2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1807,7 +1716,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
     std::string name = "vkGetPhysicalDeviceMemoryProperties2";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -1819,7 +1727,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPrope
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceSparseImageFormatProperties2";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -1830,7 +1737,6 @@ void VulkanExportDiveConsumer::Process_vkTrimCommandPool(
     VkCommandPoolTrimFlags                      flags)
 {
     std::string name = "vkTrimCommandPool";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1841,7 +1747,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceQueue2(
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
     std::string name = "vkGetDeviceQueue2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1854,7 +1759,6 @@ void VulkanExportDiveConsumer::Process_vkCreateSamplerYcbcrConversion(
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
     std::string name = "vkCreateSamplerYcbcrConversion";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -1865,7 +1769,6 @@ void VulkanExportDiveConsumer::Process_vkDestroySamplerYcbcrConversion(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroySamplerYcbcrConversion";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1878,7 +1781,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDescriptorUpdateTemplate(
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
     std::string name = "vkCreateDescriptorUpdateTemplate";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -1889,7 +1791,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDescriptorUpdateTemplate";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1900,7 +1801,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalBufferProperti
     StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalBufferProperties";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1911,7 +1811,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalFencePropertie
     StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalFenceProperties";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1922,7 +1821,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePrope
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalSemaphoreProperties";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1933,7 +1831,6 @@ void VulkanExportDiveConsumer::Process_vkGetDescriptorSetLayoutSupport(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport)
 {
     std::string name = "vkGetDescriptorSetLayoutSupport";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -1948,8 +1845,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndirectCount(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndirectCount";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1964,8 +1861,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndexedIndirectCount(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndexedIndirectCount";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -1978,7 +1875,6 @@ void VulkanExportDiveConsumer::Process_vkCreateRenderPass2(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     std::string name = "vkCreateRenderPass2";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -1989,8 +1885,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
     std::string name = "vkCmdBeginRenderPass2";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2001,8 +1897,8 @@ void VulkanExportDiveConsumer::Process_vkCmdNextSubpass2(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     std::string name = "vkCmdNextSubpass2";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2012,8 +1908,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndRenderPass2(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     std::string name = "vkCmdEndRenderPass2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2025,7 +1921,6 @@ void VulkanExportDiveConsumer::Process_vkResetQueryPool(
     uint32_t                                    queryCount)
 {
     std::string name = "vkResetQueryPool";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2037,7 +1932,6 @@ void VulkanExportDiveConsumer::Process_vkGetSemaphoreCounterValue(
     PointerDecoder<uint64_t>*                   pValue)
 {
     std::string name = "vkGetSemaphoreCounterValue";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2049,7 +1943,6 @@ void VulkanExportDiveConsumer::Process_vkWaitSemaphores(
     uint64_t                                    timeout)
 {
     std::string name = "vkWaitSemaphores";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2060,7 +1953,6 @@ void VulkanExportDiveConsumer::Process_vkSignalSemaphore(
     StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
     std::string name = "vkSignalSemaphore";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2071,7 +1963,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferDeviceAddress(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     std::string name = "vkGetBufferDeviceAddress";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2082,7 +1973,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferOpaqueCaptureAddress(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     std::string name = "vkGetBufferOpaqueCaptureAddress";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2093,7 +1983,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddress(
     StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
 {
     std::string name = "vkGetDeviceMemoryOpaqueCaptureAddress";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2105,7 +1994,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceToolProperties(
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
     std::string name = "vkGetPhysicalDeviceToolProperties";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2118,7 +2006,6 @@ void VulkanExportDiveConsumer::Process_vkCreatePrivateDataSlot(
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
     std::string name = "vkCreatePrivateDataSlot";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2129,7 +2016,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyPrivateDataSlot(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyPrivateDataSlot";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2143,7 +2029,6 @@ void VulkanExportDiveConsumer::Process_vkSetPrivateData(
     uint64_t                                    data)
 {
     std::string name = "vkSetPrivateData";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -2156,7 +2041,6 @@ void VulkanExportDiveConsumer::Process_vkGetPrivateData(
     PointerDecoder<uint64_t>*                   pData)
 {
     std::string name = "vkGetPrivateData";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -2167,8 +2051,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetEvent2(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     std::string name = "vkCmdSetEvent2";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2179,8 +2063,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResetEvent2(
     VkPipelineStageFlags2                       stageMask)
 {
     std::string name = "vkCmdResetEvent2";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2192,8 +2076,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWaitEvents2(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
 {
     std::string name = "vkCmdWaitEvents2";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2203,8 +2087,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPipelineBarrier2(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     std::string name = "vkCmdPipelineBarrier2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2216,8 +2100,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteTimestamp2(
     uint32_t                                    query)
 {
     std::string name = "vkCmdWriteTimestamp2";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2230,7 +2114,6 @@ void VulkanExportDiveConsumer::Process_vkQueueSubmit2(
     format::HandleId                            fence)
 {
     std::string name = "vkQueueSubmit2";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2240,8 +2123,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyBuffer2(
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
     std::string name = "vkCmdCopyBuffer2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2251,8 +2134,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyImage2(
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
     std::string name = "vkCmdCopyImage2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2262,8 +2145,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyBufferToImage2(
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
     std::string name = "vkCmdCopyBufferToImage2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2273,8 +2156,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyImageToBuffer2(
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
     std::string name = "vkCmdCopyImageToBuffer2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2284,8 +2167,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBlitImage2(
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
     std::string name = "vkCmdBlitImage2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2295,8 +2178,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResolveImage2(
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
     std::string name = "vkCmdResolveImage2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2306,8 +2189,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginRendering(
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
     std::string name = "vkCmdBeginRendering";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2316,8 +2199,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndRendering(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkCmdEndRendering";
-    std::string args[1];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2327,8 +2210,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCullMode(
     VkCullModeFlags                             cullMode)
 {
     std::string name = "vkCmdSetCullMode";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2338,8 +2221,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetFrontFace(
     VkFrontFace                                 frontFace)
 {
     std::string name = "vkCmdSetFrontFace";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2349,8 +2232,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPrimitiveTopology(
     VkPrimitiveTopology                         primitiveTopology)
 {
     std::string name = "vkCmdSetPrimitiveTopology";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2361,8 +2244,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewportWithCount(
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
     std::string name = "vkCmdSetViewportWithCount";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2373,8 +2256,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetScissorWithCount(
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
     std::string name = "vkCmdSetScissorWithCount";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2389,8 +2272,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindVertexBuffers2(
     PointerDecoder<VkDeviceSize>*               pStrides)
 {
     std::string name = "vkCmdBindVertexBuffers2";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2400,8 +2283,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthTestEnable(
     VkBool32                                    depthTestEnable)
 {
     std::string name = "vkCmdSetDepthTestEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2411,8 +2294,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthWriteEnable(
     VkBool32                                    depthWriteEnable)
 {
     std::string name = "vkCmdSetDepthWriteEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2422,8 +2305,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthCompareOp(
     VkCompareOp                                 depthCompareOp)
 {
     std::string name = "vkCmdSetDepthCompareOp";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2433,8 +2316,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBoundsTestEnable(
     VkBool32                                    depthBoundsTestEnable)
 {
     std::string name = "vkCmdSetDepthBoundsTestEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2444,8 +2327,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilTestEnable(
     VkBool32                                    stencilTestEnable)
 {
     std::string name = "vkCmdSetStencilTestEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2459,8 +2342,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilOp(
     VkCompareOp                                 compareOp)
 {
     std::string name = "vkCmdSetStencilOp";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2470,8 +2353,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRasterizerDiscardEnable(
     VkBool32                                    rasterizerDiscardEnable)
 {
     std::string name = "vkCmdSetRasterizerDiscardEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2481,8 +2364,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBiasEnable(
     VkBool32                                    depthBiasEnable)
 {
     std::string name = "vkCmdSetDepthBiasEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2492,8 +2375,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPrimitiveRestartEnable(
     VkBool32                                    primitiveRestartEnable)
 {
     std::string name = "vkCmdSetPrimitiveRestartEnable";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2504,7 +2387,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceBufferMemoryRequirements(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetDeviceBufferMemoryRequirements";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2515,7 +2397,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceImageMemoryRequirements(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetDeviceImageMemoryRequirements";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2527,7 +2408,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     std::string name = "vkGetDeviceImageSparseMemoryRequirements";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2538,8 +2418,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLineStipple(
     uint16_t                                    lineStipplePattern)
 {
     std::string name = "vkCmdSetLineStipple";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2551,7 +2431,6 @@ void VulkanExportDiveConsumer::Process_vkMapMemory2(
     PointerDecoder<uint64_t, void*>*            ppData)
 {
     std::string name = "vkMapMemory2";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2562,7 +2441,6 @@ void VulkanExportDiveConsumer::Process_vkUnmapMemory2(
     StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo)
 {
     std::string name = "vkUnmapMemory2";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2575,8 +2453,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindIndexBuffer2(
     VkIndexType                                 indexType)
 {
     std::string name = "vkCmdBindIndexBuffer2";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2587,7 +2465,6 @@ void VulkanExportDiveConsumer::Process_vkGetRenderingAreaGranularity(
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
     std::string name = "vkGetRenderingAreaGranularity";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2598,7 +2475,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceImageSubresourceLayout(
     StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout)
 {
     std::string name = "vkGetDeviceImageSubresourceLayout";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2610,7 +2486,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSubresourceLayout2(
     StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout)
 {
     std::string name = "vkGetImageSubresourceLayout2";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2624,8 +2499,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPushDescriptorSet(
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites)
 {
     std::string name = "vkCmdPushDescriptorSet";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2635,8 +2510,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRenderingAttachmentLocations(
     StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo)
 {
     std::string name = "vkCmdSetRenderingAttachmentLocations";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2646,8 +2521,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRenderingInputAttachmentIndices(
     StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo)
 {
     std::string name = "vkCmdSetRenderingInputAttachmentIndices";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2657,8 +2532,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindDescriptorSets2(
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
     std::string name = "vkCmdBindDescriptorSets2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2668,8 +2543,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPushConstants2(
     StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
 {
     std::string name = "vkCmdPushConstants2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2679,8 +2554,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPushDescriptorSet2(
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
     std::string name = "vkCmdPushDescriptorSet2";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -2691,7 +2566,6 @@ void VulkanExportDiveConsumer::Process_vkCopyMemoryToImage(
     StructPointerDecoder<Decoded_VkCopyMemoryToImageInfo>* pCopyMemoryToImageInfo)
 {
     std::string name = "vkCopyMemoryToImage";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2702,7 +2576,6 @@ void VulkanExportDiveConsumer::Process_vkCopyImageToMemory(
     StructPointerDecoder<Decoded_VkCopyImageToMemoryInfo>* pCopyImageToMemoryInfo)
 {
     std::string name = "vkCopyImageToMemory";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2713,7 +2586,6 @@ void VulkanExportDiveConsumer::Process_vkCopyImageToImage(
     StructPointerDecoder<Decoded_VkCopyImageToImageInfo>* pCopyImageToImageInfo)
 {
     std::string name = "vkCopyImageToImage";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2725,7 +2597,6 @@ void VulkanExportDiveConsumer::Process_vkTransitionImageLayout(
     StructPointerDecoder<Decoded_VkHostImageLayoutTransitionInfo>* pTransitions)
 {
     std::string name = "vkTransitionImageLayout";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2736,7 +2607,6 @@ void VulkanExportDiveConsumer::Process_vkDestroySurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroySurfaceKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2749,7 +2619,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
     PointerDecoder<VkBool32>*                   pSupported)
 {
     std::string name = "vkGetPhysicalDeviceSurfaceSupportKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2761,7 +2630,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>* pSurfaceCapabilities)
 {
     std::string name = "vkGetPhysicalDeviceSurfaceCapabilitiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2774,7 +2642,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
     StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats)
 {
     std::string name = "vkGetPhysicalDeviceSurfaceFormatsKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2787,7 +2654,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
     std::string name = "vkGetPhysicalDeviceSurfacePresentModesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2800,7 +2666,6 @@ void VulkanExportDiveConsumer::Process_vkCreateSwapchainKHR(
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchain)
 {
     std::string name = "vkCreateSwapchainKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2811,7 +2676,6 @@ void VulkanExportDiveConsumer::Process_vkDestroySwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroySwapchainKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2824,7 +2688,6 @@ void VulkanExportDiveConsumer::Process_vkGetSwapchainImagesKHR(
     HandlePointerDecoder<VkImage>*              pSwapchainImages)
 {
     std::string name = "vkGetSwapchainImagesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2839,7 +2702,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireNextImageKHR(
     PointerDecoder<uint32_t>*                   pImageIndex)
 {
     std::string name = "vkAcquireNextImageKHR";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -2850,7 +2712,6 @@ void VulkanExportDiveConsumer::Process_vkQueuePresentKHR(
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     std::string name = "vkQueuePresentKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2861,7 +2722,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkDeviceGroupPresentCapabilitiesKHR>* pDeviceGroupPresentCapabilities)
 {
     std::string name = "vkGetDeviceGroupPresentCapabilitiesKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -2873,7 +2733,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceGroupSurfacePresentModesKHR(
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
     std::string name = "vkGetDeviceGroupSurfacePresentModesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2886,7 +2745,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
     StructPointerDecoder<Decoded_VkRect2D>*     pRects)
 {
     std::string name = "vkGetPhysicalDevicePresentRectanglesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2898,7 +2756,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireNextImage2KHR(
     PointerDecoder<uint32_t>*                   pImageIndex)
 {
     std::string name = "vkAcquireNextImage2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2910,7 +2767,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
     StructPointerDecoder<Decoded_VkDisplayPropertiesKHR>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceDisplayPropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2922,7 +2778,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties
     StructPointerDecoder<Decoded_VkDisplayPlanePropertiesKHR>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceDisplayPlanePropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -2935,7 +2790,6 @@ void VulkanExportDiveConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     HandlePointerDecoder<VkDisplayKHR>*         pDisplays)
 {
     std::string name = "vkGetDisplayPlaneSupportedDisplaysKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2948,7 +2802,6 @@ void VulkanExportDiveConsumer::Process_vkGetDisplayModePropertiesKHR(
     StructPointerDecoder<Decoded_VkDisplayModePropertiesKHR>* pProperties)
 {
     std::string name = "vkGetDisplayModePropertiesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2962,7 +2815,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDisplayModeKHR(
     HandlePointerDecoder<VkDisplayModeKHR>*     pMode)
 {
     std::string name = "vkCreateDisplayModeKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -2975,7 +2827,6 @@ void VulkanExportDiveConsumer::Process_vkGetDisplayPlaneCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkDisplayPlaneCapabilitiesKHR>* pCapabilities)
 {
     std::string name = "vkGetDisplayPlaneCapabilitiesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -2988,7 +2839,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateDisplayPlaneSurfaceKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3002,7 +2852,6 @@ void VulkanExportDiveConsumer::Process_vkCreateSharedSwapchainsKHR(
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains)
 {
     std::string name = "vkCreateSharedSwapchainsKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -3015,7 +2864,6 @@ void VulkanExportDiveConsumer::Process_vkCreateXlibSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateXlibSurfaceKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3028,7 +2876,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceXlibPresentationSuppor
     size_t                                      visualID)
 {
     std::string name = "vkGetPhysicalDeviceXlibPresentationSupportKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3041,7 +2888,6 @@ void VulkanExportDiveConsumer::Process_vkCreateXcbSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateXcbSurfaceKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3054,7 +2900,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupport
     uint32_t                                    visual_id)
 {
     std::string name = "vkGetPhysicalDeviceXcbPresentationSupportKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3067,7 +2912,6 @@ void VulkanExportDiveConsumer::Process_vkCreateWaylandSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateWaylandSurfaceKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3079,7 +2923,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSup
     uint64_t                                    display)
 {
     std::string name = "vkGetPhysicalDeviceWaylandPresentationSupportKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3092,7 +2935,6 @@ void VulkanExportDiveConsumer::Process_vkCreateAndroidSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateAndroidSurfaceKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3105,7 +2947,6 @@ void VulkanExportDiveConsumer::Process_vkCreateWin32SurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateWin32SurfaceKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3116,7 +2957,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceWin32PresentationSuppo
     uint32_t                                    queueFamilyIndex)
 {
     std::string name = "vkGetPhysicalDeviceWin32PresentationSupportKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3128,7 +2968,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
     StructPointerDecoder<Decoded_VkVideoCapabilitiesKHR>* pCapabilities)
 {
     std::string name = "vkGetPhysicalDeviceVideoCapabilitiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3141,7 +2980,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesK
     StructPointerDecoder<Decoded_VkVideoFormatPropertiesKHR>* pVideoFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceVideoFormatPropertiesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3154,7 +2992,6 @@ void VulkanExportDiveConsumer::Process_vkCreateVideoSessionKHR(
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
     std::string name = "vkCreateVideoSessionKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3165,7 +3002,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyVideoSessionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyVideoSessionKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3178,7 +3014,6 @@ void VulkanExportDiveConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkVideoSessionMemoryRequirementsKHR>* pMemoryRequirements)
 {
     std::string name = "vkGetVideoSessionMemoryRequirementsKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3191,7 +3026,6 @@ void VulkanExportDiveConsumer::Process_vkBindVideoSessionMemoryKHR(
     StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos)
 {
     std::string name = "vkBindVideoSessionMemoryKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3204,7 +3038,6 @@ void VulkanExportDiveConsumer::Process_vkCreateVideoSessionParametersKHR(
     HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
 {
     std::string name = "vkCreateVideoSessionParametersKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3216,7 +3049,6 @@ void VulkanExportDiveConsumer::Process_vkUpdateVideoSessionParametersKHR(
     StructPointerDecoder<Decoded_VkVideoSessionParametersUpdateInfoKHR>* pUpdateInfo)
 {
     std::string name = "vkUpdateVideoSessionParametersKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3227,7 +3059,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyVideoSessionParametersKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyVideoSessionParametersKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3237,8 +3068,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginVideoCodingKHR(
     StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
 {
     std::string name = "vkCmdBeginVideoCodingKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3248,8 +3079,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndVideoCodingKHR(
     StructPointerDecoder<Decoded_VkVideoEndCodingInfoKHR>* pEndCodingInfo)
 {
     std::string name = "vkCmdEndVideoCodingKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3259,8 +3090,8 @@ void VulkanExportDiveConsumer::Process_vkCmdControlVideoCodingKHR(
     StructPointerDecoder<Decoded_VkVideoCodingControlInfoKHR>* pCodingControlInfo)
 {
     std::string name = "vkCmdControlVideoCodingKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3270,8 +3101,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDecodeVideoKHR(
     StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
 {
     std::string name = "vkCmdDecodeVideoKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3281,8 +3112,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginRenderingKHR(
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
     std::string name = "vkCmdBeginRenderingKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3291,8 +3122,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndRenderingKHR(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkCmdEndRenderingKHR";
-    std::string args[1];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3302,7 +3133,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>* pFeatures)
 {
     std::string name = "vkGetPhysicalDeviceFeatures2KHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3312,7 +3142,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceProperties2KHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3323,7 +3152,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
     StructPointerDecoder<Decoded_VkFormatProperties2>* pFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceFormatProperties2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3335,7 +3163,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2
     StructPointerDecoder<Decoded_VkImageFormatProperties2>* pImageFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceImageFormatProperties2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3346,7 +3173,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2
     StructPointerDecoder<Decoded_VkQueueFamilyProperties2>* pQueueFamilyProperties)
 {
     std::string name = "vkGetPhysicalDeviceQueueFamilyProperties2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3356,7 +3182,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
 {
     std::string name = "vkGetPhysicalDeviceMemoryProperties2KHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3368,7 +3193,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPrope
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceSparseImageFormatProperties2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3381,7 +3205,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
     PointerDecoder<VkPeerMemoryFeatureFlags>*   pPeerMemoryFeatures)
 {
     std::string name = "vkGetDeviceGroupPeerMemoryFeaturesKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -3391,8 +3214,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDeviceMaskKHR(
     uint32_t                                    deviceMask)
 {
     std::string name = "vkCmdSetDeviceMaskKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3407,8 +3230,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDispatchBaseKHR(
     uint32_t                                    groupCountZ)
 {
     std::string name = "vkCmdDispatchBaseKHR";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3419,7 +3242,6 @@ void VulkanExportDiveConsumer::Process_vkTrimCommandPoolKHR(
     VkCommandPoolTrimFlags                      flags)
 {
     std::string name = "vkTrimCommandPoolKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3431,7 +3253,6 @@ void VulkanExportDiveConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
     std::string name = "vkEnumeratePhysicalDeviceGroupsKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3442,7 +3263,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalBufferProperti
     StructPointerDecoder<Decoded_VkExternalBufferProperties>* pExternalBufferProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalBufferPropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3454,7 +3274,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryWin32HandleKHR(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     std::string name = "vkGetMemoryWin32HandleKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3467,7 +3286,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>* pMemoryWin32HandleProperties)
 {
     std::string name = "vkGetMemoryWin32HandlePropertiesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3479,7 +3297,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     std::string name = "vkGetMemoryFdKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3492,7 +3309,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryFdPropertiesKHR(
     StructPointerDecoder<Decoded_VkMemoryFdPropertiesKHR>* pMemoryFdProperties)
 {
     std::string name = "vkGetMemoryFdPropertiesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3503,7 +3319,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePrope
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>* pExternalSemaphoreProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3514,7 +3329,6 @@ void VulkanExportDiveConsumer::Process_vkImportSemaphoreWin32HandleKHR(
     StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo)
 {
     std::string name = "vkImportSemaphoreWin32HandleKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3526,7 +3340,6 @@ void VulkanExportDiveConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     std::string name = "vkGetSemaphoreWin32HandleKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3537,7 +3350,6 @@ void VulkanExportDiveConsumer::Process_vkImportSemaphoreFdKHR(
     StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo)
 {
     std::string name = "vkImportSemaphoreFdKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3549,7 +3361,6 @@ void VulkanExportDiveConsumer::Process_vkGetSemaphoreFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     std::string name = "vkGetSemaphoreFdKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3563,8 +3374,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPushDescriptorSetKHR(
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites)
 {
     std::string name = "vkCmdPushDescriptorSetKHR";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3577,7 +3388,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
     std::string name = "vkCreateDescriptorUpdateTemplateKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3588,7 +3398,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDescriptorUpdateTemplateKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3601,7 +3410,6 @@ void VulkanExportDiveConsumer::Process_vkCreateRenderPass2KHR(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     std::string name = "vkCreateRenderPass2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3612,8 +3420,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginRenderPass2KHR(
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
     std::string name = "vkCmdBeginRenderPass2KHR";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3624,8 +3432,8 @@ void VulkanExportDiveConsumer::Process_vkCmdNextSubpass2KHR(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     std::string name = "vkCmdNextSubpass2KHR";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3635,8 +3443,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndRenderPass2KHR(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     std::string name = "vkCmdEndRenderPass2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3647,7 +3455,6 @@ void VulkanExportDiveConsumer::Process_vkGetSwapchainStatusKHR(
     format::HandleId                            swapchain)
 {
     std::string name = "vkGetSwapchainStatusKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3658,7 +3465,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalFencePropertie
     StructPointerDecoder<Decoded_VkExternalFenceProperties>* pExternalFenceProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalFencePropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3669,7 +3475,6 @@ void VulkanExportDiveConsumer::Process_vkImportFenceWin32HandleKHR(
     StructPointerDecoder<Decoded_VkImportFenceWin32HandleInfoKHR>* pImportFenceWin32HandleInfo)
 {
     std::string name = "vkImportFenceWin32HandleKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3681,7 +3486,6 @@ void VulkanExportDiveConsumer::Process_vkGetFenceWin32HandleKHR(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     std::string name = "vkGetFenceWin32HandleKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3692,7 +3496,6 @@ void VulkanExportDiveConsumer::Process_vkImportFenceFdKHR(
     StructPointerDecoder<Decoded_VkImportFenceFdInfoKHR>* pImportFenceFdInfo)
 {
     std::string name = "vkImportFenceFdKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3704,7 +3507,6 @@ void VulkanExportDiveConsumer::Process_vkGetFenceFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     std::string name = "vkGetFenceFdKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3718,7 +3520,6 @@ void VulkanExportDiveConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerfo
     StructPointerDecoder<Decoded_VkPerformanceCounterDescriptionKHR>* pCounterDescriptions)
 {
     std::string name = "vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -3729,7 +3530,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformance
     PointerDecoder<uint32_t>*                   pNumPasses)
 {
     std::string name = "vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3740,7 +3540,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireProfilingLockKHR(
     StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
 {
     std::string name = "vkAcquireProfilingLockKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3749,7 +3548,6 @@ void VulkanExportDiveConsumer::Process_vkReleaseProfilingLockKHR(
     format::HandleId                            device)
 {
     std::string name = "vkReleaseProfilingLockKHR";
-    std::string args[1];
     WriteBlockEnd(name);
 }
 
@@ -3761,7 +3559,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KH
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>* pSurfaceCapabilities)
 {
     std::string name = "vkGetPhysicalDeviceSurfaceCapabilities2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3774,7 +3571,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
     StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>* pSurfaceFormats)
 {
     std::string name = "vkGetPhysicalDeviceSurfaceFormats2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3786,7 +3582,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
     StructPointerDecoder<Decoded_VkDisplayProperties2KHR>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceDisplayProperties2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3798,7 +3593,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties
     StructPointerDecoder<Decoded_VkDisplayPlaneProperties2KHR>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceDisplayPlaneProperties2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3811,7 +3605,6 @@ void VulkanExportDiveConsumer::Process_vkGetDisplayModeProperties2KHR(
     StructPointerDecoder<Decoded_VkDisplayModeProperties2KHR>* pProperties)
 {
     std::string name = "vkGetDisplayModeProperties2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3823,7 +3616,6 @@ void VulkanExportDiveConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
     StructPointerDecoder<Decoded_VkDisplayPlaneCapabilities2KHR>* pCapabilities)
 {
     std::string name = "vkGetDisplayPlaneCapabilities2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3834,7 +3626,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetImageMemoryRequirements2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3845,7 +3636,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetBufferMemoryRequirements2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3857,7 +3647,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     std::string name = "vkGetImageSparseMemoryRequirements2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3870,7 +3659,6 @@ void VulkanExportDiveConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
     std::string name = "vkCreateSamplerYcbcrConversionKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -3881,7 +3669,6 @@ void VulkanExportDiveConsumer::Process_vkDestroySamplerYcbcrConversionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroySamplerYcbcrConversionKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3893,7 +3680,6 @@ void VulkanExportDiveConsumer::Process_vkBindBufferMemory2KHR(
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
     std::string name = "vkBindBufferMemory2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3905,7 +3691,6 @@ void VulkanExportDiveConsumer::Process_vkBindImageMemory2KHR(
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
     std::string name = "vkBindImageMemory2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3916,7 +3701,6 @@ void VulkanExportDiveConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport)
 {
     std::string name = "vkGetDescriptorSetLayoutSupportKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3931,8 +3715,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndirectCountKHR(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndirectCountKHR";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3947,8 +3731,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndexedIndirectCountKHR";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -3960,7 +3744,6 @@ void VulkanExportDiveConsumer::Process_vkGetSemaphoreCounterValueKHR(
     PointerDecoder<uint64_t>*                   pValue)
 {
     std::string name = "vkGetSemaphoreCounterValueKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3972,7 +3755,6 @@ void VulkanExportDiveConsumer::Process_vkWaitSemaphoresKHR(
     uint64_t                                    timeout)
 {
     std::string name = "vkWaitSemaphoresKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -3983,7 +3765,6 @@ void VulkanExportDiveConsumer::Process_vkSignalSemaphoreKHR(
     StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
     std::string name = "vkSignalSemaphoreKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -3995,7 +3776,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKH
     StructPointerDecoder<Decoded_VkPhysicalDeviceFragmentShadingRateKHR>* pFragmentShadingRates)
 {
     std::string name = "vkGetPhysicalDeviceFragmentShadingRatesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4006,8 +3786,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetFragmentShadingRateKHR(
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
 {
     std::string name = "vkCmdSetFragmentShadingRateKHR";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4017,8 +3797,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
     StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfo>* pLocationInfo)
 {
     std::string name = "vkCmdSetRenderingAttachmentLocationsKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4028,8 +3808,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKH
     StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfo>* pInputAttachmentIndexInfo)
 {
     std::string name = "vkCmdSetRenderingInputAttachmentIndicesKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4042,7 +3822,6 @@ void VulkanExportDiveConsumer::Process_vkWaitForPresentKHR(
     uint64_t                                    timeout)
 {
     std::string name = "vkWaitForPresentKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4053,7 +3832,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferDeviceAddressKHR(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     std::string name = "vkGetBufferDeviceAddressKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4064,7 +3842,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     std::string name = "vkGetBufferOpaqueCaptureAddressKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4075,7 +3852,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
     StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
 {
     std::string name = "vkGetDeviceMemoryOpaqueCaptureAddressKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4087,7 +3863,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDeferredOperationKHR(
     HandlePointerDecoder<VkDeferredOperationKHR>* pDeferredOperation)
 {
     std::string name = "vkCreateDeferredOperationKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4098,7 +3873,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDeferredOperationKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDeferredOperationKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4109,7 +3883,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeferredOperationMaxConcurrencyKHR(
     format::HandleId                            operation)
 {
     std::string name = "vkGetDeferredOperationMaxConcurrencyKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4120,7 +3893,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeferredOperationResultKHR(
     format::HandleId                            operation)
 {
     std::string name = "vkGetDeferredOperationResultKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4131,7 +3903,6 @@ void VulkanExportDiveConsumer::Process_vkDeferredOperationJoinKHR(
     format::HandleId                            operation)
 {
     std::string name = "vkDeferredOperationJoinKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4144,7 +3915,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>* pProperties)
 {
     std::string name = "vkGetPipelineExecutablePropertiesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4157,7 +3927,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
     StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>* pStatistics)
 {
     std::string name = "vkGetPipelineExecutableStatisticsKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4170,7 +3939,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineExecutableInternalRepresenta
     StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations)
 {
     std::string name = "vkGetPipelineExecutableInternalRepresentationsKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4182,7 +3950,6 @@ void VulkanExportDiveConsumer::Process_vkMapMemory2KHR(
     PointerDecoder<uint64_t, void*>*            ppData)
 {
     std::string name = "vkMapMemory2KHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4193,7 +3960,6 @@ void VulkanExportDiveConsumer::Process_vkUnmapMemory2KHR(
     StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo)
 {
     std::string name = "vkUnmapMemory2KHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4205,7 +3971,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLeve
     StructPointerDecoder<Decoded_VkVideoEncodeQualityLevelPropertiesKHR>* pQualityLevelProperties)
 {
     std::string name = "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4219,7 +3984,6 @@ void VulkanExportDiveConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetEncodedVideoSessionParametersKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -4229,8 +3993,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEncodeVideoKHR(
     StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
 {
     std::string name = "vkCmdEncodeVideoKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4241,8 +4005,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetEvent2KHR(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     std::string name = "vkCmdSetEvent2KHR";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4253,8 +4017,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResetEvent2KHR(
     VkPipelineStageFlags2                       stageMask)
 {
     std::string name = "vkCmdResetEvent2KHR";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4266,8 +4030,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWaitEvents2KHR(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfos)
 {
     std::string name = "vkCmdWaitEvents2KHR";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4277,8 +4041,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPipelineBarrier2KHR(
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
     std::string name = "vkCmdPipelineBarrier2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4290,8 +4054,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteTimestamp2KHR(
     uint32_t                                    query)
 {
     std::string name = "vkCmdWriteTimestamp2KHR";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4304,7 +4068,6 @@ void VulkanExportDiveConsumer::Process_vkQueueSubmit2KHR(
     format::HandleId                            fence)
 {
     std::string name = "vkQueueSubmit2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4314,8 +4077,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyBuffer2KHR(
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
     std::string name = "vkCmdCopyBuffer2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4325,8 +4088,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyImage2KHR(
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
     std::string name = "vkCmdCopyImage2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4336,8 +4099,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyBufferToImage2KHR(
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
     std::string name = "vkCmdCopyBufferToImage2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4347,8 +4110,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyImageToBuffer2KHR(
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
     std::string name = "vkCmdCopyImageToBuffer2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4358,8 +4121,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBlitImage2KHR(
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
     std::string name = "vkCmdBlitImage2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4369,8 +4132,8 @@ void VulkanExportDiveConsumer::Process_vkCmdResolveImage2KHR(
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
     std::string name = "vkCmdResolveImage2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4380,8 +4143,8 @@ void VulkanExportDiveConsumer::Process_vkCmdTraceRaysIndirect2KHR(
     VkDeviceAddress                             indirectDeviceAddress)
 {
     std::string name = "vkCmdTraceRaysIndirect2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4392,7 +4155,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetDeviceBufferMemoryRequirementsKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4403,7 +4165,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetDeviceImageMemoryRequirementsKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4415,7 +4176,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsK
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>* pSparseMemoryRequirements)
 {
     std::string name = "vkGetDeviceImageSparseMemoryRequirementsKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4428,8 +4188,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindIndexBuffer2KHR(
     VkIndexType                                 indexType)
 {
     std::string name = "vkCmdBindIndexBuffer2KHR";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4440,7 +4200,6 @@ void VulkanExportDiveConsumer::Process_vkGetRenderingAreaGranularityKHR(
     StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity)
 {
     std::string name = "vkGetRenderingAreaGranularityKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4451,7 +4210,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
     StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout)
 {
     std::string name = "vkGetDeviceImageSubresourceLayoutKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4463,7 +4221,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSubresourceLayout2KHR(
     StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout)
 {
     std::string name = "vkGetImageSubresourceLayout2KHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4476,7 +4233,6 @@ void VulkanExportDiveConsumer::Process_vkCreatePipelineBinariesKHR(
     StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
 {
     std::string name = "vkCreatePipelineBinariesKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4487,7 +4243,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyPipelineBinaryKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyPipelineBinaryKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4499,7 +4254,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineKeyKHR(
     StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineKey)
 {
     std::string name = "vkGetPipelineKeyKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4513,7 +4267,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineBinaryDataKHR(
     PointerDecoder<uint8_t>*                    pPipelineBinaryData)
 {
     std::string name = "vkGetPipelineBinaryDataKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -4525,7 +4278,6 @@ void VulkanExportDiveConsumer::Process_vkReleaseCapturedPipelineDataKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkReleaseCapturedPipelineDataKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4537,7 +4289,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPrope
     StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesKHR>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4548,8 +4299,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLineStippleKHR(
     uint16_t                                    lineStipplePattern)
 {
     std::string name = "vkCmdSetLineStippleKHR";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4561,7 +4312,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomai
     PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
     std::string name = "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4575,7 +4325,6 @@ void VulkanExportDiveConsumer::Process_vkGetCalibratedTimestampsKHR(
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
     std::string name = "vkGetCalibratedTimestampsKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -4585,8 +4334,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindDescriptorSets2KHR(
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
     std::string name = "vkCmdBindDescriptorSets2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4596,8 +4345,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPushConstants2KHR(
     StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
 {
     std::string name = "vkCmdPushConstants2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4607,8 +4356,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPushDescriptorSet2KHR(
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
     std::string name = "vkCmdPushDescriptorSet2KHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4618,8 +4367,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
     StructPointerDecoder<Decoded_VkSetDescriptorBufferOffsetsInfoEXT>* pSetDescriptorBufferOffsetsInfo)
 {
     std::string name = "vkCmdSetDescriptorBufferOffsets2EXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4629,8 +4378,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplers
     StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo)
 {
     std::string name = "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4641,7 +4390,6 @@ void VulkanExportDiveConsumer::Process_vkFrameBoundaryANDROID(
     format::HandleId                            image)
 {
     std::string name = "vkFrameBoundaryANDROID";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4654,7 +4402,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDebugReportCallbackEXT(
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
     std::string name = "vkCreateDebugReportCallbackEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4665,7 +4412,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDebugReportCallbackEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDebugReportCallbackEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4681,7 +4427,6 @@ void VulkanExportDiveConsumer::Process_vkDebugReportMessageEXT(
     StringDecoder*                              pMessage)
 {
     std::string name = "vkDebugReportMessageEXT";
-    std::string args[8];
     WriteBlockEnd(name);
 }
 
@@ -4692,7 +4437,6 @@ void VulkanExportDiveConsumer::Process_vkDebugMarkerSetObjectTagEXT(
     StructPointerDecoder<Decoded_VkDebugMarkerObjectTagInfoEXT>* pTagInfo)
 {
     std::string name = "vkDebugMarkerSetObjectTagEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4703,7 +4447,6 @@ void VulkanExportDiveConsumer::Process_vkDebugMarkerSetObjectNameEXT(
     StructPointerDecoder<Decoded_VkDebugMarkerObjectNameInfoEXT>* pNameInfo)
 {
     std::string name = "vkDebugMarkerSetObjectNameEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4713,8 +4456,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDebugMarkerBeginEXT(
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
     std::string name = "vkCmdDebugMarkerBeginEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4723,8 +4466,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDebugMarkerEndEXT(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkCmdDebugMarkerEndEXT";
-    std::string args[1];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4734,8 +4477,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDebugMarkerInsertEXT(
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
     std::string name = "vkCmdDebugMarkerInsertEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4749,8 +4492,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     PointerDecoder<VkDeviceSize>*               pSizes)
 {
     std::string name = "vkCmdBindTransformFeedbackBuffersEXT";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4763,8 +4506,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
 {
     std::string name = "vkCmdBeginTransformFeedbackEXT";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4777,8 +4520,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndTransformFeedbackEXT(
     PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets)
 {
     std::string name = "vkCmdEndTransformFeedbackEXT";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4791,8 +4534,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginQueryIndexedEXT(
     uint32_t                                    index)
 {
     std::string name = "vkCmdBeginQueryIndexedEXT";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4804,8 +4547,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndQueryIndexedEXT(
     uint32_t                                    index)
 {
     std::string name = "vkCmdEndQueryIndexedEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4820,8 +4563,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndirectByteCountEXT(
     uint32_t                                    vertexStride)
 {
     std::string name = "vkCmdDrawIndirectByteCountEXT";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4832,7 +4575,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageViewHandleNVX(
     StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>* pInfo)
 {
     std::string name = "vkGetImageViewHandleNVX";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4843,7 +4585,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageViewHandle64NVX(
     StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>* pInfo)
 {
     std::string name = "vkGetImageViewHandle64NVX";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -4855,7 +4596,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageViewAddressNVX(
     StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties)
 {
     std::string name = "vkGetImageViewAddressNVX";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -4870,8 +4610,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndirectCountAMD(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndirectCountAMD";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4886,8 +4626,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawIndexedIndirectCountAMD";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4902,7 +4642,6 @@ void VulkanExportDiveConsumer::Process_vkGetShaderInfoAMD(
     PointerDecoder<uint8_t>*                    pInfo)
 {
     std::string name = "vkGetShaderInfoAMD";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -4915,7 +4654,6 @@ void VulkanExportDiveConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateStreamDescriptorSurfaceGGP";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4932,7 +4670,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPro
     StructPointerDecoder<Decoded_VkExternalImageFormatPropertiesNV>* pExternalImageFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceExternalImageFormatPropertiesNV";
-    std::string args[8];
     WriteBlockEnd(name);
 }
 
@@ -4945,7 +4682,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryWin32HandleNV(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     std::string name = "vkGetMemoryWin32HandleNV";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4958,7 +4694,6 @@ void VulkanExportDiveConsumer::Process_vkCreateViSurfaceNN(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateViSurfaceNN";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -4968,8 +4703,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginConditionalRenderingEXT(
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
 {
     std::string name = "vkCmdBeginConditionalRenderingEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4978,8 +4713,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndConditionalRenderingEXT(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkCmdEndConditionalRenderingEXT";
-    std::string args[1];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -4991,8 +4726,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewportWScalingNV(
     StructPointerDecoder<Decoded_VkViewportWScalingNV>* pViewportWScalings)
 {
     std::string name = "vkCmdSetViewportWScalingNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5003,7 +4738,6 @@ void VulkanExportDiveConsumer::Process_vkReleaseDisplayEXT(
     format::HandleId                            display)
 {
     std::string name = "vkReleaseDisplayEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5015,7 +4749,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireXlibDisplayEXT(
     format::HandleId                            display)
 {
     std::string name = "vkAcquireXlibDisplayEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5028,7 +4761,6 @@ void VulkanExportDiveConsumer::Process_vkGetRandROutputDisplayEXT(
     HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
 {
     std::string name = "vkGetRandROutputDisplayEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5040,7 +4772,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EX
     StructPointerDecoder<Decoded_VkSurfaceCapabilities2EXT>* pSurfaceCapabilities)
 {
     std::string name = "vkGetPhysicalDeviceSurfaceCapabilities2EXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5052,7 +4783,6 @@ void VulkanExportDiveConsumer::Process_vkDisplayPowerControlEXT(
     StructPointerDecoder<Decoded_VkDisplayPowerInfoEXT>* pDisplayPowerInfo)
 {
     std::string name = "vkDisplayPowerControlEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5065,7 +4795,6 @@ void VulkanExportDiveConsumer::Process_vkRegisterDeviceEventEXT(
     HandlePointerDecoder<VkFence>*              pFence)
 {
     std::string name = "vkRegisterDeviceEventEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5079,7 +4808,6 @@ void VulkanExportDiveConsumer::Process_vkRegisterDisplayEventEXT(
     HandlePointerDecoder<VkFence>*              pFence)
 {
     std::string name = "vkRegisterDisplayEventEXT";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -5092,7 +4820,6 @@ void VulkanExportDiveConsumer::Process_vkGetSwapchainCounterEXT(
     PointerDecoder<uint64_t>*                   pCounterValue)
 {
     std::string name = "vkGetSwapchainCounterEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5104,7 +4831,6 @@ void VulkanExportDiveConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
     StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties)
 {
     std::string name = "vkGetRefreshCycleDurationGOOGLE";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5117,7 +4843,6 @@ void VulkanExportDiveConsumer::Process_vkGetPastPresentationTimingGOOGLE(
     StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings)
 {
     std::string name = "vkGetPastPresentationTimingGOOGLE";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5129,8 +4854,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDiscardRectangleEXT(
     StructPointerDecoder<Decoded_VkRect2D>*     pDiscardRectangles)
 {
     std::string name = "vkCmdSetDiscardRectangleEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5140,8 +4865,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDiscardRectangleEnableEXT(
     VkBool32                                    discardRectangleEnable)
 {
     std::string name = "vkCmdSetDiscardRectangleEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5151,8 +4876,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDiscardRectangleModeEXT(
     VkDiscardRectangleModeEXT                   discardRectangleMode)
 {
     std::string name = "vkCmdSetDiscardRectangleModeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5164,7 +4889,6 @@ void VulkanExportDiveConsumer::Process_vkSetHdrMetadataEXT(
     StructPointerDecoder<Decoded_VkHdrMetadataEXT>* pMetadata)
 {
     std::string name = "vkSetHdrMetadataEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5177,7 +4901,6 @@ void VulkanExportDiveConsumer::Process_vkCreateIOSSurfaceMVK(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateIOSSurfaceMVK";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5190,7 +4913,6 @@ void VulkanExportDiveConsumer::Process_vkCreateMacOSSurfaceMVK(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateMacOSSurfaceMVK";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5201,7 +4923,6 @@ void VulkanExportDiveConsumer::Process_vkSetDebugUtilsObjectNameEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo)
 {
     std::string name = "vkSetDebugUtilsObjectNameEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5212,7 +4933,6 @@ void VulkanExportDiveConsumer::Process_vkSetDebugUtilsObjectTagEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo)
 {
     std::string name = "vkSetDebugUtilsObjectTagEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5222,7 +4942,6 @@ void VulkanExportDiveConsumer::Process_vkQueueBeginDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     std::string name = "vkQueueBeginDebugUtilsLabelEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5231,7 +4950,6 @@ void VulkanExportDiveConsumer::Process_vkQueueEndDebugUtilsLabelEXT(
     format::HandleId                            queue)
 {
     std::string name = "vkQueueEndDebugUtilsLabelEXT";
-    std::string args[1];
     WriteBlockEnd(name);
 }
 
@@ -5241,7 +4959,6 @@ void VulkanExportDiveConsumer::Process_vkQueueInsertDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     std::string name = "vkQueueInsertDebugUtilsLabelEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5251,8 +4968,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     std::string name = "vkCmdBeginDebugUtilsLabelEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5261,8 +4978,8 @@ void VulkanExportDiveConsumer::Process_vkCmdEndDebugUtilsLabelEXT(
     format::HandleId                            commandBuffer)
 {
     std::string name = "vkCmdEndDebugUtilsLabelEXT";
-    std::string args[1];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5272,8 +4989,8 @@ void VulkanExportDiveConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
     std::string name = "vkCmdInsertDebugUtilsLabelEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5286,7 +5003,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
     std::string name = "vkCreateDebugUtilsMessengerEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5297,7 +5013,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyDebugUtilsMessengerEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyDebugUtilsMessengerEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5309,7 +5024,6 @@ void VulkanExportDiveConsumer::Process_vkSubmitDebugUtilsMessageEXT(
     StructPointerDecoder<Decoded_VkDebugUtilsMessengerCallbackDataEXT>* pCallbackData)
 {
     std::string name = "vkSubmitDebugUtilsMessageEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5321,7 +5035,6 @@ void VulkanExportDiveConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDRO
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>* pProperties)
 {
     std::string name = "vkGetAndroidHardwareBufferPropertiesANDROID";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5333,7 +5046,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     PointerDecoder<uint64_t, void*>*            pBuffer)
 {
     std::string name = "vkGetMemoryAndroidHardwareBufferANDROID";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5343,8 +5055,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetSampleLocationsEXT(
     StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT>* pSampleLocationsInfo)
 {
     std::string name = "vkCmdSetSampleLocationsEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5355,7 +5067,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceMultisamplePropertiesE
     StructPointerDecoder<Decoded_VkMultisamplePropertiesEXT>* pMultisampleProperties)
 {
     std::string name = "vkGetPhysicalDeviceMultisamplePropertiesEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5367,7 +5078,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
     StructPointerDecoder<Decoded_VkImageDrmFormatModifierPropertiesEXT>* pProperties)
 {
     std::string name = "vkGetImageDrmFormatModifierPropertiesEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5380,7 +5090,6 @@ void VulkanExportDiveConsumer::Process_vkCreateValidationCacheEXT(
     HandlePointerDecoder<VkValidationCacheEXT>* pValidationCache)
 {
     std::string name = "vkCreateValidationCacheEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5391,7 +5100,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyValidationCacheEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyValidationCacheEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5404,7 +5112,6 @@ void VulkanExportDiveConsumer::Process_vkMergeValidationCachesEXT(
     HandlePointerDecoder<VkValidationCacheEXT>* pSrcCaches)
 {
     std::string name = "vkMergeValidationCachesEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5417,7 +5124,6 @@ void VulkanExportDiveConsumer::Process_vkGetValidationCacheDataEXT(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetValidationCacheDataEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5428,8 +5134,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindShadingRateImageNV(
     VkImageLayout                               imageLayout)
 {
     std::string name = "vkCmdBindShadingRateImageNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5441,8 +5147,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
     StructPointerDecoder<Decoded_VkShadingRatePaletteNV>* pShadingRatePalettes)
 {
     std::string name = "vkCmdSetViewportShadingRatePaletteNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5454,8 +5160,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoarseSampleOrderNV(
     StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>* pCustomSampleOrders)
 {
     std::string name = "vkCmdSetCoarseSampleOrderNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5468,7 +5174,6 @@ void VulkanExportDiveConsumer::Process_vkCreateAccelerationStructureNV(
     HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructure)
 {
     std::string name = "vkCreateAccelerationStructureNV";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5479,7 +5184,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyAccelerationStructureNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyAccelerationStructureNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5487,10 +5191,9 @@ void VulkanExportDiveConsumer::Process_vkGetAccelerationStructureMemoryRequireme
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
 {
     std::string name = "vkGetAccelerationStructureMemoryRequirementsNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5502,7 +5205,6 @@ void VulkanExportDiveConsumer::Process_vkBindAccelerationStructureMemoryNV(
     StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos)
 {
     std::string name = "vkBindAccelerationStructureMemoryNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5519,8 +5221,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBuildAccelerationStructureNV(
     VkDeviceSize                                scratchOffset)
 {
     std::string name = "vkCmdBuildAccelerationStructureNV";
-    std::string args[9];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5532,8 +5234,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyAccelerationStructureNV(
     VkCopyAccelerationStructureModeKHR          mode)
 {
     std::string name = "vkCmdCopyAccelerationStructureNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5556,8 +5258,8 @@ void VulkanExportDiveConsumer::Process_vkCmdTraceRaysNV(
     uint32_t                                    depth)
 {
     std::string name = "vkCmdTraceRaysNV";
-    std::string args[15];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5572,7 +5274,6 @@ void VulkanExportDiveConsumer::Process_vkCreateRayTracingPipelinesNV(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     std::string name = "vkCreateRayTracingPipelinesNV";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -5587,7 +5288,6 @@ void VulkanExportDiveConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetRayTracingShaderGroupHandlesKHR";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -5602,7 +5302,6 @@ void VulkanExportDiveConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetRayTracingShaderGroupHandlesNV";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -5615,7 +5314,6 @@ void VulkanExportDiveConsumer::Process_vkGetAccelerationStructureHandleNV(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetAccelerationStructureHandleNV";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5629,8 +5327,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteAccelerationStructuresPropertie
     uint32_t                                    firstQuery)
 {
     std::string name = "vkCmdWriteAccelerationStructuresPropertiesNV";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5642,7 +5340,6 @@ void VulkanExportDiveConsumer::Process_vkCompileDeferredNV(
     uint32_t                                    shader)
 {
     std::string name = "vkCompileDeferredNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5655,7 +5352,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     StructPointerDecoder<Decoded_VkMemoryHostPointerPropertiesEXT>* pMemoryHostPointerProperties)
 {
     std::string name = "vkGetMemoryHostPointerPropertiesEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5668,8 +5364,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteBufferMarkerAMD(
     uint32_t                                    marker)
 {
     std::string name = "vkCmdWriteBufferMarkerAMD";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5682,8 +5378,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteBufferMarker2AMD(
     uint32_t                                    marker)
 {
     std::string name = "vkCmdWriteBufferMarker2AMD";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5695,7 +5391,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomai
     PointerDecoder<VkTimeDomainKHR>*            pTimeDomains)
 {
     std::string name = "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5709,7 +5404,6 @@ void VulkanExportDiveConsumer::Process_vkGetCalibratedTimestampsEXT(
     PointerDecoder<uint64_t>*                   pMaxDeviation)
 {
     std::string name = "vkGetCalibratedTimestampsEXT";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -5720,8 +5414,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMeshTasksNV(
     uint32_t                                    firstTask)
 {
     std::string name = "vkCmdDrawMeshTasksNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5734,8 +5428,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawMeshTasksIndirectNV";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5750,8 +5444,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawMeshTasksIndirectCountNV";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5763,8 +5457,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetExclusiveScissorEnableNV(
     PointerDecoder<VkBool32>*                   pExclusiveScissorEnables)
 {
     std::string name = "vkCmdSetExclusiveScissorEnableNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5776,8 +5470,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetExclusiveScissorNV(
     StructPointerDecoder<Decoded_VkRect2D>*     pExclusiveScissors)
 {
     std::string name = "vkCmdSetExclusiveScissorNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5787,8 +5481,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCheckpointNV(
     uint64_t                                    pCheckpointMarker)
 {
     std::string name = "vkCmdSetCheckpointNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5799,7 +5493,6 @@ void VulkanExportDiveConsumer::Process_vkGetQueueCheckpointDataNV(
     StructPointerDecoder<Decoded_VkCheckpointDataNV>* pCheckpointData)
 {
     std::string name = "vkGetQueueCheckpointDataNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5810,7 +5503,6 @@ void VulkanExportDiveConsumer::Process_vkGetQueueCheckpointData2NV(
     StructPointerDecoder<Decoded_VkCheckpointData2NV>* pCheckpointData)
 {
     std::string name = "vkGetQueueCheckpointData2NV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5821,7 +5513,6 @@ void VulkanExportDiveConsumer::Process_vkInitializePerformanceApiINTEL(
     StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>* pInitializeInfo)
 {
     std::string name = "vkInitializePerformanceApiINTEL";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5830,7 +5521,6 @@ void VulkanExportDiveConsumer::Process_vkUninitializePerformanceApiINTEL(
     format::HandleId                            device)
 {
     std::string name = "vkUninitializePerformanceApiINTEL";
-    std::string args[1];
     WriteBlockEnd(name);
 }
 
@@ -5841,8 +5531,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
     StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>* pMarkerInfo)
 {
     std::string name = "vkCmdSetPerformanceMarkerINTEL";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5853,8 +5543,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
     StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>* pMarkerInfo)
 {
     std::string name = "vkCmdSetPerformanceStreamMarkerINTEL";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5865,8 +5555,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
     StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>* pOverrideInfo)
 {
     std::string name = "vkCmdSetPerformanceOverrideINTEL";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -5878,7 +5568,6 @@ void VulkanExportDiveConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
     HandlePointerDecoder<VkPerformanceConfigurationINTEL>* pConfiguration)
 {
     std::string name = "vkAcquirePerformanceConfigurationINTEL";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5889,7 +5578,6 @@ void VulkanExportDiveConsumer::Process_vkReleasePerformanceConfigurationINTEL(
     format::HandleId                            configuration)
 {
     std::string name = "vkReleasePerformanceConfigurationINTEL";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5900,7 +5588,6 @@ void VulkanExportDiveConsumer::Process_vkQueueSetPerformanceConfigurationINTEL(
     format::HandleId                            configuration)
 {
     std::string name = "vkQueueSetPerformanceConfigurationINTEL";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5912,7 +5599,6 @@ void VulkanExportDiveConsumer::Process_vkGetPerformanceParameterINTEL(
     StructPointerDecoder<Decoded_VkPerformanceValueINTEL>* pValue)
 {
     std::string name = "vkGetPerformanceParameterINTEL";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5923,7 +5609,6 @@ void VulkanExportDiveConsumer::Process_vkSetLocalDimmingAMD(
     VkBool32                                    localDimmingEnable)
 {
     std::string name = "vkSetLocalDimmingAMD";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5936,7 +5621,6 @@ void VulkanExportDiveConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateImagePipeSurfaceFUCHSIA";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5949,7 +5633,6 @@ void VulkanExportDiveConsumer::Process_vkCreateMetalSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateMetalSurfaceEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -5960,7 +5643,6 @@ void VulkanExportDiveConsumer::Process_vkGetBufferDeviceAddressEXT(
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     std::string name = "vkGetBufferDeviceAddressEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -5972,7 +5654,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
     StructPointerDecoder<Decoded_VkPhysicalDeviceToolProperties>* pToolProperties)
 {
     std::string name = "vkGetPhysicalDeviceToolPropertiesEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5984,7 +5665,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPrope
     StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -5996,7 +5676,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMi
     StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>* pCombinations)
 {
     std::string name = "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6009,7 +5688,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EX
     PointerDecoder<VkPresentModeKHR>*           pPresentModes)
 {
     std::string name = "vkGetPhysicalDeviceSurfacePresentModes2EXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6020,7 +5698,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
     format::HandleId                            swapchain)
 {
     std::string name = "vkAcquireFullScreenExclusiveModeEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6031,7 +5708,6 @@ void VulkanExportDiveConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
     format::HandleId                            swapchain)
 {
     std::string name = "vkReleaseFullScreenExclusiveModeEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6043,7 +5719,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
     PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>* pModes)
 {
     std::string name = "vkGetDeviceGroupSurfacePresentModes2EXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6056,7 +5731,6 @@ void VulkanExportDiveConsumer::Process_vkCreateHeadlessSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateHeadlessSurfaceEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6067,8 +5741,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLineStippleEXT(
     uint16_t                                    lineStipplePattern)
 {
     std::string name = "vkCmdSetLineStippleEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6080,7 +5754,6 @@ void VulkanExportDiveConsumer::Process_vkResetQueryPoolEXT(
     uint32_t                                    queryCount)
 {
     std::string name = "vkResetQueryPoolEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6090,8 +5763,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCullModeEXT(
     VkCullModeFlags                             cullMode)
 {
     std::string name = "vkCmdSetCullModeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6101,8 +5774,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetFrontFaceEXT(
     VkFrontFace                                 frontFace)
 {
     std::string name = "vkCmdSetFrontFaceEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6112,8 +5785,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
     VkPrimitiveTopology                         primitiveTopology)
 {
     std::string name = "vkCmdSetPrimitiveTopologyEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6124,8 +5797,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewportWithCountEXT(
     StructPointerDecoder<Decoded_VkViewport>*   pViewports)
 {
     std::string name = "vkCmdSetViewportWithCountEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6136,8 +5809,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetScissorWithCountEXT(
     StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
 {
     std::string name = "vkCmdSetScissorWithCountEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6152,8 +5825,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindVertexBuffers2EXT(
     PointerDecoder<VkDeviceSize>*               pStrides)
 {
     std::string name = "vkCmdBindVertexBuffers2EXT";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6163,8 +5836,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthTestEnableEXT(
     VkBool32                                    depthTestEnable)
 {
     std::string name = "vkCmdSetDepthTestEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6174,8 +5847,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthWriteEnableEXT(
     VkBool32                                    depthWriteEnable)
 {
     std::string name = "vkCmdSetDepthWriteEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6185,8 +5858,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthCompareOpEXT(
     VkCompareOp                                 depthCompareOp)
 {
     std::string name = "vkCmdSetDepthCompareOpEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6196,8 +5869,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
     VkBool32                                    depthBoundsTestEnable)
 {
     std::string name = "vkCmdSetDepthBoundsTestEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6207,8 +5880,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilTestEnableEXT(
     VkBool32                                    stencilTestEnable)
 {
     std::string name = "vkCmdSetStencilTestEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6222,8 +5895,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetStencilOpEXT(
     VkCompareOp                                 compareOp)
 {
     std::string name = "vkCmdSetStencilOpEXT";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6234,7 +5907,6 @@ void VulkanExportDiveConsumer::Process_vkCopyMemoryToImageEXT(
     StructPointerDecoder<Decoded_VkCopyMemoryToImageInfo>* pCopyMemoryToImageInfo)
 {
     std::string name = "vkCopyMemoryToImageEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6245,7 +5917,6 @@ void VulkanExportDiveConsumer::Process_vkCopyImageToMemoryEXT(
     StructPointerDecoder<Decoded_VkCopyImageToMemoryInfo>* pCopyImageToMemoryInfo)
 {
     std::string name = "vkCopyImageToMemoryEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6256,7 +5927,6 @@ void VulkanExportDiveConsumer::Process_vkCopyImageToImageEXT(
     StructPointerDecoder<Decoded_VkCopyImageToImageInfo>* pCopyImageToImageInfo)
 {
     std::string name = "vkCopyImageToImageEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6268,7 +5938,6 @@ void VulkanExportDiveConsumer::Process_vkTransitionImageLayoutEXT(
     StructPointerDecoder<Decoded_VkHostImageLayoutTransitionInfo>* pTransitions)
 {
     std::string name = "vkTransitionImageLayoutEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6280,7 +5949,6 @@ void VulkanExportDiveConsumer::Process_vkGetImageSubresourceLayout2EXT(
     StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout)
 {
     std::string name = "vkGetImageSubresourceLayout2EXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6291,7 +5959,6 @@ void VulkanExportDiveConsumer::Process_vkReleaseSwapchainImagesEXT(
     StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
 {
     std::string name = "vkReleaseSwapchainImagesEXT";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6302,7 +5969,6 @@ void VulkanExportDiveConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsN
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetGeneratedCommandsMemoryRequirementsNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6312,8 +5978,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
     std::string name = "vkCmdPreprocessGeneratedCommandsNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6324,8 +5990,8 @@ void VulkanExportDiveConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
     std::string name = "vkCmdExecuteGeneratedCommandsNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6337,8 +6003,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindPipelineShaderGroupNV(
     uint32_t                                    groupIndex)
 {
     std::string name = "vkCmdBindPipelineShaderGroupNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6351,7 +6017,6 @@ void VulkanExportDiveConsumer::Process_vkCreateIndirectCommandsLayoutNV(
     HandlePointerDecoder<VkIndirectCommandsLayoutNV>* pIndirectCommandsLayout)
 {
     std::string name = "vkCreateIndirectCommandsLayoutNV";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6362,7 +6027,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyIndirectCommandsLayoutNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6372,8 +6036,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBias2EXT(
     StructPointerDecoder<Decoded_VkDepthBiasInfoEXT>* pDepthBiasInfo)
 {
     std::string name = "vkCmdSetDepthBias2EXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6385,7 +6049,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireDrmDisplayEXT(
     format::HandleId                            display)
 {
     std::string name = "vkAcquireDrmDisplayEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6398,7 +6061,6 @@ void VulkanExportDiveConsumer::Process_vkGetDrmDisplayEXT(
     HandlePointerDecoder<VkDisplayKHR>*         display)
 {
     std::string name = "vkGetDrmDisplayEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6411,7 +6073,6 @@ void VulkanExportDiveConsumer::Process_vkCreatePrivateDataSlotEXT(
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
     std::string name = "vkCreatePrivateDataSlotEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6422,7 +6083,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyPrivateDataSlotEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyPrivateDataSlotEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6436,7 +6096,6 @@ void VulkanExportDiveConsumer::Process_vkSetPrivateDataEXT(
     uint64_t                                    data)
 {
     std::string name = "vkSetPrivateDataEXT";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -6449,7 +6108,6 @@ void VulkanExportDiveConsumer::Process_vkGetPrivateDataEXT(
     PointerDecoder<uint64_t>*                   pData)
 {
     std::string name = "vkGetPrivateDataEXT";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -6460,8 +6118,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     PointerDecoder<VkFragmentShadingRateCombinerOpKHR>* combinerOps)
 {
     std::string name = "vkCmdSetFragmentShadingRateEnumNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6473,7 +6131,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceFaultInfoEXT(
     StructPointerDecoder<Decoded_VkDeviceFaultInfoEXT>* pFaultInfo)
 {
     std::string name = "vkGetDeviceFaultInfoEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6484,7 +6141,6 @@ void VulkanExportDiveConsumer::Process_vkAcquireWinrtDisplayNV(
     format::HandleId                            display)
 {
     std::string name = "vkAcquireWinrtDisplayNV";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6496,7 +6152,6 @@ void VulkanExportDiveConsumer::Process_vkGetWinrtDisplayNV(
     HandlePointerDecoder<VkDisplayKHR>*         pDisplay)
 {
     std::string name = "vkGetWinrtDisplayNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6509,7 +6164,6 @@ void VulkanExportDiveConsumer::Process_vkCreateDirectFBSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateDirectFBSurfaceEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6521,7 +6175,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceDirectFBPresentationSu
     uint64_t                                    dfb)
 {
     std::string name = "vkGetPhysicalDeviceDirectFBPresentationSupportEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6534,8 +6187,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetVertexInputEXT(
     StructPointerDecoder<Decoded_VkVertexInputAttributeDescription2EXT>* pVertexAttributeDescriptions)
 {
     std::string name = "vkCmdSetVertexInputEXT";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6547,7 +6200,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
     PointerDecoder<uint32_t>*                   pZirconHandle)
 {
     std::string name = "vkGetMemoryZirconHandleFUCHSIA";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6560,7 +6212,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
     StructPointerDecoder<Decoded_VkMemoryZirconHandlePropertiesFUCHSIA>* pMemoryZirconHandleProperties)
 {
     std::string name = "vkGetMemoryZirconHandlePropertiesFUCHSIA";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6571,7 +6222,6 @@ void VulkanExportDiveConsumer::Process_vkImportSemaphoreZirconHandleFUCHSIA(
     StructPointerDecoder<Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA>* pImportSemaphoreZirconHandleInfo)
 {
     std::string name = "vkImportSemaphoreZirconHandleFUCHSIA";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -6583,7 +6233,6 @@ void VulkanExportDiveConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
     PointerDecoder<uint32_t>*                   pZirconHandle)
 {
     std::string name = "vkGetSemaphoreZirconHandleFUCHSIA";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6594,8 +6243,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     VkImageLayout                               imageLayout)
 {
     std::string name = "vkCmdBindInvocationMaskHUAWEI";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6607,7 +6256,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryRemoteAddressNV(
     PointerDecoder<uint64_t, void*>*            pAddress)
 {
     std::string name = "vkGetMemoryRemoteAddressNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6617,8 +6265,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPatchControlPointsEXT(
     uint32_t                                    patchControlPoints)
 {
     std::string name = "vkCmdSetPatchControlPointsEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6628,8 +6276,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRasterizerDiscardEnableEXT(
     VkBool32                                    rasterizerDiscardEnable)
 {
     std::string name = "vkCmdSetRasterizerDiscardEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6639,8 +6287,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthBiasEnableEXT(
     VkBool32                                    depthBiasEnable)
 {
     std::string name = "vkCmdSetDepthBiasEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6650,8 +6298,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLogicOpEXT(
     VkLogicOp                                   logicOp)
 {
     std::string name = "vkCmdSetLogicOpEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6661,8 +6309,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPrimitiveRestartEnableEXT(
     VkBool32                                    primitiveRestartEnable)
 {
     std::string name = "vkCmdSetPrimitiveRestartEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6675,7 +6323,6 @@ void VulkanExportDiveConsumer::Process_vkCreateScreenSurfaceQNX(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     std::string name = "vkCreateScreenSurfaceQNX";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6687,7 +6334,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceScreenPresentationSupp
     uint64_t                                    window)
 {
     std::string name = "vkGetPhysicalDeviceScreenPresentationSupportQNX";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6698,8 +6344,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetColorWriteEnableEXT(
     PointerDecoder<VkBool32>*                   pColorWriteEnables)
 {
     std::string name = "vkCmdSetColorWriteEnableEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6713,8 +6359,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMultiEXT(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawMultiEXT";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6729,8 +6375,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMultiIndexedEXT(
     PointerDecoder<int32_t>*                    pVertexOffset)
 {
     std::string name = "vkCmdDrawMultiIndexedEXT";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6743,7 +6389,6 @@ void VulkanExportDiveConsumer::Process_vkCreateMicromapEXT(
     HandlePointerDecoder<VkMicromapEXT>*        pMicromap)
 {
     std::string name = "vkCreateMicromapEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6754,7 +6399,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyMicromapEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyMicromapEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6765,8 +6409,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBuildMicromapsEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
 {
     std::string name = "vkCmdBuildMicromapsEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6779,7 +6423,6 @@ void VulkanExportDiveConsumer::Process_vkBuildMicromapsEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildInfoEXT>* pInfos)
 {
     std::string name = "vkBuildMicromapsEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6791,7 +6434,6 @@ void VulkanExportDiveConsumer::Process_vkCopyMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
 {
     std::string name = "vkCopyMicromapEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6803,7 +6445,6 @@ void VulkanExportDiveConsumer::Process_vkCopyMicromapToMemoryEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
 {
     std::string name = "vkCopyMicromapToMemoryEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6815,7 +6456,6 @@ void VulkanExportDiveConsumer::Process_vkCopyMemoryToMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
 {
     std::string name = "vkCopyMemoryToMicromapEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6831,7 +6471,6 @@ void VulkanExportDiveConsumer::Process_vkWriteMicromapsPropertiesEXT(
     size_t                                      stride)
 {
     std::string name = "vkWriteMicromapsPropertiesEXT";
-    std::string args[7];
     WriteBlockEnd(name);
 }
 
@@ -6841,8 +6480,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapInfoEXT>* pInfo)
 {
     std::string name = "vkCmdCopyMicromapEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6852,8 +6491,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyMicromapToMemoryEXT(
     StructPointerDecoder<Decoded_VkCopyMicromapToMemoryInfoEXT>* pInfo)
 {
     std::string name = "vkCmdCopyMicromapToMemoryEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6863,8 +6502,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyMemoryToMicromapEXT(
     StructPointerDecoder<Decoded_VkCopyMemoryToMicromapInfoEXT>* pInfo)
 {
     std::string name = "vkCmdCopyMemoryToMicromapEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6878,8 +6517,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteMicromapsPropertiesEXT(
     uint32_t                                    firstQuery)
 {
     std::string name = "vkCmdWriteMicromapsPropertiesEXT";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6890,7 +6529,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceMicromapCompatibilityEXT(
     PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
 {
     std::string name = "vkGetDeviceMicromapCompatibilityEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6902,7 +6540,6 @@ void VulkanExportDiveConsumer::Process_vkGetMicromapBuildSizesEXT(
     StructPointerDecoder<Decoded_VkMicromapBuildSizesInfoEXT>* pSizeInfo)
 {
     std::string name = "vkGetMicromapBuildSizesEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -6914,8 +6551,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawClusterHUAWEI(
     uint32_t                                    groupCountZ)
 {
     std::string name = "vkCmdDrawClusterHUAWEI";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6926,8 +6563,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     VkDeviceSize                                offset)
 {
     std::string name = "vkCmdDrawClusterIndirectHUAWEI";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6938,7 +6575,6 @@ void VulkanExportDiveConsumer::Process_vkSetDeviceMemoryPriorityEXT(
     float                                       priority)
 {
     std::string name = "vkSetDeviceMemoryPriorityEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6949,7 +6585,6 @@ void VulkanExportDiveConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVA
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE>* pHostMapping)
 {
     std::string name = "vkGetDescriptorSetLayoutHostMappingInfoVALVE";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6960,7 +6595,6 @@ void VulkanExportDiveConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
     PointerDecoder<uint64_t, void*>*            ppData)
 {
     std::string name = "vkGetDescriptorSetHostMappingVALVE";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6971,7 +6605,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetPipelineIndirectMemoryRequirementsNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -6982,8 +6615,8 @@ void VulkanExportDiveConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     format::HandleId                            pipeline)
 {
     std::string name = "vkCmdUpdatePipelineIndirectBufferNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -6994,7 +6627,6 @@ void VulkanExportDiveConsumer::Process_vkGetPipelineIndirectDeviceAddressNV(
     StructPointerDecoder<Decoded_VkPipelineIndirectDeviceAddressInfoNV>* pInfo)
 {
     std::string name = "vkGetPipelineIndirectDeviceAddressNV";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -7004,8 +6636,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthClampEnableEXT(
     VkBool32                                    depthClampEnable)
 {
     std::string name = "vkCmdSetDepthClampEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7015,8 +6647,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetPolygonModeEXT(
     VkPolygonMode                               polygonMode)
 {
     std::string name = "vkCmdSetPolygonModeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7026,8 +6658,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRasterizationSamplesEXT(
     VkSampleCountFlagBits                       rasterizationSamples)
 {
     std::string name = "vkCmdSetRasterizationSamplesEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7038,8 +6670,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetSampleMaskEXT(
     PointerDecoder<VkSampleMask>*               pSampleMask)
 {
     std::string name = "vkCmdSetSampleMaskEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7049,8 +6681,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetAlphaToCoverageEnableEXT(
     VkBool32                                    alphaToCoverageEnable)
 {
     std::string name = "vkCmdSetAlphaToCoverageEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7060,8 +6692,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetAlphaToOneEnableEXT(
     VkBool32                                    alphaToOneEnable)
 {
     std::string name = "vkCmdSetAlphaToOneEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7071,8 +6703,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLogicOpEnableEXT(
     VkBool32                                    logicOpEnable)
 {
     std::string name = "vkCmdSetLogicOpEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7084,8 +6716,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetColorBlendEnableEXT(
     PointerDecoder<VkBool32>*                   pColorBlendEnables)
 {
     std::string name = "vkCmdSetColorBlendEnableEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7097,8 +6729,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetColorBlendEquationEXT(
     StructPointerDecoder<Decoded_VkColorBlendEquationEXT>* pColorBlendEquations)
 {
     std::string name = "vkCmdSetColorBlendEquationEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7110,8 +6742,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetColorWriteMaskEXT(
     PointerDecoder<VkColorComponentFlags>*      pColorWriteMasks)
 {
     std::string name = "vkCmdSetColorWriteMaskEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7121,8 +6753,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetTessellationDomainOriginEXT(
     VkTessellationDomainOrigin                  domainOrigin)
 {
     std::string name = "vkCmdSetTessellationDomainOriginEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7132,8 +6764,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRasterizationStreamEXT(
     uint32_t                                    rasterizationStream)
 {
     std::string name = "vkCmdSetRasterizationStreamEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7143,8 +6775,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetConservativeRasterizationModeEXT(
     VkConservativeRasterizationModeEXT          conservativeRasterizationMode)
 {
     std::string name = "vkCmdSetConservativeRasterizationModeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7154,8 +6786,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetExtraPrimitiveOverestimationSizeE
     float                                       extraPrimitiveOverestimationSize)
 {
     std::string name = "vkCmdSetExtraPrimitiveOverestimationSizeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7165,8 +6797,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthClipEnableEXT(
     VkBool32                                    depthClipEnable)
 {
     std::string name = "vkCmdSetDepthClipEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7176,8 +6808,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetSampleLocationsEnableEXT(
     VkBool32                                    sampleLocationsEnable)
 {
     std::string name = "vkCmdSetSampleLocationsEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7189,8 +6821,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetColorBlendAdvancedEXT(
     StructPointerDecoder<Decoded_VkColorBlendAdvancedEXT>* pColorBlendAdvanced)
 {
     std::string name = "vkCmdSetColorBlendAdvancedEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7200,8 +6832,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetProvokingVertexModeEXT(
     VkProvokingVertexModeEXT                    provokingVertexMode)
 {
     std::string name = "vkCmdSetProvokingVertexModeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7211,8 +6843,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLineRasterizationModeEXT(
     VkLineRasterizationModeEXT                  lineRasterizationMode)
 {
     std::string name = "vkCmdSetLineRasterizationModeEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7222,8 +6854,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetLineStippleEnableEXT(
     VkBool32                                    stippledLineEnable)
 {
     std::string name = "vkCmdSetLineStippleEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7233,8 +6865,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
     VkBool32                                    negativeOneToOne)
 {
     std::string name = "vkCmdSetDepthClipNegativeOneToOneEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7244,8 +6876,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewportWScalingEnableNV(
     VkBool32                                    viewportWScalingEnable)
 {
     std::string name = "vkCmdSetViewportWScalingEnableNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7257,8 +6889,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetViewportSwizzleNV(
     StructPointerDecoder<Decoded_VkViewportSwizzleNV>* pViewportSwizzles)
 {
     std::string name = "vkCmdSetViewportSwizzleNV";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7268,8 +6900,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoverageToColorEnableNV(
     VkBool32                                    coverageToColorEnable)
 {
     std::string name = "vkCmdSetCoverageToColorEnableNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7279,8 +6911,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoverageToColorLocationNV(
     uint32_t                                    coverageToColorLocation)
 {
     std::string name = "vkCmdSetCoverageToColorLocationNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7290,8 +6922,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoverageModulationModeNV(
     VkCoverageModulationModeNV                  coverageModulationMode)
 {
     std::string name = "vkCmdSetCoverageModulationModeNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7301,8 +6933,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoverageModulationTableEnableNV(
     VkBool32                                    coverageModulationTableEnable)
 {
     std::string name = "vkCmdSetCoverageModulationTableEnableNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7313,8 +6945,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoverageModulationTableNV(
     PointerDecoder<float>*                      pCoverageModulationTable)
 {
     std::string name = "vkCmdSetCoverageModulationTableNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7324,8 +6956,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetShadingRateImageEnableNV(
     VkBool32                                    shadingRateImageEnable)
 {
     std::string name = "vkCmdSetShadingRateImageEnableNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7335,8 +6967,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRepresentativeFragmentTestEnableN
     VkBool32                                    representativeFragmentTestEnable)
 {
     std::string name = "vkCmdSetRepresentativeFragmentTestEnableNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7346,8 +6978,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetCoverageReductionModeNV(
     VkCoverageReductionModeNV                   coverageReductionMode)
 {
     std::string name = "vkCmdSetCoverageReductionModeNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7358,7 +6990,6 @@ void VulkanExportDiveConsumer::Process_vkGetShaderModuleIdentifierEXT(
     StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier)
 {
     std::string name = "vkGetShaderModuleIdentifierEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7369,7 +7000,6 @@ void VulkanExportDiveConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
     StructPointerDecoder<Decoded_VkShaderModuleIdentifierEXT>* pIdentifier)
 {
     std::string name = "vkGetShaderModuleCreateInfoIdentifierEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7382,7 +7012,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormat
     StructPointerDecoder<Decoded_VkOpticalFlowImageFormatPropertiesNV>* pImageFormatProperties)
 {
     std::string name = "vkGetPhysicalDeviceOpticalFlowImageFormatsNV";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7395,7 +7024,6 @@ void VulkanExportDiveConsumer::Process_vkCreateOpticalFlowSessionNV(
     HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession)
 {
     std::string name = "vkCreateOpticalFlowSessionNV";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7406,7 +7034,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyOpticalFlowSessionNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyOpticalFlowSessionNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7420,7 +7047,6 @@ void VulkanExportDiveConsumer::Process_vkBindOpticalFlowSessionImageNV(
     VkImageLayout                               layout)
 {
     std::string name = "vkBindOpticalFlowSessionImageNV";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -7431,8 +7057,8 @@ void VulkanExportDiveConsumer::Process_vkCmdOpticalFlowExecuteNV(
     StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo)
 {
     std::string name = "vkCmdOpticalFlowExecuteNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7442,7 +7068,6 @@ void VulkanExportDiveConsumer::Process_vkAntiLagUpdateAMD(
     StructPointerDecoder<Decoded_VkAntiLagDataAMD>* pData)
 {
     std::string name = "vkAntiLagUpdateAMD";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -7456,7 +7081,6 @@ void VulkanExportDiveConsumer::Process_vkCreateShadersEXT(
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
     std::string name = "vkCreateShadersEXT";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -7467,7 +7091,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyShaderEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyShaderEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7480,7 +7103,6 @@ void VulkanExportDiveConsumer::Process_vkGetShaderBinaryDataEXT(
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetShaderBinaryDataEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7492,8 +7114,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBindShadersEXT(
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
     std::string name = "vkCmdBindShadersEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7504,8 +7126,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetDepthClampRangeEXT(
     StructPointerDecoder<Decoded_VkDepthClampRangeEXT>* pDepthClampRange)
 {
     std::string name = "vkCmdSetDepthClampRangeEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7518,7 +7140,6 @@ void VulkanExportDiveConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
     StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties)
 {
     std::string name = "vkGetFramebufferTilePropertiesQCOM";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7530,7 +7151,6 @@ void VulkanExportDiveConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
     StructPointerDecoder<Decoded_VkTilePropertiesQCOM>* pProperties)
 {
     std::string name = "vkGetDynamicRenderingTilePropertiesQCOM";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7542,7 +7162,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceCooperativeVectorPrope
     StructPointerDecoder<Decoded_VkCooperativeVectorPropertiesNV>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceCooperativeVectorPropertiesNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7553,7 +7172,6 @@ void VulkanExportDiveConsumer::Process_vkConvertCooperativeVectorMatrixNV(
     StructPointerDecoder<Decoded_VkConvertCooperativeVectorMatrixInfoNV>* pInfo)
 {
     std::string name = "vkConvertCooperativeVectorMatrixNV";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -7564,8 +7182,8 @@ void VulkanExportDiveConsumer::Process_vkCmdConvertCooperativeVectorMatrixNV(
     StructPointerDecoder<Decoded_VkConvertCooperativeVectorMatrixInfoNV>* pInfos)
 {
     std::string name = "vkCmdConvertCooperativeVectorMatrixNV";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7577,7 +7195,6 @@ void VulkanExportDiveConsumer::Process_vkSetLatencySleepModeNV(
     StructPointerDecoder<Decoded_VkLatencySleepModeInfoNV>* pSleepModeInfo)
 {
     std::string name = "vkSetLatencySleepModeNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7589,7 +7206,6 @@ void VulkanExportDiveConsumer::Process_vkLatencySleepNV(
     StructPointerDecoder<Decoded_VkLatencySleepInfoNV>* pSleepInfo)
 {
     std::string name = "vkLatencySleepNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7600,7 +7216,6 @@ void VulkanExportDiveConsumer::Process_vkSetLatencyMarkerNV(
     StructPointerDecoder<Decoded_VkSetLatencyMarkerInfoNV>* pLatencyMarkerInfo)
 {
     std::string name = "vkSetLatencyMarkerNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7611,7 +7226,6 @@ void VulkanExportDiveConsumer::Process_vkGetLatencyTimingsNV(
     StructPointerDecoder<Decoded_VkGetLatencyMarkerInfoNV>* pLatencyMarkerInfo)
 {
     std::string name = "vkGetLatencyTimingsNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7621,7 +7235,6 @@ void VulkanExportDiveConsumer::Process_vkQueueNotifyOutOfBandNV(
     StructPointerDecoder<Decoded_VkOutOfBandQueueTypeInfoNV>* pQueueTypeInfo)
 {
     std::string name = "vkQueueNotifyOutOfBandNV";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -7631,8 +7244,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkImageAspectFlags                          aspectMask)
 {
     std::string name = "vkCmdSetAttachmentFeedbackLoopEnableEXT";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7643,7 +7256,6 @@ void VulkanExportDiveConsumer::Process_vkGetPartitionedAccelerationStructuresBui
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo)
 {
     std::string name = "vkGetPartitionedAccelerationStructuresBuildSizesNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7653,8 +7265,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBuildPartitionedAccelerationStructur
     StructPointerDecoder<Decoded_VkBuildPartitionedAccelerationStructureInfoNV>* pBuildInfo)
 {
     std::string name = "vkCmdBuildPartitionedAccelerationStructuresNV";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7665,7 +7277,6 @@ void VulkanExportDiveConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsE
     StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     std::string name = "vkGetGeneratedCommandsMemoryRequirementsEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7676,8 +7287,8 @@ void VulkanExportDiveConsumer::Process_vkCmdPreprocessGeneratedCommandsEXT(
     format::HandleId                            stateCommandBuffer)
 {
     std::string name = "vkCmdPreprocessGeneratedCommandsEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7688,8 +7299,8 @@ void VulkanExportDiveConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
 {
     std::string name = "vkCmdExecuteGeneratedCommandsEXT";
-    std::string args[3];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7702,7 +7313,6 @@ void VulkanExportDiveConsumer::Process_vkCreateIndirectCommandsLayoutEXT(
     HandlePointerDecoder<VkIndirectCommandsLayoutEXT>* pIndirectCommandsLayout)
 {
     std::string name = "vkCreateIndirectCommandsLayoutEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7713,7 +7323,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyIndirectCommandsLayoutEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7726,7 +7335,6 @@ void VulkanExportDiveConsumer::Process_vkCreateIndirectExecutionSetEXT(
     HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet)
 {
     std::string name = "vkCreateIndirectExecutionSetEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7737,7 +7345,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyIndirectExecutionSetEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyIndirectExecutionSetEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7749,7 +7356,6 @@ void VulkanExportDiveConsumer::Process_vkUpdateIndirectExecutionSetPipelineEXT(
     StructPointerDecoder<Decoded_VkWriteIndirectExecutionSetPipelineEXT>* pExecutionSetWrites)
 {
     std::string name = "vkUpdateIndirectExecutionSetPipelineEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7761,7 +7367,6 @@ void VulkanExportDiveConsumer::Process_vkUpdateIndirectExecutionSetShaderEXT(
     StructPointerDecoder<Decoded_VkWriteIndirectExecutionSetShaderEXT>* pExecutionSetWrites)
 {
     std::string name = "vkUpdateIndirectExecutionSetShaderEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7773,7 +7378,6 @@ void VulkanExportDiveConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixFlexi
     StructPointerDecoder<Decoded_VkCooperativeMatrixFlexibleDimensionsPropertiesNV>* pProperties)
 {
     std::string name = "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7785,7 +7389,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryMetalHandleEXT(
     PointerDecoder<uint64_t, void*>*            pHandle)
 {
     std::string name = "vkGetMemoryMetalHandleEXT";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7798,7 +7401,6 @@ void VulkanExportDiveConsumer::Process_vkGetMemoryMetalHandlePropertiesEXT(
     StructPointerDecoder<Decoded_VkMemoryMetalHandlePropertiesEXT>* pMemoryMetalHandleProperties)
 {
     std::string name = "vkGetMemoryMetalHandlePropertiesEXT";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7811,7 +7413,6 @@ void VulkanExportDiveConsumer::Process_vkCreateAccelerationStructureKHR(
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
 {
     std::string name = "vkCreateAccelerationStructureKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -7822,7 +7423,6 @@ void VulkanExportDiveConsumer::Process_vkDestroyAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     std::string name = "vkDestroyAccelerationStructureKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7834,8 +7434,8 @@ void VulkanExportDiveConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos)
 {
     std::string name = "vkCmdBuildAccelerationStructuresKHR";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7847,7 +7447,6 @@ void VulkanExportDiveConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
     std::string name = "vkCopyAccelerationStructureToMemoryKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7859,7 +7458,6 @@ void VulkanExportDiveConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
     std::string name = "vkCopyMemoryToAccelerationStructureKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7875,7 +7473,6 @@ void VulkanExportDiveConsumer::Process_vkWriteAccelerationStructuresPropertiesKH
     size_t                                      stride)
 {
     std::string name = "vkWriteAccelerationStructuresPropertiesKHR";
-    std::string args[7];
     WriteBlockEnd(name);
 }
 
@@ -7885,8 +7482,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyAccelerationStructureKHR(
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
     std::string name = "vkCmdCopyAccelerationStructureKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7896,8 +7493,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
     std::string name = "vkCmdCopyAccelerationStructureToMemoryKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7907,8 +7504,8 @@ void VulkanExportDiveConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
     std::string name = "vkCmdCopyMemoryToAccelerationStructureKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7919,7 +7516,6 @@ void VulkanExportDiveConsumer::Process_vkGetAccelerationStructureDeviceAddressKH
     StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
 {
     std::string name = "vkGetAccelerationStructureDeviceAddressKHR";
-    std::string args[2];
     WriteBlockEnd(name);
 }
 
@@ -7933,8 +7529,8 @@ void VulkanExportDiveConsumer::Process_vkCmdWriteAccelerationStructuresPropertie
     uint32_t                                    firstQuery)
 {
     std::string name = "vkCmdWriteAccelerationStructuresPropertiesKHR";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7945,7 +7541,6 @@ void VulkanExportDiveConsumer::Process_vkGetDeviceAccelerationStructureCompatibi
     PointerDecoder<VkAccelerationStructureCompatibilityKHR>* pCompatibility)
 {
     std::string name = "vkGetDeviceAccelerationStructureCompatibilityKHR";
-    std::string args[3];
     WriteBlockEnd(name);
 }
 
@@ -7958,7 +7553,6 @@ void VulkanExportDiveConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildSizesInfoKHR>* pSizeInfo)
 {
     std::string name = "vkGetAccelerationStructureBuildSizesKHR";
-    std::string args[5];
     WriteBlockEnd(name);
 }
 
@@ -7974,8 +7568,8 @@ void VulkanExportDiveConsumer::Process_vkCmdTraceRaysKHR(
     uint32_t                                    depth)
 {
     std::string name = "vkCmdTraceRaysKHR";
-    std::string args[8];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -7991,7 +7585,6 @@ void VulkanExportDiveConsumer::Process_vkCreateRayTracingPipelinesKHR(
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
     std::string name = "vkCreateRayTracingPipelinesKHR";
-    std::string args[7];
     WriteBlockEnd(name);
 }
 
@@ -8006,7 +7599,6 @@ void VulkanExportDiveConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHa
     PointerDecoder<uint8_t>*                    pData)
 {
     std::string name = "vkGetRayTracingCaptureReplayShaderGroupHandlesKHR";
-    std::string args[6];
     WriteBlockEnd(name);
 }
 
@@ -8020,8 +7612,8 @@ void VulkanExportDiveConsumer::Process_vkCmdTraceRaysIndirectKHR(
     VkDeviceAddress                             indirectDeviceAddress)
 {
     std::string name = "vkCmdTraceRaysIndirectKHR";
-    std::string args[6];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -8034,7 +7626,6 @@ void VulkanExportDiveConsumer::Process_vkGetRayTracingShaderGroupStackSizeKHR(
     VkShaderGroupShaderKHR                      groupShader)
 {
     std::string name = "vkGetRayTracingShaderGroupStackSizeKHR";
-    std::string args[4];
     WriteBlockEnd(name);
 }
 
@@ -8044,8 +7635,8 @@ void VulkanExportDiveConsumer::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
     uint32_t                                    pipelineStackSize)
 {
     std::string name = "vkCmdSetRayTracingPipelineStackSizeKHR";
-    std::string args[2];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -8057,8 +7648,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMeshTasksEXT(
     uint32_t                                    groupCountZ)
 {
     std::string name = "vkCmdDrawMeshTasksEXT";
-    std::string args[4];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -8071,8 +7662,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMeshTasksIndirectEXT(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawMeshTasksIndirectEXT";
-    std::string args[5];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 
@@ -8087,8 +7678,8 @@ void VulkanExportDiveConsumer::Process_vkCmdDrawMeshTasksIndirectCountEXT(
     uint32_t                                    stride)
 {
     std::string name = "vkCmdDrawMeshTasksIndirectCountEXT";
-    std::string args[7];
     uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);
+    uint64_t block_index = call_info.index;
     WriteBlockEnd(name, cmd_buffer_index);
 }
 GFXRECON_END_NAMESPACE(decode)

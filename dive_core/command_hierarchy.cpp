@@ -160,6 +160,7 @@ uint64_t Topology::GetEndSharedChildNodeIndex(uint64_t node_index) const
 //--------------------------------------------------------------------------------------------------
 uint64_t Topology::GetSharedChildRootNodeIndex(uint64_t node_index) const
 {
+    std::cout << "Topology, GetSharedChildRootNodeIndex called" << std::endl;
     DIVE_ASSERT(node_index < m_root_node_index.size());
     return m_root_node_index[node_index];
 }
@@ -473,17 +474,6 @@ uint64_t CommandHierarchy::Nodes::AddNode(NodeType      type,
     }
     else
         m_metadata.resize(m_metadata.size() + 1);
-    if (m_description.back() == "IB: 0, Address: 0x4001599000, Size (DWORDS): 58" || m_node_type.size() - 1 == 65)
-    {
-        std::cout <<"THIS IS THE NODE" <<std::endl;
-        std::cout << m_description.back() << std::endl;
-        std::cout << "Index: " << std::to_string(m_node_type.size() - 1) << std::endl;
-    } else if (m_node_type.size() - 1 == 7)
-    {
-        std::cout <<"THIS IS THE PARENT" <<std::endl;
-        std::cout << m_description.back() << std::endl;
-        std::cout << "Index: " << std::to_string(m_node_type.size() - 1) << std::endl;
-    }
     return m_node_type.size() - 1;
 }
 
@@ -896,13 +886,6 @@ bool CommandHierarchyCreator::OnIbStart(uint32_t                  submit_index,
 
     // Determine parent node
     uint64_t parent_node_index = m_cur_submit_node_index;
-    if (ib_string_stream.str() == "IB: 0, Address: 0x4001599000, Size (DWORDS): 58" || ib_string_stream.str() == "Call IB, Address: 0x400002a000, Size (DWORDS): 93")
-    {
-        std::cout << "FOUND IT!" << std::endl;
-        std:: cout << "FOUND INDEX: " << std::to_string(ib_node_index) << std::endl;
-        std:: cout << "FOUND SUBMIT (Parent) INDEX: " << std::to_string(parent_node_index) << std::endl;
-
-    }
     if (!m_ib_stack.empty())
     {
         parent_node_index = m_ib_stack.back();

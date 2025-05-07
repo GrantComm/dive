@@ -41,7 +41,9 @@ class SqttView;
 class EventTimingView;
 #endif
 class CommandTabView;
+class GfxrVulkanCommandTabView;
 class CommandModel;
+class GfxrVulkanCommandModel;
 class PropertyPanel;
 class HoverHelp;
 class QItemSelection;
@@ -150,7 +152,7 @@ private:
     // Left pane
     QString       m_prev_command_view_mode;
     DiveTreeView *m_command_hierarchy_view;
-    CommandModel *m_command_hierarchy_model;
+    GfxrVulkanCommandModel *m_command_hierarchy_model;
     QPushButton  *m_search_trigger_button;
     SearchBar    *m_event_search_bar = nullptr;
 
@@ -167,6 +169,8 @@ private:
     QTabWidget      *m_tab_widget;
     CommandTabView  *m_command_tab_view;
     int              m_command_view_tab_index;
+    GfxrVulkanCommandTabView  *m_gfxr_vulkan_command_tab_view;
+    int              m_gfxr_vulkan_command_view_tab_index;
     OverviewTabView *m_overview_tab_view;
     int              m_overview_view_tab_index;
     ShaderView      *m_shader_view;
