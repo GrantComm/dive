@@ -125,6 +125,59 @@ namespace Dive
         m_node_root_node_index[type][node_index] = root_node_index;
     }
 
+    void VulkanCommandHierarchyCreator::get_args(const nlohmann::ordered_json& j, uint64_t curr_index, const std::string& current_path) {
+        if (j.is_object()) {
+            for (auto const& [key, val] : j.items()) {
+                std::string new_path = current_path.empty() ? key : current_path + "." + key;
+                // Recurse for nested objects and arrays
+                if (val.is_object() || val.is_array()) {
+                    get_args(val, curr_index, new_path);
+                } else {
+                    std::ostringstream vk_cmd_arg_string_stream;
+                    vk_cmd_arg_string_stream << new_path << ":" << val;
+                    uint64_t vk_cmd_arg_index = AddNode(NodeType::kPacketNode, vk_cmd_arg_string_stream.str());
+                    AddSharedChild(CommandHierarchy::TopologyType::kEngineTopology, curr_index, vk_cmd_arg_index);
+                    AddSharedChild(CommandHierarchy::TopologyType::kSubmitTopology, curr_index, vk_cmd_arg_index);
+                }
+            }
+        } else if (j.is_array()) {
+            // For arrays, we append the index to the path
+            for (size_t i = 0; i < j.size(); ++i) {
+                std::string new_path = current_path + "[" + std::to_string(i) + "]";
+                const auto& element = j[i];
+                // Recurse for nested objects and arrays
+                if (element.is_object() || element.is_array()) {
+                    get_args(element, curr_index, new_path);
+                } else {
+                    std::ostringstream vk_cmd_arg_string_stream;
+                    vk_cmd_arg_string_stream << new_path << ":" << element;
+                    uint64_t vk_cmd_arg_index = AddNode(NodeType::kPacketNode, vk_cmd_arg_string_stream.str());
+                    AddSharedChild(CommandHierarchy::TopologyType::kEngineTopology, curr_index, vk_cmd_arg_index);
+                    AddSharedChild(CommandHierarchy::TopologyType::kSubmitTopology, curr_index, vk_cmd_arg_index);
+                }
+            }
+        }
+        // Base case: If it's a simple value at the top level (not part of an object/array being recursed),
+        // it should have been handled by the initial call or by the object/array loops.
+        // This 'else' block is primarily for the very first call if 'j' itself is a simple value.
+        else {
+            // This case would only hit if the initial 'j' passed to the function
+            // was a simple value directly, not a nested one.
+            // For example: `print_flat_json_values(nlohmann::json(123), "root_value");`
+            if (!current_path.empty()) {
+                std::ostringstream vk_cmd_arg_string_stream;
+                vk_cmd_arg_string_stream << current_path << ":" << j;
+                uint64_t vk_cmd_arg_index = AddNode(NodeType::kPacketNode, vk_cmd_arg_string_stream.str());
+                AddSharedChild(CommandHierarchy::TopologyType::kEngineTopology, curr_index, vk_cmd_arg_index);
+                AddSharedChild(CommandHierarchy::TopologyType::kSubmitTopology, curr_index, vk_cmd_arg_index);
+            } else {
+                // If it's just a standalone simple value without a given path
+                // (e.g., print_flat_json_values(123);), you might want to handle it differently.
+                // For this problem, we're assuming the input is typically an object or array.
+            }
+        }
+    }
+
     //--------------------------------------------------------------------------------------------------
     bool VulkanCommandHierarchyCreator::OnCmd(uint32_t parent_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
     {
@@ -141,6 +194,7 @@ namespace Dive
         {
             vk_cmd_string_stream << ", Command Buffer Index: " << std::to_string(vk_cmd_info.GetVkCmdIndex());
             uint64_t vk_cmd_index = AddNode(NodeType::kPacketNode, vk_cmd_string_stream.str());
+            get_args(vk_cmd_info.GetArgs(), vk_cmd_index, "");
             AddChild(CommandHierarchy::TopologyType::kEngineTopology, m_cur_command_buffer_node_index, vk_cmd_index);
             AddChild(CommandHierarchy::TopologyType::kSubmitTopology, m_cur_command_buffer_node_index, vk_cmd_index);
         }
@@ -216,10 +270,9 @@ namespace Dive
             {
                 DIVE_ASSERT(m_node_children[topology][0].size() == m_node_children[topology][1].size());
                 cur_topology.AddChildren(node_index, m_node_children[topology][0][node_index]);
-                //DELETE THIS
-                //uint64_t vk_cmd_index = AddNode(NodeType::kPacketNode, "TEst");
-                //AddChild(CommandHierarchy::TopologyType::kSubmitTopology, node_index, vk_cmd_index);
             }
+            cur_topology.m_start_shared_child = std::move(m_node_start_shared_child[topology]);
+            cur_topology.m_end_shared_child = std::move(m_node_end_shared_child[topology]);
             cur_topology.m_root_node_index = std::move(m_node_root_node_index[topology]);
         }
     }

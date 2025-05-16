@@ -58,7 +58,6 @@ class VulkanExportDiveConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGenerat
             extra_headers=extra_headers
         )
 
-
 class VulkanExportDiveConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
     """VulkanExportDiveConsumerHeaderGenerator - subclass of VulkanConsumerHeaderGenerator.
     Generate a C++ class for Vulkan capture file to JSON file generation.

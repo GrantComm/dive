@@ -81,6 +81,51 @@ void DiveAnnotationProcessor::WriteBlockEnd(std::string function_name, uint32_t 
     }
 }
 
+void DiveAnnotationProcessor::WriteBlockEnd(gfxrecon::util::DiveFunctionData function_data)
+{
+    std::string function_name = function_data.GetFunctionName();
+
+    if (function_name == "vkQueueSubmit" || function_name == "vkQueueSubmit2")
+    {
+        std::unique_ptr<SubmitInfo> submit_ptr = std::make_unique<SubmitInfo>(function_name);
+
+        for (auto it = m_pre_submit_commands.begin(); it != m_pre_submit_commands.end(); ++it)
+        {
+            submit_ptr->AppendVkCmd(*it);
+        }
+        m_pre_submit_commands.clear();
+        submit_ptr->SetCommandBufferCount(m_command_buffer_count);
+        m_submits.push_back(std::move(submit_ptr));
+        m_curr_submit = nullptr;
+        m_command_buffer_count = 0;
+    }
+    else if (function_name.find("vkCmd") != std::string::npos || function_name.find("vkBeginCommandBuffer") != std::string::npos)
+    {
+        // Don't include the vkEndCommandBuffer call
+        if (function_name.find("vkEndCommandBuffer") != std::string::npos)
+        {
+            return;
+        }
+
+        VulkanCommandInfo vkCmd(function_data);
+
+        if (function_name.find("vkBeginCommandBuffer") != std::string::npos)
+        {
+            m_command_buffer_count++;
+        }
+
+        if (m_curr_submit) // Check if the pointer is not null
+        {
+            m_curr_submit->AppendVkCmd(vkCmd);
+        }
+        else
+        {
+            // No active submit, so buffer the command
+            m_pre_submit_commands.push_back(vkCmd);
+        }
+    }
+}
+
 /*nlohmann::ordered_json& DiveAnnotationProcessor::WriteApiCallStart(const gfxrecon::decode::ApiCallInfo& call_info, const std::string_view command_name)
 {
     auto& json_data = WriteBlockStart();

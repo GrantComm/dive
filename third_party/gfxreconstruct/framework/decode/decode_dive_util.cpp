@@ -13,10 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
-
 #include "decode/decode_dive_util.h"
 #include "util/defines.h"
 #include <cmath>
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -26,6 +26,7 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     const char* const decoded_data = data.GetPointer();
     if (decoded_data)
     {
+        std::cout << "HERE, FieldToDive, StringDecoder (&)" << std::endl;
         // FieldToDive(data_map, decoded_data);
     }
 }
@@ -34,24 +35,28 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
 {
     if (data)
     {
+        std::cout << "HERE, FieldToDive, StringDecoder (*)" << std::endl;
         FieldToDive(data_map, *data);
     }
 }
 
-void FieldToDive(std::map<std::string, std::map<std::string, int>>& data_map, const StringArrayDecoder* data)
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const StringArrayDecoder* data)
 {
+    std::cout << "HERE, FieldToDive, StringArrayDecoder (*)" << std::endl;
     if (data && data->GetPointer())
     {
         const auto decoded_data = data->GetPointer();
         for (size_t i = 0; i < data->GetLength(); ++i)
         {
+            std::cout << "HERE, decoded_data[" <<std::to_string(i) << "] = " << std::string(decoded_data[i]) << std::endl;
             // data_map[i] = std::string(decoded_data[i]);
         }
     }
 }
 
-void FieldToDive(std::map<std::string, std::map<std::string, int>>& data_map, const WStringDecoder& data)
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const WStringDecoder& data)
 {
+    std::cout << "HERE, FieldToDive, WStringDecoder (&)" << std::endl;
     const wchar_t* const decoded_data = data.GetPointer();
     if (decoded_data)
     {
@@ -61,6 +66,7 @@ void FieldToDive(std::map<std::string, std::map<std::string, int>>& data_map, co
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const WStringDecoder* data)
 {
+    std::cout << "HERE, FieldToDive, WStringDecoder (*)" << std::endl;
     if (data)
     {
         FieldToDive(data_map, *data);
@@ -69,112 +75,33 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const WStringArrayDecoder& data)
 {
+    std::cout << "HERE, FieldToDive, WStringArrayDecoder (&)" << std::endl;
     const auto decoded_data = data.GetPointer();
     if (decoded_data)
     {
         for (size_t i = 0; i < data.GetLength(); ++i)
         {
+            
             // FieldToDive(data_map[i], decoded_data[i]);
         }
     }
 }
 
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const float data[4])
-{
-    FieldToDive(data_map, data, 4);
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const uint32_t data[4])
-{
-    FieldToDive(data_map, data, 4);
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const uint64_t data[4])
-{
-    FieldToDive(data_map, data, 4);
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const short& data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const int& data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const long& data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const long long& data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const unsigned short& data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const unsigned int& data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const unsigned long& data)
-{
-    // // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const unsigned long long& data)
-{
-    //// jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const std::nullptr_t data)
-{
-    // jdata = data;
-}
-
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, float data)
-{
-    if (std::isnan(data))
-    {
-        GFXRECON_LOG_WARNING_ONCE("Converting a NAN to zero.");
-        data = 0.0f;
-    }
-    else if (std::isinf(data))
-    {
-        GFXRECON_LOG_WARNING_ONCE("Converting an infinity to max or min.");
-        if (data < 0)
-        {
-            data = std::numeric_limits<float>::min();
-        }
-        else
-        {
-            data = std::numeric_limits<float>::max();
-        }
-    }
-    // Normal and denormal/subnormal numbers pass through unchanged and unremarked.
-
-    // jdata = data;
-}
-
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, double data)
 {
+    std::cout << "HERE, FieldToDive, double" << std::endl;
     // jdata = data;
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const std::string_view data)
 {
+    std::cout << "HERE, FieldToDive, std::string_view" << std::endl;
     // jdata = data;
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const std::wstring_view data)
 {
+    std::cout << "HERE, FieldToDive, std::wstring_view" << std::endl;
 /*#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -184,35 +111,6 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
 #pragma clang diagnostic pop
 #endif
     jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());*/
-}
-
-void HandleToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const format::HandleId handle)
-{
-    /*if (options.hex_handles)
-    {
-        // A JSON string
-        jdata = util::to_hex_variable_width(handle);
-    }
-    else
-    {
-        // A JSON number
-        jdata = handle;
-    }*/
-}
-
-void HandleToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const format::HandleId* data, size_t num_elements)
-{
-    /*if (data)
-    {
-        for (size_t i = 0; i < num_elements; ++i)
-        {
-            HandleToJson(jdata[i], data[i], options);
-        }
-    }
-    else
-    {
-        jdata = nullptr;
-    }*/
 }
 
 template <>
@@ -226,11 +124,14 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         {
             for (size_t i = 0; i < length; ++i)
             {
+                std::cout << "HERE, PointerDecoder #1 called, i =  " << std::to_string(i) << std::endl;
+                std::cout << "HERE, PointerDecoder #1 val = " << std::to_string(decoded_value[i]) << std::endl;
                 // data_map[i] = decoded_value[i];
             }
         }
         else
         {
+            std::cout << "HERE, PointerDecoder #1 no pointer val = " << decoded_value << std::endl;
             // data_map = *decoded_value;
         }
     }
@@ -247,11 +148,14 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         {
             for (size_t i = 0; i < length; ++i)
             {
+                std::cout << "HERE, PointerDecoder #2 called, i =  " << std::to_string(i) << std::endl;
+                std::cout << "HERE, PointerDecoder #2 val = " << std::to_string(decoded_value[i]) << std::endl;
                 // data_map[i] = decoded_value[i];
             }
         }
         else
         {
+            std::cout << "HERE, PointerDecoder #2 (l == 1) val = " << decoded_value << std::endl;
             // data_map = *decoded_value;
         }
     }
@@ -268,11 +172,14 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         {
             for (size_t i = 0; i < length; ++i)
             {
+                std::cout << "HERE, PointerDecoder #3 called, i =  " << std::to_string(i) << std::endl;
+                std::cout << "HERE, PointerDecoder #3 val = " << std::to_string(decoded_value[i]) << std::endl;
                 // data_map[i] = decoded_value[i];
             }
         }
         else
         {
+            std::cout << "HERE, PointerDecoder #3 no pointer val = " << decoded_value << std::endl;
             // data_map = *decoded_value;
         }
     }
@@ -289,17 +196,20 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         {
             for (size_t i = 0; i < length; ++i)
             {
+                std::cout << "HERE, PointerDecoder #4 called, i =  " << std::to_string(i) << std::endl;
+                std::cout << "HERE, PointerDecoder #4 val = " << std::to_string(decoded_value[i]) << std::endl;
                 // data_map[i] = decoded_value[i];
             }
         }
         else
         {
+            std::cout << "HERE, PointerDecoder #4 no pointer val = " << decoded_value << std::endl;
             // data_map = *decoded_value;
         }
     }
 }
 
-void Bool32ToDive(std::map<std::string, std::map<std::string, int>>& data_map, const PointerDecoder<uint32_t, uint32_t>* data)
+void Bool32ToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const PointerDecoder<uint32_t, uint32_t>* data)
 {
     if (data && data->GetPointer())
     {
@@ -310,17 +220,20 @@ void Bool32ToDive(std::map<std::string, std::map<std::string, int>>& data_map, c
         {
             for (size_t i = 0; i < length; ++i)
             {
+                std::cout << "HERE, PointerDecoder #5 called, i =  " << std::to_string(i) << std::endl;
+                std::cout << "HERE, PointerDecoder #5 val = " << std::to_string(decoded_value[i]) << std::endl;
                 // util::Bool32ToDive(data_map[i], decoded_value[i]);
             }
         }
         else if (length == 1)
         {
+            std::cout << "HERE, PointerDecoder #5 (l == 1) val = " << decoded_value << std::endl;
             // util::Bool32ToDive(data_map, *decoded_value);
         }
     }
 }
 
-void Bool32ToDive(std::map<std::string, std::map<std::string, int>>& data_map, const PointerDecoder<int, int>* data)
+void Bool32ToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const PointerDecoder<int, int>* data)
 {
     if (data && data->GetPointer())
     {
@@ -331,19 +244,17 @@ void Bool32ToDive(std::map<std::string, std::map<std::string, int>>& data_map, c
         {
             for (size_t i = 0; i < length; ++i)
             {
+                std::cout << "HERE, PointerDecoder #6 called, i =  " << std::to_string(i) << std::endl;
+                std::cout << "HERE, PointerDecoder #6 val = " << std::to_string(decoded_value[i]) << std::endl;
                 // util::Bool32ToDive(data_map[i], decoded_value[i]);
             }
         }
         else if (length == 1)
         {
+            std::cout << "HERE, PointerDecoder #6 (l == 1) val = " << decoded_value << std::endl;
             // util::Bool32ToDive(data_map, *decoded_value);
         }
     }
-}
-
-void Bool32ToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const uint32_t& data)
-{
-    // data_map = static_cast<bool>(data);
 }
 
 GFXRECON_END_NAMESPACE(decode)

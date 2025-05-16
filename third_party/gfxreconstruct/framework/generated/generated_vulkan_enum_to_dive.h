@@ -31,6 +31,7 @@
 #define  GFXRECON_GENERATED_VULKAN_ENUM_TO_DIVE_H
 
 #include "format/platform_types.h"
+#include "util/dive_util.h"
 
 #include "vulkan/vulkan.h"
 #include "vk_video/vulkan_video_codec_h264std.h"

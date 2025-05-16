@@ -15,7 +15,11 @@ limitations under the License.
 */
 
 #include "decode/vulkan_dive_consumer_base.h"
+#include "decode/custom_vulkan_struct_to_json.h"
 
+#include "generated/generated_vulkan_enum_to_json.h"
+
+// #include "util/dive_util.h"
 #include "util/json_util.h"
 #include "util/platform.h"
 #include "util/file_path.h"

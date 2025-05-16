@@ -130,6 +130,8 @@ uint64_t Topology::GetNextNodeIndex(uint64_t node_index) const
 //--------------------------------------------------------------------------------------------------
 uint64_t Topology::GetNumSharedChildren(uint64_t node_index) const
 {
+    std::cout << "Topology, GetNumSharedChildren in command_hierarchy.cpp called" << std::endl;
+    std::cout << "Topology, GetNumSharedChildren in command_hierarchy.cpp val: " << std::to_string(m_node_shared_children[node_index].m_num_children)<< std::endl;
     DIVE_ASSERT(node_index < m_node_shared_children.size());
     return m_node_shared_children[node_index].m_num_children;
 }
@@ -160,7 +162,8 @@ uint64_t Topology::GetEndSharedChildNodeIndex(uint64_t node_index) const
 //--------------------------------------------------------------------------------------------------
 uint64_t Topology::GetSharedChildRootNodeIndex(uint64_t node_index) const
 {
-    std::cout << "Topology, GetSharedChildRootNodeIndex called" << std::endl;
+    std::cout << "Topology, GetSharedChildRootNodeIndex in command_hierarchy.cpp called" << std::endl;
+    std::cout << "Topology, GetSharedChildRootNodeIndex in command_hierarchy.cpp size of m_root_node_index: " << std::to_string(m_root_node_index.size()) << std::endl;
     DIVE_ASSERT(node_index < m_root_node_index.size());
     return m_root_node_index[node_index];
 }

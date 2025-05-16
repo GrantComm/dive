@@ -32,15 +32,13 @@ class VulkanEnumToDiveHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         
         self.begin_end_file_data.specific_headers.extend((
             'format/platform_types.h',
+            'util/dive_util.h',
         ))
 
         self.begin_end_file_data.system_headers.extend((
             'string',
             'map',
         ))
-
-        #include <map>
-#include <string>
 
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 

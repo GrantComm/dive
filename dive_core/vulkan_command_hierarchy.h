@@ -32,6 +32,7 @@ class VulkanCommandHierarchyCreator : public CommandHierarchyCreator
             std::optional<uint64_t> reserve_size);
 
     private:
+        void get_args(const nlohmann::ordered_json& j, uint64_t curr_index, const std::string& current_path = "");
         void     CreateTopologies();
         void OnGfxrSubmitStart(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info);
         void OnGfxrSubmitEnd(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info);

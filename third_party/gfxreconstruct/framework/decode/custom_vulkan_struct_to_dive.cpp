@@ -44,16 +44,17 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         switch (discriminant)
         {
             case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_TRIANGLES_KHR:
-                FieldToDive(data_map["triangles"], data->triangles);
+                // FieldToDive(data_map["triangles"], data->triangles);
                 break;
             case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_AABBS_KHR:
-                FieldToDive(data_map["aabbs"], data->aabbs);
+                // FieldToDive(data_map["aabbs"], data->aabbs);
                 break;
             case VkGeometryTypeKHR::VK_GEOMETRY_TYPE_INSTANCES_KHR:
-                FieldToDive(data_map["instances"], data->instances);
+                // FieldToDive(data_map["instances"], data->instances);
                 break;
             default:
-                data_map = "Unknown GeometryType: " + std::to_string(discriminant);
+                std::cout << "Default" << std::endl;
+                // data_map = "Unknown GeometryType: " + std::to_string(discriminant);
         }
     }
 }
@@ -65,10 +66,10 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["sType"], decoded_value.sType);
-        FieldToDive(data_map["geometryType"], decoded_value.geometryType);
-        FieldToDive(data_map["geometry"], decoded_value.geometryType, meta_struct.geometry);
-        FieldToDive(data_map["pNext"], meta_struct.pNext);
+        // FieldToDive(data_map["sType"], decoded_value.sType);
+        // FieldToDive(data_map["geometryType"], decoded_value.geometryType);
+        // FieldToDive(data_map["geometry"], decoded_value.geometryType, meta_struct.geometry);
+        // FieldToDive(data_map["pNext"], meta_struct.pNext);
     }
 }
 
@@ -78,9 +79,9 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["color"], meta_struct.color);
-        FieldToDive(data_map["depthStencil"]["depth"], decoded_value.depthStencil.depth);
-        FieldToDive(data_map["depthStencil"]["stencil"], decoded_value.depthStencil.stencil);
+        // FieldToDive(data_map["color"], meta_struct.color);
+        // FieldToDive(data_map["depthStencil"]["depth"], decoded_value.depthStencil.depth);
+        // FieldToDive(data_map["depthStencil"]["stencil"], decoded_value.depthStencil.stencil);
     }
 }
 
@@ -90,9 +91,9 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["float32"], decoded_value.float32, 4);
-        FieldToDive(data_map["int32"], decoded_value.int32, 4);
-        FieldToDive(data_map["uint32"], decoded_value.uint32, 4);
+        // FieldToDive(data_map["float32"], decoded_value.float32, 4);
+        // FieldToDive(data_map["int32"], decoded_value.int32, 4);
+        // FieldToDive(data_map["uint32"], decoded_value.uint32, 4);
     }
 }
 
@@ -106,10 +107,10 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         switch (discriminant)
         {
             case 0:
-                FieldToDiveAsHex(data_map["deviceAddress"], decoded_value.deviceAddress);
+                // FieldToDiveAsHex(data_map["deviceAddress"], decoded_value.deviceAddress);
                 break;
             case 1:
-                FieldToDiveAsHex(data_map["hostAddress"], decoded_value.hostAddress);
+                // FieldToDiveAsHex(data_map["hostAddress"], decoded_value.hostAddress);
                 break;
         }
     }
@@ -131,25 +132,22 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         switch (discriminant)
         {
             case 0:
-                FieldToDiveAsHex(data_map["deviceAddress"], decoded_value.deviceAddress);
+                // FieldToDiveAsHex(data_map["deviceAddress"], decoded_value.deviceAddress);
                 break;
             case 1:
-                FieldToDiveAsHex(data_map["hostAddress"], decoded_value.hostAddress);
+                // FieldToDiveAsHex(data_map["hostAddress"], decoded_value.hostAddress);
                 break;
         }
     }
 }
 
-void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map,
-                 const Decoded_VkDeviceOrHostAddressKHR* data)
+void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const Decoded_VkDeviceOrHostAddressKHR* data)
 {
     FieldToDive(data_map, 0, data);
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map,
-                 VkPipelineExecutableStatisticFormatKHR               discriminant,
-                 const Decoded_VkPipelineExecutableStatisticValueKHR* data,
-                 const JsonOptions&                                   options)
+                 VkPipelineExecutableStatisticFormatKHR discriminant, const Decoded_VkPipelineExecutableStatisticValueKHR* data)
 {
     if (data && data->decoded_value)
     {
@@ -157,16 +155,16 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         switch (discriminant)
         {
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR:
-                data_map["b32"] = static_cast<bool>(decoded_value.b32);
+                // data_map["b32"] = static_cast<bool>(decoded_value.b32);
                 break;
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_INT64_KHR:
-                data_map["i64"] = decoded_value.i64;
+                // data_map["i64"] = decoded_value.i64;
                 break;
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_UINT64_KHR:
-                data_map["u64"] = decoded_value.u64;
+                // data_map["u64"] = decoded_value.u64;
                 break;
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_FLOAT64_KHR:
-                data_map["f64"] = decoded_value.f64;
+                // data_map["f64"] = decoded_value.f64;
                 break;
             case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_MAX_ENUM_KHR:
                 GFXRECON_LOG_WARNING("Invalid format: VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_MAX_ENUM_KHR");
@@ -181,12 +179,12 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["sType"], decoded_value.sType);
-        FieldToDive(data_map["name"], &meta_struct.name);
-        FieldToDive(data_map["description"], &meta_struct.description);
-        FieldToDive(data_map["format"], decoded_value.format);
-        FieldToDive(data_map["value"], decoded_value.format, meta_struct.value);
-        FieldToDive(data_map["pNext"], meta_struct.pNext);
+        // FieldToDive(data_map["sType"], decoded_value.sType);
+        // FieldToDive(data_map["name"], &meta_struct.name);
+        // FieldToDive(data_map["description"], &meta_struct.description);
+        // FieldToDive(data_map["format"], decoded_value.format);
+        // FieldToDive(data_map["value"], decoded_value.format, meta_struct.value);
+        // FieldToDive(data_map["pNext"], meta_struct.pNext);
     }
 }
 
@@ -196,9 +194,9 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        HandleToJson(data_map["sampler"], meta_struct.sampler);
-        HandleToJson(data_map["imageView"], meta_struct.imageView);
-        HandleToJson(data_map["imageLayout"], decoded_value.imageLayout);
+        // HandleToDive(data_map["sampler"], meta_struct.sampler);
+        // HandleToDive(data_map["imageView"], meta_struct.imageView);
+        // HandleToDive(data_map["imageLayout"], decoded_value.imageLayout);
     }
 }
 
@@ -208,12 +206,12 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["sType"], decoded_value.sType);
-        HandleToJson(data_map["dstSet"], meta_struct.dstSet);
-        FieldToDive(data_map["dstBinding"], decoded_value.dstBinding);
-        FieldToDive(data_map["dstArrayElement"], decoded_value.dstArrayElement);
-        FieldToDive(data_map["descriptorCount"], decoded_value.descriptorCount);
-        FieldToDive(data_map["descriptorType"], decoded_value.descriptorType);
+        // FieldToDive(data_map["sType"], decoded_value.sType);
+        // HandleToDive(data_map["dstSet"], meta_struct.dstSet);
+        // FieldToDive(data_map["dstBinding"], decoded_value.dstBinding);
+        // FieldToDive(data_map["dstArrayElement"], decoded_value.dstArrayElement);
+        // FieldToDive(data_map["descriptorCount"], decoded_value.descriptorCount);
+        // FieldToDive(data_map["descriptorType"], decoded_value.descriptorType);
         switch (decoded_value.descriptorType)
         {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -223,17 +221,17 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
             case VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM:
             case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
-                FieldToDive(data_map["pImageInfo"], meta_struct.pImageInfo);
+                // FieldToDive(data_map["pImageInfo"], meta_struct.pImageInfo);
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                FieldToDive(data_map["pBufferInfo"], meta_struct.pBufferInfo);
+                // FieldToDive(data_map["pBufferInfo"], meta_struct.pBufferInfo);
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                HandleToJson(data_map["pTexelBufferView"], &meta_struct.pTexelBufferView);
+                // HandleToDive(data_map["pTexelBufferView"], &meta_struct.pTexelBufferView);
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
@@ -248,7 +246,7 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
             case VK_DESCRIPTOR_TYPE_MAX_ENUM:
                 GFXRECON_LOG_WARNING("Invalid descriptor type: VK_DESCRIPTOR_TYPE_MAX_ENUM");
         }
-        FieldToDive(data_map["pNext"], meta_struct.pNext);
+        // FieldToDive(data_map["pNext"], meta_struct.pNext);
     }
 }
 
@@ -263,19 +261,19 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
         switch (discriminant)
         {
             case VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL:
-                FieldToDive(data_map["value32"], decoded_value.value32);
+                // FieldToDive(data_map["value32"], decoded_value.value32);
                 break;
             case VK_PERFORMANCE_VALUE_TYPE_UINT64_INTEL:
-                FieldToDive(data_map["value64"], decoded_value.value64);
+                // FieldToDive(data_map["value64"], decoded_value.value64);
                 break;
             case VK_PERFORMANCE_VALUE_TYPE_FLOAT_INTEL:
-                FieldToDive(data_map["valueFloat"], decoded_value.valueFloat);
+                // FieldToDive(data_map["valueFloat"], decoded_value.valueFloat);
                 break;
             case VK_PERFORMANCE_VALUE_TYPE_BOOL_INTEL:
-                FieldToDive(data_map["valueBool"], decoded_value.valueBool);
+                // FieldToDive(data_map["valueBool"], decoded_value.valueBool);
                 break;
             case VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL:
-                FieldToDive(data_map["valueString"], meta_struct.valueString);
+                // FieldToDive(data_map["valueString"], meta_struct.valueString);
                 break;
             case VK_PERFORMANCE_VALUE_TYPE_MAX_ENUM_INTEL:
                 GFXRECON_LOG_WARNING("Invalid performance value type: VK_PERFORMANCE_VALUE_TYPE_MAX_ENUM_INTEL");
@@ -289,8 +287,8 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["type"], decoded_value.type);
-        FieldToDive(data_map["data"], decoded_value.type, meta_struct.data);
+        // FieldToDive(data_map["type"], decoded_value.type);
+        // FieldToDive(data_map["data"], decoded_value.type, meta_struct.data);
     }
 }
 
@@ -301,13 +299,13 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["sType"], decoded_value.sType);
-        FieldToDive(VkShaderModuleCreateFlags_t(), data_map["flags"], decoded_value.flags);
-        FieldToDive(data_map["codeSize"], decoded_value.codeSize);
+        // FieldToDive(data_map["sType"], decoded_value.sType);
+        // FieldToDive(VkShaderModuleCreateFlags_t(), data_map["flags"], decoded_value.flags);
+        // FieldToDive(data_map["codeSize"], decoded_value.codeSize);
         // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
         // consumer decides to dump binaries in separate files.
-        FieldToDive(data_map["pCode"], "[Binary data]");
-        FieldToDive(data_map["pNext"], meta_struct.pNext);
+        // FieldToDive(data_map["pCode"], "[Binary data]");
+        // FieldToDive(data_map["pNext"], meta_struct.pNext);
     }
 }
 
@@ -317,9 +315,9 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        data_map["bInheritHandle"]   = static_cast<bool>(decoded_value.bInheritHandle);
-        FieldToDive(data_map["nLength"], decoded_value.nLength);
-        FieldToDive(data_map["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor->GetAddress());
+        // data_map["bInheritHandle"]   = static_cast<bool>(decoded_value.bInheritHandle);
+        // FieldToDive(data_map["nLength"], decoded_value.nLength);
+        // FieldToDive(data_map["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor->GetAddress());
     }
 }
 
@@ -330,13 +328,13 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToDive(data_map["sType"], decoded_value.sType);
-        FieldToDive(VkPipelineCacheCreateFlags_t(), data_map["flags"], decoded_value.flags);
-        FieldToDive(data_map["initialDataSize"], decoded_value.initialDataSize);
+        // FieldToDive(data_map["sType"], decoded_value.sType);
+        // FieldToDive(VkPipelineCacheCreateFlags_t(), data_map["flags"], decoded_value.flags);
+        // FieldToDive(data_map["initialDataSize"], decoded_value.initialDataSize);
         // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
         // consumer decides to dump binaries in separate files.
-        FieldToDive(data_map["pInitialData"], "[Binary data]");
-        FieldToDive(data_map["pNext"], meta_struct.pNext);
+        // FieldToDive(data_map["pInitialData"], "[Binary data]");
+        // FieldToDive(data_map["pNext"], meta_struct.pNext);
     }
 }
 
@@ -346,75 +344,74 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
     if (pData)
     {
         const size_t                        image_info_count = pData->GetImageInfoCount();
-        std::vector<nlohmann::ordered_json> image_infos(image_info_count);
+        // std::vector<nlohmann::ordered_json> image_infos(image_info_count);
 
         for (size_t image_info_index = 0; image_info_index < image_info_count; ++image_info_index)
         {
-            FieldToDive(
-                image_infos[image_info_index], pData->GetImageInfoMetaStructPointer() + image_info_index);
+            // FieldToDive(
+                // image_infos[image_info_index], pData->GetImageInfoMetaStructPointer() + image_info_index);
         }
-        data_map["imageInfos"] = image_infos;
+        // data_map["imageInfos"] = image_infos;
 
         const size_t                        buffer_info_count = pData->GetBufferInfoCount();
-        std::vector<nlohmann::ordered_json> buffer_infos(buffer_info_count);
+        // std::vector<nlohmann::ordered_json> buffer_infos(buffer_info_count);
 
         for (size_t buffer_info_index = 0; buffer_info_index < buffer_info_count; ++buffer_info_index)
         {
-            FieldToDive(
-                buffer_infos[buffer_info_index], pData->GetBufferInfoMetaStructPointer() + buffer_info_index);
+            // FieldToDive(
+                // buffer_infos[buffer_info_index], pData->GetBufferInfoMetaStructPointer() + buffer_info_index);
         }
-        data_map["bufferInfos"] = buffer_infos;
+        // data_map["bufferInfos"] = buffer_infos;
 
         const size_t texel_buffer_view_count = pData->GetTexelBufferViewCount();
         if (texel_buffer_view_count > 0)
         {
-            HandleToJson(
-                data_map["bufferViews"], pData->GetTexelBufferViewHandleIdsPointer(), texel_buffer_view_count);
+            // HandleToDive(
+               //  data_map["bufferViews"], pData->GetTexelBufferViewHandleIdsPointer(), texel_buffer_view_count);
         }
 
         const size_t acceleration_structure_count = pData->GetAccelerationStructureKHRCount();
         if (acceleration_structure_count > 0)
         {
-            HandleToJson(data_map["accelStructViews"],
-                         pData->GetAccelerationStructureKHRHandleIdsPointer(),
-                         acceleration_structure_count,
-                         options);
+            // HandleToDive(data_map["accelStructViews"],
+                         // pData->GetAccelerationStructureKHRHandleIdsPointer(),
+                         // acceleration_structure_count);
         }
 
         const size_t inline_uniform_block_num_bytes = pData->GetInlineUniformBlockCount();
         if (inline_uniform_block_num_bytes > 0)
         {
-            data_map["inlineUniformBlock"] =
-                std::vector<uint8_t>(pData->GetInlineUniformBlockPointer(),
-                                     pData->GetInlineUniformBlockPointer() + inline_uniform_block_num_bytes);
+            //data_map["inlineUniformBlock"] =
+                // std::vector<uint8_t>(pData->GetInlineUniformBlockPointer(),
+                                     // pData->GetInlineUniformBlockPointer() + inline_uniform_block_num_bytes);
         }
     }
     else
     {
-        data_map = nullptr;
+        // data_map = nullptr;
     }
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map,
                  const Decoded_VkPushDescriptorSetWithTemplateInfo* const pData)
 {
-    HandleToJson(data_map["descriptorUpdateTemplate"], pData->descriptorUpdateTemplate);
-    HandleToJson(data_map["layout"], pData->layout);
-    FieldToDive(data_map["set"], pData->decoded_value->set);
-    FieldToDive(data_map["pData"], &pData->pData);
+    // HandleToDive(data_map["descriptorUpdateTemplate"], pData->descriptorUpdateTemplate);
+    // HandleToDive(data_map["layout"], pData->layout);
+    // FieldToDive(data_map["set"], pData->decoded_value->set);
+    // FieldToDive(data_map["pData"], &pData->pData);
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map,
                  const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData)
 {
-    FieldToDive(data_map["type"], pData->decoded_type);
+    // FieldToDive(data_map["type"], pData->decoded_type);
     switch (pData->decoded_type)
     {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            FieldToDive(data_map["info"], pData->info->pPipelineInfo);
+            // FieldToDive(data_map["info"], pData->info->pPipelineInfo);
             break;
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            FieldToDive(data_map["info"], pData->info->pShaderInfo);
+            // FieldToDive(data_map["info"], pData->info->pShaderInfo);
             break;
         default:
             break;
@@ -424,38 +421,38 @@ void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map,
                  const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData)
 {
-    FieldToDive(data_map["type"], pData->decoded_type);
+    // FieldToDive(data_map["type"], pData->decoded_type);
     switch (pData->decoded_type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
-            FieldToDive(data_map["data"], pData->data->pPushConstant);
+            // FieldToDive(data_map["data"], pData->data->pPushConstant);
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            FieldToDive(data_map["data"], pData->data->pVertexBuffer);
+            // FieldToDive(data_map["data"], pData->data->pVertexBuffer);
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            FieldToDive(data_map["data"], pData->data->pIndexBuffer);
+            // FieldToDive(data_map["data"], pData->data->pIndexBuffer);
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            FieldToDive(data_map["data"], pData->data->pExecutionSet);
+            // FieldToDive(data_map["data"], pData->data->pExecutionSet);
             break;
         default:
             break;
     }
-    FieldToDive(data_map["offset"], pData->offset);
+    // FieldToDive(data_map["offset"], pData->offset);
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const format::DeviceMemoryType& data)
 {
-    FieldToDive(decode::VkMemoryPropertyFlags_t(), data_map["property_flags"], data.property_flags);
-    FieldToDive(data_map["heap_index"], data.heap_index);
+    // FieldToDive(decode::VkMemoryPropertyFlags_t(), data_map["property_flags"], data.property_flags);
+    // FieldToDive(data_map["heap_index"], data.heap_index);
 }
 
 void FieldToDive(std::map<std::string, std::map<std::string, std::string>>& data_map, const format::DeviceMemoryHeap& data)
 {
-    FieldToDive(data_map["size"], data.size);
-    FieldToDive(decode::VkMemoryHeapFlags_t(), data_map["flags"], data.flags);
+    // FieldToDive(data_map["size"], data.size);
+    // FieldToDive(decode::VkMemoryHeapFlags_t(), data_map["flags"], data.flags);
 }
 
 GFXRECON_END_NAMESPACE(decode)

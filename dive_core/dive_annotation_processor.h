@@ -34,14 +34,17 @@ class DiveAnnotationProcessor : public gfxrecon::decode::AnnotationHandler
   struct VulkanCommandInfo {
     public:
       VulkanCommandInfo(std::string name, uint32_t index) {m_name = name; m_index = index;}
+      VulkanCommandInfo(gfxrecon::util::DiveFunctionData data) {m_name = data.GetFunctionName(); m_index = data.GetCmdBufferIndex(); m_args = data.GetArgs();}
       const std::string GetVkCmdName() { return m_name; }
       uint32_t GetVkCmdIndex() { return m_index; }
       void SetCmdCount(uint32_t cmd_count) { m_cmd_count = cmd_count; }
       uint32_t GetCmdCount() { return m_cmd_count; }
+      nlohmann::ordered_json GetArgs() { return m_args; }
     private:
       std::string m_name;
       uint32_t m_index;
       uint32_t m_cmd_count; // Only used by vkBeginCommandBuffers
+      nlohmann::ordered_json m_args;
       // Args need to be added
   };
 
@@ -76,6 +79,7 @@ private:
 
     /// Finalise the current block and stream it out.
     void WriteBlockEnd(std::string str, uint32_t cmd_buffer_index) override;
+    void WriteBlockEnd(gfxrecon::util::DiveFunctionData function_data) override;
     /*
     /// Start the JSON tree for a function call, building the top-level object
     /// with index and function fields, adding name and thread to the function.

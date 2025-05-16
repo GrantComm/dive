@@ -27,6 +27,7 @@ void EventSelection::Reset()
 //--------------------------------------------------------------------------------------------------
 void EventSelection::updateCurrentNode(uint64_t node_index)
 {
+    std::cout << "EventSelection, updateCurrentNode called" << std::endl;
     if (node_index != m_current_node)
     {
         uint64_t prev_node_index = m_current_node;

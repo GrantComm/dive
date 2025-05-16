@@ -22,6 +22,7 @@
 #include <QTextDocument>
 #include <algorithm>
 #include <cstdint>
+#include <string>
 #ifndef NDEBUG
 #    include <iostream>
 #endif
@@ -148,9 +149,11 @@ bool DiveTreeView::RenderBranch(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::setCurrentNode(uint64_t node_index)
 {
+    std::cout << "DiveTreeView, setCurrentNode called" << std::endl;
     auto        m = dynamic_cast<GfxrVulkanCommandModel *>(model());
     QModelIndex ix = m->findNode(node_index);
     ix = m->index(ix.row(), 1, ix.parent());
+    std::cout << "DiveTreeView, setCurrentNode, ix.row() = " << std::to_string(ix.row())  << std::endl;
     curr_node_selected = ix;
     scrollTo(ix);
     setCurrentIndex(ix);
@@ -234,6 +237,7 @@ void DiveTreeView::gotoEvent(bool is_above)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    std::cout << "DiveTreeView, currentChanged called" << std::endl; 
     curr_node_selected = current;
     emit currentNodeChanged((uint64_t)current.internalPointer(),
                             (uint64_t)previous.internalPointer());

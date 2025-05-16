@@ -23,6 +23,8 @@ limitations under the License.
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "vulkan/vulkan.h"
+#include "util/json_util.h"
+#include "util/dive_function_data.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -130,7 +132,9 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
 
     void WriteBlockStart() { writer_->WriteBlockStart(); }
                                       
+    void WriteBlockEnd(util::DiveFunctionData functionData) { writer_->WriteBlockEnd(functionData); }
     void WriteBlockEnd(std::string name, uint32_t cmd_buffer_index = 0) { writer_->WriteBlockEnd(name, cmd_buffer_index); }
+
 
     /// A field not present in binary format which identifies the index of each
     /// command within its command buffer.

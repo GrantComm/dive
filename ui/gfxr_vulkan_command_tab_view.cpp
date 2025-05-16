@@ -21,6 +21,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <string>
 #include "gfxr_vulkan_command_arg_model.h"
 #include "gfxr_vulkan_command_view.h"
 #include "search_bar.h"
@@ -96,6 +97,8 @@ void GfxrVulkanCommandTabView::ResetModel()
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
 {
+    std::cout << "GfxrVulkanCommandTabView, OnSelectionChanged called" << std::endl;
+
     m_gfxr_vulkan_command_arg_model->OnSelectionChanged(index);
     // After m_vulkan_command_view is filled out in CommandBufferModel::OnSelectionChanged(), do NOT
     // expandAll. For huge trees (e.g. 20+ million nodes), it needs to traverse all expanded nodes
@@ -108,10 +111,11 @@ void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
 
     // Resize columns to fit
     uint32_t column_count = (uint32_t)m_gfxr_vulkan_command_arg_model->columnCount(QModelIndex());
-
+    std::cout << "GfxrVulkanCommandTabView, OnSelectionChanged, column count: " << std::to_string(column_count) << std::endl;
     for (uint32_t column = 0; column < column_count; ++column)
         m_vulkan_command_view->resizeColumnToContents(column);
-    // Reset search results
+
+        // Reset search results
     m_vulkan_command_view->Reset();
     if (m_search_bar->isVisible())
     {

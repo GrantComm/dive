@@ -246,6 +246,7 @@ uint32_t GfxrVulkanCommandModel::GetEventNodeIndexInStream(uint64_t node_index) 
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandModel::BuildNodeLookup(const QModelIndex &parent) const
 {
+    std::cout << "GfxrVulkanCommandModel::BuildNodeLookup called" << std::endl;
     if (!parent.isValid())
     {
         m_node_lookup.clear();

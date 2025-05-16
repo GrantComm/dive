@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include "dive_core/command_hierarchy.h"
 
 static_assert(sizeof(void *) == sizeof(uint64_t),
@@ -77,15 +78,13 @@ QModelIndex GfxrVulkanCommandArgModel::scrollToIndex() const
 //--------------------------------------------------------------------------------------------------
 QVariant GfxrVulkanCommandArgModel::data(const QModelIndex &index, int role) const
 {
+    std::cout << "GfxrVulkanCommandArgModel, data called" << std::endl;
     if (!index.isValid())
         return QVariant();
 
     if (role == Qt::TextAlignmentRole)
     {
-        //if (index.column() == GfxrVulkanCommandArgModel::kColumnIbLevel)
-            //return int(Qt::AlignHCenter | Qt::AlignVCenter);
-        //else
-            return int(Qt::AlignLeft | Qt::AlignVCenter);
+        return int(Qt::AlignLeft | Qt::AlignVCenter);
     }
 
     uint64_t node_index = (uint64_t)(index.internalPointer());
@@ -95,8 +94,8 @@ QVariant GfxrVulkanCommandArgModel::data(const QModelIndex &index, int role) con
     if (role != Qt::DisplayRole)
         return QVariant();
 
-    // Dive::NodeType node_type = m_vulkan_command_hierarchy.GetNodeType(node_index);
-    Dive::NodeType node_type = Dive::NodeType::kPacketNode;
+    Dive::NodeType node_type = m_vulkan_command_hierarchy.GetNodeType(node_index);
+    // Dive::NodeType node_type = Dive::NodeType::kPacketNode;
     // Column 2: Address (will be swapped via moveSection() to be visually the 0th column)
     // This forces the expand/collapse icon to be part of the pm4 column
     if (index.column() == GfxrVulkanCommandArgModel::kColumnAddress)
@@ -113,19 +112,7 @@ QVariant GfxrVulkanCommandArgModel::data(const QModelIndex &index, int role) con
             return QVariant();
         }
     }
-    else  // if (index.column() == GfxrVulkanCommandArgModel::kColumnPm4)
-    {
-#ifndef NDEBUG  // DEBUG
-        // Print out node_index, which helps a lot in debugging command hierarchy issues
-        std::ostringstream addr_string_stream;
-        addr_string_stream << m_vulkan_command_hierarchy.GetNodeDesc(node_index) << " (" << node_index
-                           << ")";
-        return QString::fromStdString(addr_string_stream.str());
-#else
-        return QString("ggggg");
-        // return QString(m_vulkan_command_hierarchy.GetNodeDesc(node_index));
-#endif
-    }
+    return QVariant();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,16 +195,19 @@ QModelIndex GfxrVulkanCommandArgModel::parent(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 int GfxrVulkanCommandArgModel::rowCount(const QModelIndex &parent) const
 {
-    std::cout << "GfxrVulkanCommandArgModel, rowCount called" << std::endl;
-    return 0;
-    /*
+    std::cout << "GfxrVulkanCommandArgModel, rowCount called" << std::endl;    
     if (parent.column() > 0)
+    {   std::cout << "GfxrVulkanCommandArgModel, rowCount called, parent column: " << parent.column() << std::endl; 
         return 0;
-    if (m_selected_node_index == UINT64_MAX)
+    }
+    if (m_selected_node_index == UINT64_MAX) {
+        std::cout << "GfxrVulkanCommandArgModel, rowCount,m_selected_node: " << std::to_string(m_selected_node_index) << std::endl;
         return 0;
-
+    }
+    
     if (!parent.isValid())  // Root level
     {
+        std::cout << "GfxrVulkanCommandArgModel, parent not valid!" << std::endl;
         // Second child set contains packet nodes. First child set never does.
         uint64_t root_node_index = m_topology_ptr->GetSharedChildRootNodeIndex(
         m_selected_node_index);
@@ -229,15 +219,20 @@ int GfxrVulkanCommandArgModel::rowCount(const QModelIndex &parent) const
     //  Normal Children: The packet fields
     //  Shared Children: Additional packets (e.g. for packets from INDIRECT_BUFFERS packet)
     uint64_t parent_node_index = (uint64_t)(parent.internalPointer());
+    std::cout << "GfxrVulkanCommandArgModel, parent not valid!" << std::to_string(parent_node_index) << std::endl;
+
+    /*
     uint64_t num_children = m_topology_ptr->GetNumChildren(parent_node_index) +
                             m_topology_ptr->GetNumSharedChildren(parent_node_index);
     return num_children;
     */
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandArgModel::OnSelectionChanged(const QModelIndex &index)
 {
+    std::cout << "GfxrVulkanCommandArgModel::OnSelectionChanged called" << std::endl;
     // This is where the index for the selected item should be populated and the arguments found.
     uint64_t selected_node_index = (uint64_t)(index.internalPointer());
     if (m_selected_node_index == selected_node_index)  // Selected same item
@@ -291,9 +286,8 @@ void GfxrVulkanCommandArgModel::OnSelectionChanged(const QModelIndex &index)
             }
         }
     }
-
-    emit endResetModel();
     */
+    emit endResetModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,6 +313,7 @@ void GfxrVulkanCommandArgModel::searchAddressColumn(QList<QModelIndex>        &s
 //--------------------------------------------------------------------------------------------------
 QList<QModelIndex> GfxrVulkanCommandArgModel::search(const QModelIndex &start, const QVariant &value) const
 {
+    std::cout << "GfxrVulkanCommandArgModel::search called" << std::endl;
     QList<QModelIndex>  result;
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 

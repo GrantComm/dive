@@ -55,13 +55,9 @@ class VulkanExportDiveConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions, K
 
         self.begin_end_file_data.specific_headers.extend((
             'util/defines.h',
+            'util/dive_args.h',
             'generated/generated_vulkan_dive_consumer.h',
-            'decode/custom_vulkan_struct_to_dive.h',
-            'decode/decode_dive_util.h',
-        ))
-        self.begin_end_file_data.system_headers.extend((
-            'string',
-            'map',
+            'decode/custom_vulkan_struct_to_json.h',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
@@ -149,7 +145,6 @@ class VulkanExportDiveConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportDi
         body = ''
         body += KhronosExportDiveConsumerBodyGenerator.make_consumer_func_body(self, return_type, name, values)
         if KhronosExportDiveConsumerBodyGenerator.is_command_buffer_cmd(self, name):
-            body += '    uint32_t cmd_buffer_index = GetCommandBufferRecordIndex(commandBuffer);\n'
-            body += '    uint64_t block_index = call_info.index;\n'
+            body += f'    util::DiveFunctionData function_data("{name}", GetCommandBufferRecordIndex(commandBuffer), call_info.index, args);\n'
         return body
     # yapf: enable

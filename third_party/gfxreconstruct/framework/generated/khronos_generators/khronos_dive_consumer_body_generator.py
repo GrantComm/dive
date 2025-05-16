@@ -41,6 +41,17 @@ class KhronosExportDiveConsumerBodyGenerator():
             api_data.api_class_prefix
         )
 
+        write(
+            remove_trailing_newlines(
+                indent_cpp_code(
+                    '''
+            using util::JsonOptions;
+        '''
+                )
+            ),
+            file=self.outFile
+        )
+
         for cmd in self.get_all_filtered_cmd_names():
             if self.skip_generating_command_json(cmd):
                 continue
@@ -56,6 +67,8 @@ class KhronosExportDiveConsumerBodyGenerator():
             cmddef += format_cpp_code(
                 '''
                 {{
+                    nlohmann::ordered_json dive_data;
+                    const JsonOptions json_options;
                 '''.format(cmd)
             )
             cmddef += '\n'
@@ -63,16 +76,16 @@ class KhronosExportDiveConsumerBodyGenerator():
             if self.is_command_buffer_cmd(cmd):
                 cmddef += format_cpp_code(
                 '''
-                    WriteBlockEnd(name, cmd_buffer_index);
+                    WriteBlockEnd(function_data);
                 }
                 ''', 1
                 )
             else:
                 cmddef += format_cpp_code(
                 '''
-                    WriteBlockEnd(name);
-                }
-                ''', 1
+                    WriteBlockEnd("{cmd_placeholder}");
+                }}
+                '''.format(cmd_placeholder = cmd), 1
                 )
             write(cmddef, file=self.outFile)
 
@@ -92,8 +105,8 @@ class KhronosExportDiveConsumerBodyGenerator():
     def make_consumer_func_body(self, return_type, name, values):
         """Return ExportDiveConsumer class member function definition."""
         body = ''
-        body += f'    std::string name = "{name}";\n'
-        '''
+        body += f'    auto& args = dive_data["args"];\n'
+
         if len(values) > 0:
              # Handle function arguments
             for value in values:
@@ -102,22 +115,21 @@ class KhronosExportDiveConsumerBodyGenerator():
                 # Default to letting the right function overload to be resolved based on argument types,
                 # including enums, strings ints, floats etc.:
                 # Note there are overloads for scalars and pointers/arrays.
-                body += f'    std::map<std::string, std::map<std::string, std::string>> {value.name}_args;\n'
-                to_dive = 'FieldToDive({0}_args, {0})'
+                to_dive = 'FieldToJson(args["{0}"], {0}, json_options)'
 
                 # Special cases:
                 if self.is_boolean_type(value.base_type):
-                    to_dive = 'Bool32ToDive({0}_args, {0})'
+                    to_dive = 'Bool32ToJson(args["{0}"], {0}, json_options)'
                 elif value.name == 'ppData' or self.decode_as_hex(value):
-                    to_dive = 'FieldToDiveAsHex({0}_args, {0})'
+                    to_dive = 'FieldToJsonAsHex(args["{0}"], {0}, json_options)'
                 elif self.decode_as_handle(value):
-                    to_dive = 'HandleToDive({0}_args, {0})'
+                    to_dive = 'HandleToJson(args["{0}"], {0}, json_options)'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
                         flagsEnumType = self.flags_type_aliases[value.base_type
                                                                 ]
                     if not (value.is_pointer or value.is_array):
-                        to_dive = 'FieldToDive({2}_t(), {0}_args, {0})'
+                        to_dive = 'FieldToJson({2}_t(), args["{0}"], {0}, json_options)'
                     else:
                         # Default to outputting as the raw type but warn:
                         print(
@@ -132,5 +144,4 @@ class KhronosExportDiveConsumerBodyGenerator():
                     value.name, value.base_type, flagsEnumType
                 )
                 body += '    {0};\n'.format(to_dive)
-                '''
         return body
