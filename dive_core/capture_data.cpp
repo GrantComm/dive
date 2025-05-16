@@ -15,7 +15,8 @@
 */
 
 #include "capture_data.h"
-
+// This was originally the last include
+// #include "dive_annotation_processor.h"
 #include <assert.h>
 #include <string.h>  // memcpy
 #include <algorithm>
@@ -26,13 +27,21 @@
 #include "dive_core/command_hierarchy.h"
 #include "dive_core/common/common.h"
 #include "freedreno_dev_info.h"
+#include "third_party/gfxreconstruct/framework/generated/generated_vulkan_decoder.h"
 #if defined(DIVE_ENABLE_PERFETTO)
 #    include "perfetto_trace/trace_reader.h"
 #endif
 #include "pm4_info.h"
+#include "third_party/gfxreconstruct/framework/decode/file_processor.h"
+#include "third_party/gfxreconstruct/framework/generated/generated_vulkan_dive_consumer.h"
+#include "third_party/gfxreconstruct/framework/decode/marker_dive_consumer.h"
+#include "third_party/gfxreconstruct/framework/decode/metadata_dive_consumer.h"
 
 namespace Dive
 {
+
+using VulkanDiveConsumer = gfxrecon::decode::MetadataDiveConsumer<
+gfxrecon::decode::MarkerDiveConsumer<gfxrecon::decode::VulkanExportDiveConsumer>>;
 
 namespace
 {
@@ -887,6 +896,10 @@ CaptureData::LoadResult CaptureData::LoadFile(const char *file_name)
 #endif
         return LoadAdrenoRdFile(file_name);
     }
+    else if (file_extension.compare(".gfxr") == 0)
+    {
+        return LoadGFXRFile(file_name);
+    }
 #if defined(DIVE_ENABLE_PERFETTO)
     else if (file_extension.compare(".perfetto") == 0)
     {
@@ -948,6 +961,29 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(const char *file_name)
         return LoadResult::kFileIoError;
     }
     auto result = LoadAdrenoRdFile(reader);
+    if (result != LoadResult::kSuccess)
+    {
+        std::cerr << "Error reading: " << file_name << " (" << result << ")" << std::endl;
+    }
+    else
+    {
+        m_cur_capture_file = std::string(file_name);
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult CaptureData::LoadGFXRFile(const char *file_name)
+{
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(file_name) == 0)
+    {
+        std::cerr << "Not able to initialize file processor and open: " << file_name << std::endl;
+        return LoadResult::kFileIoError;
+    }
+    auto result = LoadGFXRFile(file_processor);
+
     if (result != LoadResult::kSuccess)
     {
         std::cerr << "Error reading: " << file_name << " (" << result << ")" << std::endl;
@@ -1168,6 +1204,38 @@ CaptureData::LoadResult CaptureData::LoadAdrenoRdFile(FileReader &capture_file)
 }
 
 //--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult CaptureData::LoadGFXRFile(gfxrecon::decode::FileProcessor &file_processor)
+{
+    VulkanDiveConsumer dive_consumer;
+    gfxrecon::decode::VulkanDecoder decoder;
+    decoder.AddConsumer(&dive_consumer);
+    file_processor.AddDecoder(&decoder);
+
+    DiveAnnotationProcessor dive_annotation_processor;
+    file_processor.SetAnnotationProcessor(&dive_annotation_processor);
+
+    bool success = true;
+    const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                        std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                        std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
+    dive_consumer.Initialize(&dive_annotation_processor);
+    
+    while (success)
+    {
+        success = file_processor.ProcessNextFrame();
+    }
+
+
+    if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+    {
+        return LoadResult::kFileIoError;
+    }
+    m_gfxr_submits = dive_annotation_processor.getSubmits();
+
+    return LoadResult::kSuccess;
+}
+
+//--------------------------------------------------------------------------------------------------
 CaptureDataHeader::CaptureType CaptureData::GetCaptureType() const
 {
     return m_capture_type;
@@ -1195,6 +1263,12 @@ const SubmitInfo &CaptureData::GetSubmitInfo(uint32_t submit_index) const
 const DiveVector<SubmitInfo> &CaptureData::GetSubmits() const
 {
     return m_submits;
+}
+
+//--------------------------------------------------------------------------------------------------
+const DiveVector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &CaptureData::GetGfxrSubmits() const
+{
+    return std::move(m_gfxr_submits);
 }
 
 //--------------------------------------------------------------------------------------------------

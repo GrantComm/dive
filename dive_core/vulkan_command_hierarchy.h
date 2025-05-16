@@ -1,0 +1,64 @@
+/*
+ Copyright 2025 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+
+// =====================================================================================================================
+// The VulkanCommandHierarchy class parses and creates a tree of Nodes in the command buffer. The primary
+// client for this class is the Model class for the Node and Command Views in the UI.
+// =====================================================================================================================
+
+#include "dive_core/command_hierarchy.h"
+
+namespace Dive
+{
+class VulkanCommandHierarchyCreator : public CommandHierarchyCreator
+{
+    public:
+        VulkanCommandHierarchyCreator();
+        bool CreateTrees(CommandHierarchy *command_hierarchy_ptr,
+            const CaptureData      &capture_data,
+            std::optional<uint64_t> reserve_size);
+
+    private:
+        void get_args(const nlohmann::ordered_json& j, uint64_t curr_index, const std::string& current_path = "");
+        void     CreateTopologies();
+        void OnGfxrSubmitStart(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info);
+        void OnGfxrSubmitEnd(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info);
+        uint64_t AddNode(NodeType type, std::string &&desc, char                     *metadata_ptr = nullptr, uint32_t metadata_size = 0);
+        void AddChild(CommandHierarchy::TopologyType type,
+            uint64_t                       node_index,
+            uint64_t                       child_node_index);
+        void AddSharedChild(CommandHierarchy::TopologyType type,
+            uint64_t                       node_index,
+            uint64_t                       child_node_index);
+            uint64_t GetChildNodeIndex(CommandHierarchy::TopologyType type,
+                uint64_t                       node_index,
+                uint64_t                       child_index) const;
+        void SetSharedChildRootNodeIndex(CommandHierarchy::TopologyType type,
+                    uint64_t                       node_index,
+                    uint64_t                       root_node_index);
+        bool OnCmd(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info);
+        uint64_t m_cur_submit_node_index = 0;     // Current submit node being processed
+        uint64_t m_cur_command_buffer_node_index = 0; // Current command buffer node being processed
+        CommandHierarchy  *m_command_hierarchy_ptr = nullptr;  // Pointer to class being created
+        const CaptureData *m_capture_data_ptr = nullptr;
+        // This is a list of child indices per node, ie. topology info
+        // Once parsing is complete, we will create a topology from this
+        DiveVector<DiveVector<uint64_t>> m_node_children[CommandHierarchy::kTopologyTypeCount][2];
+        DiveVector<uint64_t> m_node_start_shared_child[CommandHierarchy::kTopologyTypeCount];
+        DiveVector<uint64_t> m_node_end_shared_child[CommandHierarchy::kTopologyTypeCount];
+        DiveVector<uint64_t> m_node_root_node_index[CommandHierarchy::kTopologyTypeCount];
+};
+}

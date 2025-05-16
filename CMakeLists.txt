@@ -96,6 +96,7 @@ add_subdirectory(runtime_layer)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/dive_core)
 
 if(NOT ANDROID)
+    add_subdirectory(third_party/gfxreconstruct)
     include(libarchive.cmake)
     add_subdirectory(dive_core)
     if (EXISTS "${CMAKE_SOURCE_DIR}/cli/CMakeLists.txt")

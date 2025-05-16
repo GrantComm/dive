@@ -33,12 +33,14 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
+#include <string>
 
 #include "about_window.h"
 #include "buffer_view.h"
 #include "command_buffer_model.h"
 #include "command_buffer_view.h"
 #include "command_model.h"
+#include "gfxr_vulkan_command_model.h"
 #include "dive_core/log.h"
 #include "dive_tree_view.h"
 #include "object_names.h"
@@ -49,6 +51,7 @@
 #endif
 #include "command_tab_view.h"
 #include "event_state_view.h"
+#include "gfxr_vulkan_command_tab_view.h"
 #include "hover_help_model.h"
 #include "overview_tab_view.h"
 #include "property_panel.h"
@@ -158,7 +161,7 @@ MainWindow::MainWindow()
         search_layout->addWidget(m_event_search_bar);
         m_event_search_bar->hide();
 
-        m_command_hierarchy_model = new CommandModel(m_data_core->GetCommandHierarchy());
+        m_command_hierarchy_model = new GfxrVulkanCommandModel(m_data_core->GetCommandHierarchy());
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
         m_command_hierarchy_view->setModel(m_command_hierarchy_model);
         m_command_hierarchy_view->SetDataCore(m_data_core);
@@ -199,6 +202,7 @@ MainWindow::MainWindow()
     m_tab_widget = new QTabWidget();
     {
         m_command_tab_view = new CommandTabView(m_data_core->GetCommandHierarchy());
+        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy());
         m_shader_view = new ShaderView(*m_data_core);
         m_overview_tab_view = new OverviewTabView(m_data_core->GetCaptureMetadata(),
                                                   *m_event_selection);
@@ -557,7 +561,61 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
     }
 
     m_command_hierarchy_model->BeginResetModel();
-    if (!m_data_core->ParseCaptureData())
+
+    bool is_gfxr_file = std::strstr(file_name, ".gfxr") != nullptr;
+    if (is_gfxr_file)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            m_tab_widget->removeTab(0);
+        }
+        m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view, "Command Arguments");
+        QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+        SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+        m_command_tab_view,
+        SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::disconnect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_shader_view,
+                        SLOT(OnEventSelected(uint64_t)));
+       QObject::disconnect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_event_state_view,
+                        SLOT(OnEventSelected(uint64_t)));
+        QObject::connect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_gfxr_vulkan_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+    }
+    else
+    {
+        m_tab_widget->removeTab(0); // Remove the gfxr_vulkan_command_view_tab
+        m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+        m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Commands");
+        m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+        m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+        QObject::connect(m_command_hierarchy_view->selectionModel(),
+        SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+        m_command_tab_view,
+        SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::connect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::connect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_shader_view,
+                        SLOT(OnEventSelected(uint64_t)));
+       QObject::connect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_event_state_view,
+                        SLOT(OnEventSelected(uint64_t)));
+    }
+    if (!m_data_core->ParseCaptureData(is_gfxr_file))
     {
         HideOverlay();
         QMessageBox::critical(this,
@@ -617,7 +675,6 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
                            .count();
 
     DIVE_DEBUG_LOG("Time used to load the capture is %f seconds.", (time_used_to_load_ms / 1000.0));
-
     FileLoaded();
 
     return true;
@@ -626,7 +683,7 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnOpenFile()
 {
-    QString supported_files = QStringLiteral("Dive files (*.rd) ;; All files (*.*)");
+    QString supported_files = QStringLiteral("Dive files (*.rd);;GFXR files (*.gfxr);;All files (*.*)");
     QString file_name = QFileDialog::getOpenFileName(this,
                                                      "Open Document",
                                                      Settings::Get()->ReadLastFilePath(),
@@ -1182,7 +1239,6 @@ void MainWindow::OnCrossReference(Dive::CrossRef ref)
 void MainWindow::OnFileLoaded()
 {
     UpdateTabAvailability();
-
     if (m_data_core->GetCaptureData().HasPm4Data())
         m_overview_tab_view->Update(&m_log_record);
 }

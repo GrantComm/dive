@@ -71,6 +71,7 @@ public:
         // Command hierarchy views
         kEngineView,                   // The "Engine" command hierarchy view
         kSubmitView,                   // The "Submit" command hierarchy view
+        kGfxrVulkanCommandsView,       // The "Gfxr Vulkan Commands" command hierarchy view
         kVulkanEventsView,             // The "Vulkan Events" command hierarchy view
         kAllVulkanCallsView,           // The "All Vulkan Calls" command hierarchy view
         kAllVulkanCallsGpuEventsView,  // The "All Vulkan Calls + Gpu Events" command hierarchy view

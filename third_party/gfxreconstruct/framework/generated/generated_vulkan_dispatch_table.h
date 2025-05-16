@@ -60,7 +60,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 typedef const void* VulkanDispatchKey;
 
 // Retrieve a dispatch key from a dispatchable handle
-static VulkanDispatchKey GetVulkanDispatchKey(const void* handle)
+[[maybe_unused]] static VulkanDispatchKey GetVulkanDispatchKey(const void* handle)
 {
     const VulkanDispatchKey* dispatch_key = reinterpret_cast<const VulkanDispatchKey*>(handle);
     return (*dispatch_key);
@@ -1449,7 +1449,7 @@ static void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name,
     }
 }
 
-static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)
+[[maybe_unused]] static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)
 {
     assert(table != nullptr);
 
@@ -1563,7 +1563,7 @@ static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance in
     LoadVulkanFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV", &table->GetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV);
 }
 
-static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
+[[maybe_unused]] static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
 {
     assert(table != nullptr);
 

@@ -57,6 +57,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/dive_function_data.h
+                    ${CMAKE_CURRENT_LIST_DIR}/dive_function_data.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.h
                     ${CMAKE_CURRENT_LIST_DIR}/keyboard.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/linear_hashmap.h
@@ -107,6 +109,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/strings.h
                     ${CMAKE_CURRENT_LIST_DIR}/strings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.h
+                    ${CMAKE_CURRENT_LIST_DIR}/dive_args.h
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.h
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp

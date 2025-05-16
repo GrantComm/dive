@@ -26,7 +26,10 @@
 
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/dive_function_data.h"
 
+#include <cstdint>
+#include <iostream>
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -41,6 +44,11 @@ class AnnotationHandler
                                    format::AnnotationType type,
                                    const std::string&     label,
                                    const std::string&     data) = 0;
+
+    void WriteBlockStart();
+    void WriteBlockEnd();
+    virtual void WriteBlockEnd(std::string name, uint32_t cmd_buffer_index = 0){}
+    virtual void WriteBlockEnd(util::DiveFunctionData function_data){}
 };
 
 GFXRECON_END_NAMESPACE(decode)

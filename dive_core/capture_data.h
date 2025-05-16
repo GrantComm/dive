@@ -26,6 +26,8 @@
 #include "dive_core/common/memory_manager_base.h"
 #include "log.h"
 #include "progress_tracker.h"
+#include "third_party/gfxreconstruct/framework/decode/file_processor.h"
+#include "dive_annotation_processor.h"
 
 // Forward declarations
 struct SqttFileChunkAsicInfo;
@@ -155,6 +157,7 @@ public:
                uint8_t                          engine_index,
                bool                             is_dummy_submit,
                DiveVector<IndirectBufferInfo> &&ibs);
+    SubmitInfo();
     EngineType                GetEngineType() const;
     QueueType                 GetQueueType() const;
     uint8_t                   GetEngineIndex() const;
@@ -363,10 +366,13 @@ public:
     }
     const DiveVector<SubmitInfo> &GetSubmits() const;
 
+    const DiveVector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &GetGfxrSubmits() const;
+
     CaptureData &operator=(CaptureData &&) = default;
 
     LoadResult LoadCaptureFile(std::istream &capture_file);
     LoadResult LoadAdrenoRdFile(FileReader &capture_file);
+    LoadResult LoadGFXRFile(gfxrecon::decode::FileProcessor &file_processor);
 #if defined(DIVE_ENABLE_PERFETTO)
     LoadResult LoadPerfettoFile(const char *file_name);
 #endif
@@ -380,9 +386,11 @@ public:
 private:
     LoadResult LoadCaptureFile(const char *file_name);
     LoadResult LoadAdrenoRdFile(const char *file_name);
+    LoadResult LoadGFXRFile(const char *file_name);
     bool       LoadCapture(std::istream &capture_file, const CaptureDataHeader &data_header);
     bool       LoadMemoryAllocBlock(std::istream &capture_file);
     bool       LoadSubmitBlock(std::istream &capture_file);
+    bool       LoadGFXRSubmitBlock();
     bool       LoadMemoryBlock(std::istream &capture_file);
     bool       LoadPresentBlock(std::istream &capture_file);
     bool       LoadTextBlock(std::istream &capture_file);
@@ -405,6 +413,7 @@ private:
 
     CaptureDataHeader::CaptureType m_capture_type;
     DiveVector<SubmitInfo>         m_submits;
+    DiveVector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>>         m_gfxr_submits;
     DiveVector<PresentInfo>        m_presents;  // More than 1 if multi-frame capture
     DiveVector<RingInfo>           m_rings;
     DiveVector<TextInfo>           m_text;

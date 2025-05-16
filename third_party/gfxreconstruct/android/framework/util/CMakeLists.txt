@@ -20,6 +20,10 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/json_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/json_util.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/dive_function_data.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/dive_function_data.cpp
+                   #${GFXRECON_SOURCE_DIR}/framework/util/dive_util.h
+                   #${GFXRECON_SOURCE_DIR}/framework/util/dive_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/linear_hashmap.h

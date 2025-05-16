@@ -69,6 +69,8 @@ public:
 
     void SetDataCore(Dive::DataCore *data_core) { m_data_core = data_core; }
 
+    void SetGfxrFileLoaded(bool *gfxr_file_loaded) { m_gfxr_file_loaded = gfxr_file_loaded; }
+
 public slots:
     void setCurrentNode(uint64_t node_index);
     void expandNode(const QModelIndex &index);
@@ -103,4 +105,5 @@ private:
     QList<QModelIndex>           search_indexes;
     QList<QModelIndex>::Iterator search_index_it;
     Dive::DataCore              *m_data_core = nullptr;
+    bool                        *m_gfxr_file_loaded;
 };
