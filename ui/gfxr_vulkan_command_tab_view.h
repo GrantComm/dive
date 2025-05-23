@@ -15,6 +15,7 @@
 */
 
 #include <QFrame>
+#include <iostream>
 
 #pragma once
 // Forward declaration
@@ -24,6 +25,10 @@ class QGroupBox;
 class QLineEdit;
 class QPushButton;
 class SearchBar;
+class ArgsFilterProxyModel;
+class ArgListFilterProxyModel;
+class DiveTreeView;
+class GfxrVulkanCommandModel;
 namespace Dive
 {
 class CommandHierarchy;
@@ -35,9 +40,15 @@ class GfxrVulkanCommandTabView : public QFrame
     Q_OBJECT
 
 public:
-    GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, QWidget *parent = nullptr);
+    GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, ArgsFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent = nullptr);
 
     void SetTopologyToView(const Dive::Topology *topology_ptr);
+
+    ArgsFilterProxyModel GetProxyModel() const;
+
+    void SetProxyModel(ArgsFilterProxyModel *proxyModel) { this->m_proxyModel = proxyModel; }
+
+    void SetCommandHierarchy(ArgsFilterProxyModel *proxyModel) { this->m_proxyModel = proxyModel; }
 
     void ResetModel();
 
@@ -55,9 +66,14 @@ signals:
 
 private:
     GfxrVulkanCommandView  *m_vulkan_command_view;
+    DiveTreeView *m_command_hierarchy_view;
     GfxrVulkanCommandArgModel *m_gfxr_vulkan_command_arg_model;
     QPushButton        *m_search_trigger_button;
     SearchBar          *m_search_bar = nullptr;
 
     const Dive::CommandHierarchy &m_vulkan_command_hierarchy;
+    ArgsFilterProxyModel        *m_proxyModel;
+    ArgListFilterProxyModel     *m_listproxyModel;
+    GfxrVulkanCommandModel      *m_command_hierarchy_model;
+
 };

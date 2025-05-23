@@ -24,6 +24,7 @@
 #pragma once
 
 // Forward declarations
+class ArgsFilterProxyModel;
 class DiveTreeView;
 class QCheckBox;
 class QComboBox;
@@ -153,6 +154,7 @@ private:
     QString       m_prev_command_view_mode;
     DiveTreeView *m_command_hierarchy_view;
     GfxrVulkanCommandModel *m_command_hierarchy_model;
+    ArgsFilterProxyModel *m_args_filter_proxy_model;
     QPushButton  *m_search_trigger_button;
     SearchBar    *m_event_search_bar = nullptr;
 

@@ -22,6 +22,7 @@ limitations under the License.
 #include "dive_core/common.h"
 
 // Forward Declarations
+class ArgsFilterProxyModel;
 namespace Dive
 {
 class CommandHierarchy;
@@ -34,8 +35,8 @@ class GfxrVulkanCommandArgModel : public QAbstractItemModel
 public:
     enum ColumnType : int
     {
-        kColumnPm4,
-        kColumnAddress,  // Swapped to first column in code.
+        kColumnArguments,
+        kColumnCommand,  // Swapped to first column in code.
         kColumnCount
     };
 
@@ -46,6 +47,10 @@ public:
     void Reset();
 
     void SetTopologyToView(const Dive::Topology *topology_ptr);
+
+    void SetProxyModel(ArgsFilterProxyModel *proxyModel) { m_proxyModel = proxyModel; }
+
+    ArgsFilterProxyModel GetProxyModel() const;
 
     QVariant      data(const QModelIndex &index, int role) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -88,4 +93,5 @@ private:
     const Dive::CommandHierarchy &m_vulkan_command_hierarchy;
     const Dive::Topology         *m_topology_ptr = nullptr;
     bool                          m_show_level_column = true;
+    ArgsFilterProxyModel        *m_proxyModel = nullptr;
 };

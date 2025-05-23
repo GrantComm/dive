@@ -13,16 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
+#ifndef GFXRVULKANCOMMANDMODEL_H
+#define GFXRVULKANCOMMANDMODEL_H
+
 #include <QAbstractItemModel>
 #include <QList>
 #include <QModelIndex>
 #include <QVariant>
+#include <cstdint>
 
 // Forward Declarations
 namespace Dive
 {
 class CommandHierarchy;
 class Topology;
+class ArgsFilterProxyModel;
 };  // namespace Dive
 
 class GfxrVulkanCommandModel : public QAbstractItemModel
@@ -64,6 +69,8 @@ public:
 
     QList<QModelIndex> search(const QModelIndex &start, const QVariant &value) const;
 
+    uint64_t getNumNodes() const;
+
 private:
     enum class UIBarrierIdVariant
     {
@@ -80,3 +87,4 @@ private:
     const Dive::Topology                      *m_topology_ptr;
     mutable std::vector<QPersistentModelIndex> m_node_lookup;
 };
+#endif

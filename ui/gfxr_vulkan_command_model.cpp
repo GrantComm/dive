@@ -17,6 +17,8 @@
 #include <QString>
 #include <QStringList>
 #include <QTreeWidget>
+#include <cstdint>
+#include <string>
 
 #include "dive_core/command_hierarchy.h"
 
@@ -67,11 +69,12 @@ void GfxrVulkanCommandModel::SetTopologyToView(const Dive::Topology *topology_pt
 //--------------------------------------------------------------------------------------------------
 QVariant GfxrVulkanCommandModel::data(const QModelIndex &index, int role) const
 {
+    std::cout << "GfxrVulkanCommandModel::data called" << std::endl;
     if (!index.isValid())
         return QVariant();
 
     uint64_t node_index = (uint64_t)(index.internalPointer());
-
+    std::cout << "GfxrVulkanCommandModel::data node_index: " << std::to_string(node_index) << std::endl;
     if (role == Qt::ForegroundRole)
     {
         if (index.column() == 0)
@@ -94,12 +97,6 @@ QVariant GfxrVulkanCommandModel::data(const QModelIndex &index, int role) const
     }
     else if (role != Qt::DisplayRole)
         return QVariant();
-
-    // 2nd column shows event id (will be swapped via moveSection() to be visually the 1st column)
-    if (index.column() == 1)
-    {
-        return GetNodeUIId(node_index, m_command_hierarchy, m_topology_ptr);
-    }
 
     // 1st column
     return QString(m_command_hierarchy.GetNodeDesc(node_index));
@@ -184,6 +181,7 @@ int GfxrVulkanCommandModel::rowCount(const QModelIndex &parent) const
     else
         parent_node_index = (uint64_t)(parent.internalPointer());
 
+    std::cout << "GfxrVulkanCommandModel::rowCount = " << m_topology_ptr->GetNumChildren(parent_node_index) << std::endl;
     return m_topology_ptr->GetNumChildren(parent_node_index);
 }
 
@@ -293,4 +291,9 @@ QList<QModelIndex> GfxrVulkanCommandModel::search(const QModelIndex &start, cons
     }
 
     return result;
+}
+
+uint64_t GfxrVulkanCommandModel::getNumNodes() const
+{
+    return m_command_hierarchy.size();
 }

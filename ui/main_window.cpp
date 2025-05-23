@@ -40,7 +40,8 @@
 #include "command_buffer_model.h"
 #include "command_buffer_view.h"
 #include "command_model.h"
-#include "gfxr_vulkan_command_model.h"
+//#include "gfxr_vulkan_command_model.h"
+#include "args_filter_proxy_model.h"
 #include "dive_core/log.h"
 #include "dive_tree_view.h"
 #include "object_names.h"
@@ -163,8 +164,14 @@ MainWindow::MainWindow()
 
         m_command_hierarchy_model = new GfxrVulkanCommandModel(m_data_core->GetCommandHierarchy());
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
-        m_command_hierarchy_view->setModel(m_command_hierarchy_model);
+        std::cout << "main window view hierarchy view: " << m_command_hierarchy_view << std::endl;
+        m_args_filter_proxy_model = new ArgsFilterProxyModel(m_command_hierarchy_view, &m_data_core->GetCommandHierarchy());
+        m_args_filter_proxy_model->setSourceModel(m_command_hierarchy_model);
+        m_command_hierarchy_view->setModel(m_args_filter_proxy_model);
+        m_command_hierarchy_view->SetProxyModel(m_args_filter_proxy_model);
         m_command_hierarchy_view->SetDataCore(m_data_core);
+
+        std::cout << "mainwindow, model: " << &m_command_hierarchy_model << std::endl;
 
         QLabel *goto_draw_call_label = new QLabel(tr("Go To:"));
         m_prev_event_button = new QPushButton("Prev Event");
@@ -201,7 +208,13 @@ MainWindow::MainWindow()
     m_tab_widget = new QTabWidget();
     {
         m_command_tab_view = new CommandTabView(m_data_core->GetCommandHierarchy());
-        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy());
+        if (m_args_filter_proxy_model) {
+            std::cout << "MainWindow constructor m_proxyModel is not null" << std::endl;
+        }
+        else {
+            std::cout << "MainWindow constructor m_proxyModel is null" << std::endl;
+        }
+        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(), m_args_filter_proxy_model, m_command_hierarchy_model);
         m_shader_view = new ShaderView(*m_data_core);
         m_overview_tab_view = new OverviewTabView(m_data_core->GetCaptureMetadata(),
                                                   *m_event_selection);
@@ -404,14 +417,14 @@ void MainWindow::ShowEventView(const Dive::CommandHierarchy &command_hierarchy,
             const Dive::Topology &topology = command_hierarchy
                                              .GetVulkanDrawEventHierarchyTopology();
             m_command_hierarchy_model->SetTopologyToView(&topology);
-            m_command_tab_view->SetTopologyToView(&topology);
+            m_gfxr_vulkan_command_tab_view->SetTopologyToView(&topology);
             break;
         }
         case EventMode::AllVulkanEvent:
         {
             const Dive::Topology &topology = command_hierarchy.GetVulkanEventHierarchyTopology();
             m_command_hierarchy_model->SetTopologyToView(&topology);
-            m_command_tab_view->SetTopologyToView(&topology);
+            m_gfxr_vulkan_command_tab_view->SetTopologyToView(&topology);
             break;
         }
 
@@ -419,7 +432,7 @@ void MainWindow::ShowEventView(const Dive::CommandHierarchy &command_hierarchy,
         {
             const Dive::Topology &topology = command_hierarchy.GetAllEventHierarchyTopology();
             m_command_hierarchy_model->SetTopologyToView(&topology);
-            m_command_tab_view->SetTopologyToView(&topology);
+            m_gfxr_vulkan_command_tab_view->SetTopologyToView(&topology);
             break;
         }
         }
@@ -435,7 +448,7 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
     {
         const Dive::Topology &topology = command_hierarchy.GetEngineHierarchyTopology();
         m_command_hierarchy_model->SetTopologyToView(&topology);
-        m_command_tab_view->SetTopologyToView(&topology);
+        m_gfxr_vulkan_command_tab_view->SetTopologyToView(&topology);
 #ifndef NDEBUG
         m_show_marker_checkbox->hide();
 #endif
@@ -443,8 +456,9 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
     else if (view_mode == tr(kViewModeStrings[1]))  // Submit
     {
         const Dive::Topology &topology = command_hierarchy.GetSubmitHierarchyTopology();
+        std::cout << "MainWindow::OnCommandViewModeChange, &topology = " << &topology << std::endl;
         m_command_hierarchy_model->SetTopologyToView(&topology);
-        m_command_tab_view->SetTopologyToView(&topology);
+        m_gfxr_vulkan_command_tab_view->SetTopologyToView(&topology);
 #ifndef NDEBUG
         m_show_marker_checkbox->hide();
 #endif
@@ -504,9 +518,14 @@ void MainWindow::OnCommandViewModeComboBoxHover(const QString &view_mode)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnSelectionChanged(const QModelIndex &index)
 {
+    std::cout << "MainWindow::OnSelectionChanged" << std::endl;
     // Determine which node it is, and emit this signal
     const Dive::CommandHierarchy &command_hierarchy = m_data_core->GetCommandHierarchy();
-    uint64_t                      selected_item_node_index = (uint64_t)(index.internalPointer());
+    QModelIndex sourceIndex = m_args_filter_proxy_model->mapToSource(index);
+    uint64_t selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+    std::cout << "MainWindow::OnSelectionChanged, selected_item_node_index = " << std::to_string(selected_item_node_index) << std::endl;
+
+    //uint64_t                      selected_item_node_index = (uint64_t)(index.internalPointer());
     Dive::NodeType node_type = command_hierarchy.GetNodeType(selected_item_node_index);
     if (node_type == Dive::NodeType::kDrawDispatchBlitNode ||
         node_type == Dive::NodeType::kMarkerNode)

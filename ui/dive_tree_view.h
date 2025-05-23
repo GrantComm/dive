@@ -25,6 +25,8 @@
 class QWidget;
 class DiveTreeView;
 class HoverHelp;
+class ArgsFilterProxyModel;
+class ArgListFilterProxyModel;
 namespace Dive
 {
 class CommandHierarchy;
@@ -63,11 +65,18 @@ public:
 
     const Dive::CommandHierarchy &GetCommandHierarchy() const;
 
+    ArgsFilterProxyModel GetProxyModel() const;
+
     void RetainCurrentNode();
 
     void ExpandToLevel(int level);
 
     void SetDataCore(Dive::DataCore *data_core) { m_data_core = data_core; }
+
+    void SetProxyModel(ArgsFilterProxyModel *proxyModel) { m_proxyModel = proxyModel; }
+
+    void SetListProxyModel(ArgListFilterProxyModel *proxyModel) { m_listproxyModel = proxyModel; }
+
 
     void SetGfxrFileLoaded(bool *gfxr_file_loaded) { m_gfxr_file_loaded = gfxr_file_loaded; }
 
@@ -106,4 +115,6 @@ private:
     QList<QModelIndex>::Iterator search_index_it;
     Dive::DataCore              *m_data_core = nullptr;
     bool                        *m_gfxr_file_loaded;
+    ArgsFilterProxyModel        *m_proxyModel;
+    ArgListFilterProxyModel     *m_listproxyModel;
 };

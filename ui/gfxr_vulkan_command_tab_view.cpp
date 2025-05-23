@@ -22,6 +22,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <string>
+#include "args_filter_proxy_model.h"
+#include "arg_list_filter_proxy_model.h"
 #include "gfxr_vulkan_command_arg_model.h"
 #include "gfxr_vulkan_command_view.h"
 #include "search_bar.h"
@@ -33,19 +35,34 @@
 // =================================================================================================
 // GfxrVulkanCommandTabView
 // =================================================================================================
-GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, QWidget *parent) :
-    m_vulkan_command_hierarchy(vulkan_command_hierarchy)
+GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, ArgsFilterProxyModel *args_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent) :
+    m_vulkan_command_hierarchy(vulkan_command_hierarchy),
+    m_proxyModel(args_model),
+    m_command_hierarchy_model(command_hierarchy_model)
 {
     m_gfxr_vulkan_command_arg_model = new GfxrVulkanCommandArgModel(vulkan_command_hierarchy);
+    if (m_proxyModel) {
+        std::cout << "GfxrVulkanCommandTabView constructor m_proxyModel is not null" << std::endl;
+    }
+    else {
+        std::cout << "GfxrVulkanCommandTabView constructor m_proxyModel is null" << std::endl;
+    }
+    m_gfxr_vulkan_command_arg_model->SetProxyModel(m_proxyModel);
     m_vulkan_command_view = new GfxrVulkanCommandView(vulkan_command_hierarchy);
-    m_vulkan_command_view->setModel(m_gfxr_vulkan_command_arg_model);
+    // m_vulkan_command_view->setModel(m_gfxr_vulkan_command_arg_model);
 
-    // Move the address column to be the 1st column, followed by the IB Level column
-    // This allows the expand/collapse icon to be part of what was originally the 1st column (i.e.
-    // the pm4 column)
-    m_vulkan_command_view->header()->moveSection(2, 0);
-    m_vulkan_command_view->header()->moveSection(2, 1);
+    // Show this view:
+    m_command_hierarchy_view = new DiveTreeView(m_vulkan_command_hierarchy);
+    m_listproxyModel = new ArgListFilterProxyModel(m_command_hierarchy_view, &m_vulkan_command_hierarchy);
+    std::cout << "gfxrCommandtabview, model: " << &m_command_hierarchy_model << std::endl;
+    m_listproxyModel->setSourceModel(m_command_hierarchy_model);
+    m_command_hierarchy_view->setModel(m_listproxyModel);
 
+    /*m_proxyModel->setSourceModel(m_command_hierarchy_model);
+    m_command_hierarchy_view->setModel(m_listproxyModel);
+    m_command_hierarchy_view->SetListProxyModel(m_listproxyModel);*/
+
+    std::cout << "command tab view hierarchy view: " << m_command_hierarchy_view << std::endl;
     m_search_trigger_button = new QPushButton;
     m_search_trigger_button->setObjectName(kCommandBufferSearchButtonName);
     m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
@@ -61,7 +78,7 @@ GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy 
     QVBoxLayout *main_layout = new QVBoxLayout();
     main_layout->addLayout(options_layout);
     main_layout->addWidget(m_search_bar);
-    main_layout->addWidget(m_vulkan_command_view);
+    main_layout->addWidget(m_command_hierarchy_view);
     setLayout(main_layout);
 
     QObject::connect(m_search_trigger_button,
@@ -98,8 +115,11 @@ void GfxrVulkanCommandTabView::ResetModel()
 void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
 {
     std::cout << "GfxrVulkanCommandTabView, OnSelectionChanged called" << std::endl;
-
-    m_gfxr_vulkan_command_arg_model->OnSelectionChanged(index);
+    QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
+    uint64_t selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+    std::cout << "GfxrVulkanCommandTabView, OnSelectionChanged selected_item_node_index = " << std::to_string(selected_item_node_index) << std::endl;
+    m_listproxyModel->setTargetParentSourceIndex(sourceIndex);
+    // m_gfxr_vulkan_command_arg_model->OnSelectionChanged(index);
     // After m_vulkan_command_view is filled out in CommandBufferModel::OnSelectionChanged(), do NOT
     // expandAll. For huge trees (e.g. 20+ million nodes), it needs to traverse all expanded nodes
     // to figure out how to setup scrollbar. So the more collapsed it is, the less it has to
@@ -199,4 +219,9 @@ void GfxrVulkanCommandTabView::DisconnectSearchBar()
                         &GfxrVulkanCommandView::updateSearch,
                         m_search_bar,
                         &SearchBar::updateSearchResults);
+}
+
+ArgsFilterProxyModel GfxrVulkanCommandTabView::GetProxyModel() 
+const {
+    return m_proxyModel;
 }

@@ -163,9 +163,18 @@ uint64_t Topology::GetEndSharedChildNodeIndex(uint64_t node_index) const
 uint64_t Topology::GetSharedChildRootNodeIndex(uint64_t node_index) const
 {
     std::cout << "Topology, GetSharedChildRootNodeIndex in command_hierarchy.cpp called" << std::endl;
-    std::cout << "Topology, GetSharedChildRootNodeIndex in command_hierarchy.cpp size of m_root_node_index: " << std::to_string(m_root_node_index.size()) << std::endl;
     DIVE_ASSERT(node_index < m_root_node_index.size());
     return m_root_node_index[node_index];
+}
+
+//--------------------------------------------------------------------------------------------------
+uint64_t Topology::GetArgCount(uint64_t node_index) const
+{
+    std::cout << "Topology::GetArgCount, node_index = " << std::to_string(node_index) << std::endl;
+
+    std::cout << "Topology::GetArgCount, num_children: " << std::to_string(m_node_shared_children[node_index].m_num_children) << std::endl;
+    std::cout << "Topology::GetArgCount, node_index: " << std::to_string(node_index) << std::endl;
+    return m_node_shared_children[node_index].m_num_children;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,6 +189,8 @@ void Topology::SetNumNodes(uint64_t num_nodes)
 //--------------------------------------------------------------------------------------------------
 void Topology::AddChildren(uint64_t node_index, const DiveVector<uint64_t> &children)
 {
+    std::cout << "Topology::AddChildren, node_index: " << std::to_string(node_index) << std::endl;
+    std::cout << "Topology::AddChildren, children size: " << std::to_string(children.size()) << std::endl;
     DIVE_ASSERT(m_node_children.size() == m_node_parent.size());
     DIVE_ASSERT(m_node_children.size() == m_node_child_index.size());
 
@@ -424,6 +435,15 @@ SyncInfo CommandHierarchy::GetSyncNodeSyncInfo(uint64_t node_index) const
 }
 
 //--------------------------------------------------------------------------------------------------
+std::string CommandHierarchy::GetPacketNodeDesc(uint64_t node_index) const
+{
+    DIVE_ASSERT(node_index < m_nodes.m_aux_info.size());
+    DIVE_ASSERT(m_nodes.m_node_type[node_index] == Dive::NodeType::kPacketNode);
+    const std::string &desc = m_nodes.m_description[node_index];
+    return desc;
+}
+
+//--------------------------------------------------------------------------------------------------
 uint64_t CommandHierarchy::AddNode(NodeType      type,
                                    std::string &&desc,
                                    AuxInfo       aux_info,
@@ -491,10 +511,6 @@ uint64_t CommandHierarchy::Nodes::AddGfxrNode(NodeType type,
     m_node_type.push_back(type);
 
     m_description.push_back(std::move(desc));
-
-
-
-    //m_metadata.resize(m_metadata.size() + 1);
 
     if (metadata_ptr != nullptr)
     {

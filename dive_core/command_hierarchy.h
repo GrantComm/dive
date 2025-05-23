@@ -61,7 +61,8 @@ enum class NodeType
     kRegNode,
     kFieldNode,
     kPresentNode,
-    kRenderMarkerNode
+    kRenderMarkerNode,
+    kArgNode
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +102,8 @@ public:
     // All descendant nodes from the same root node have the same set of shared children
     // This returns that common root top level node
     uint64_t GetSharedChildRootNodeIndex(uint64_t node_index) const;
+    uint64_t GetArgCount(uint64_t node_index) const;
+
 
 private:
     friend class CommandHierarchy;
@@ -135,6 +138,7 @@ private:
     DiveVector<uint64_t> m_root_node_index;
 
     void SetNumNodes(uint64_t num_nodes);
+    void UpdateSize(uint64_t node_index, const DiveVector<uint64_t> &children);
     void AddChildren(uint64_t node_index, const DiveVector<uint64_t> &children);
     void AddSharedChildren(uint64_t node_index, const DiveVector<uint64_t> &children);
 };
@@ -245,6 +249,7 @@ public:
     bool             GetRegFieldNodeIsCe(uint64_t node_index) const;
     SyncType         GetSyncNodeSyncType(uint64_t node_index) const;
     SyncInfo         GetSyncNodeSyncInfo(uint64_t node_index) const;
+    std::string      GetPacketNodeDesc(uint64_t node_index) const;
     bool             HasVulkanMarkers() const { return m_has_vulkan_marker; }
 
     // GetEventIndex returns sequence number for Event/Sync Nodes, 0 if not exist.

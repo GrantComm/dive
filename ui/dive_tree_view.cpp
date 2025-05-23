@@ -28,6 +28,8 @@
 #endif
 #include "command_model.h"
 #include "gfxr_vulkan_command_model.h"
+#include "args_filter_proxy_model.h"
+#include "arg_list_filter_proxy_model.h"
 #include "dive_core/command_hierarchy.h"
 #include "dive_core/common.h"
 #include "dive_core/common/common.h"
@@ -54,7 +56,9 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
     {
         const Dive::CommandHierarchy &command_hierarchy = m_dive_tree_view_ptr
                                                           ->GetCommandHierarchy();
-        uint64_t node_index = (uint64_t)(index.internalPointer());
+                                                          QModelIndex sourceIndex = m_dive_tree_view_ptr->GetProxyModel().mapToSource(index);
+                                                          uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
+                                                                  // uint64_t node_index = (uint64_t)(index.internalPointer());
         m_hover_help_ptr->SetCommandHierarchyNodeItem(command_hierarchy, node_index);
     }
 
@@ -66,7 +70,9 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
 
         QStyle *style = options.widget ? options.widget->style() : QApplication::style();
 
-        uint64_t node_index = (uint64_t)(index.internalPointer());
+        QModelIndex sourceIndex = m_dive_tree_view_ptr->GetProxyModel().mapToSource(index);
+uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
+        // uint64_t node_index = (uint64_t)(index.internalPointer());
         options.text = QString(m_dive_tree_view_ptr->GetCommandHierarchy().GetNodeDesc(node_index));
 
         QTextDocument doc;
@@ -162,7 +168,20 @@ void DiveTreeView::setCurrentNode(uint64_t node_index)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::expandNode(const QModelIndex &index)
 {
-    uint64_t node_index = (uint64_t)(index.internalPointer());
+    QModelIndex sourceIndex;
+    if (m_proxyModel)
+    {
+        std::cout << this << "proxymodel used" << std::endl;
+        sourceIndex = m_proxyModel->mapToSource(index);
+    }
+    else 
+    {
+        std::cout << this << "listproxymodel used" << std::endl;
+        sourceIndex = m_listproxyModel->mapToSource(index);
+    }
+    uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
+    // uint64_t node_index = (uint64_t)(index.internalPointer());
+    std::cout << "DiveTreeView::expandNode, node_index: " << std::to_string(node_index) << std::endl;
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
         Dive::CommandHierarchy::MarkerType marker_type = m_command_hierarchy.GetMarkerNodeType(
@@ -177,7 +196,20 @@ void DiveTreeView::expandNode(const QModelIndex &index)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::collapseNode(const QModelIndex &index)
 {
-    uint64_t node_index = (uint64_t)(index.internalPointer());
+    QModelIndex sourceIndex;
+    if (m_proxyModel)
+    {
+        std::cout << this << "proxymodel used" << std::endl;
+        sourceIndex = m_proxyModel->mapToSource(index);
+    }
+    else 
+    {
+        std::cout << this << "listproxymodel used" << std::endl;
+        sourceIndex = m_listproxyModel->mapToSource(index);
+    }
+    uint64_t node_index = (uint64_t)(sourceIndex.internalPointer());
+    // uint64_t node_index = (uint64_t)(index.internalPointer());
+    std::cout << "DiveTreeView::expandNode, node_index: " << std::to_string(node_index) << std::endl;
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
         Dive::CommandHierarchy::MarkerType marker_type = m_command_hierarchy.GetMarkerNodeType(
@@ -204,6 +236,7 @@ void DiveTreeView::gotoNextEvent()
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::gotoEvent(bool is_above)
 {
+    std::cout << "DiveTreeView::gotoEvent called" << std::endl;
     QModelIndex current_idx = currentIndex();
     if (!current_idx.isValid())
         return;
@@ -235,18 +268,53 @@ void DiveTreeView::gotoEvent(bool is_above)
 }
 
 //--------------------------------------------------------------------------------------------------
-void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+/*void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     std::cout << "DiveTreeView, currentChanged called" << std::endl; 
     curr_node_selected = current;
     emit currentNodeChanged((uint64_t)current.internalPointer(),
                             (uint64_t)previous.internalPointer());
+}*/
+
+void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    std::cout << "DiveTreeView, currentChanged called" << std::endl;
+    QModelIndex sourceIndex;
+    if ((uint64_t)current.internalPointer() == 0)
+    {
+        curr_node_selected = current;
+        emit currentNodeChanged((uint64_t)current.internalPointer(),
+                                (uint64_t)previous.internalPointer());
+    }
+    else {
+        if (m_proxyModel)
+        {
+            std::cout << this << " " << "proxymodel used" << std::endl;
+            sourceIndex = m_proxyModel->mapToSource(current);
+        }
+        else 
+        {
+            std::cout << this << " " << "listproxymodel used" << std::endl;
+            sourceIndex = m_listproxyModel->mapToSource(current);
+        }
+        uint64_t selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+        std::cout << "DiveTreeView, selected_item_node_index = " << std::to_string(selected_item_node_index) << std::endl;
+        curr_node_selected = current;
+        emit currentNodeChanged(selected_item_node_index,
+                                (uint64_t)previous.internalPointer());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 const Dive::CommandHierarchy &DiveTreeView::GetCommandHierarchy() const
 {
     return m_command_hierarchy;
+}
+
+//--------------------------------------------------------------------------------------------------
+ArgsFilterProxyModel DiveTreeView::GetProxyModel() 
+const {
+    return m_proxyModel;
 }
 
 //--------------------------------------------------------------------------------------------------
