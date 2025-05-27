@@ -36,11 +36,20 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanExportDiveConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanExportDiveConsumerBase() = default;
+  VulkanExportDiveConsumerBase();
 
-    virtual ~VulkanExportDiveConsumerBase() = default;
+    virtual ~VulkanExportDiveConsumerBase() override;
 
     void Initialize(AnnotationHandler* writer);
+
+    void Destroy();
+
+    bool IsValid() const { return true; }
+
+    virtual void
+    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
+                                            const std::vector<format::DeviceMemoryType>& memory_types,
+                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
 
     void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
         const ApiCallInfo&                                                         call_info,
@@ -120,6 +129,8 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
         const ApiCallInfo&                                                 call_info,
         format::HandleId                                                   commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
+
+    void WriteBlockStart() { writer_->WriteBlockStart(); }
                                       
     void WriteBlockEnd(util::DiveFunctionData function_data) { writer_->WriteBlockEnd(function_data); }
 
@@ -133,14 +144,15 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
     /// the binary trace file.
     /// @todo Make this field optional.
 
-    uint32_t UpdateAndGetCommandBufferRecordIndex(format::HandleId command_buffer)
+    uint32_t GetCommandBufferRecordIndex(format::HandleId command_buffer)
     {
         uint32_t index = ++rec_cmd_index_[command_buffer];
         return index;
     }
 
     void ResetCommandBufferRecordIndex(format::HandleId command_buffer) { rec_cmd_index_[command_buffer] = 0; }
-  private:
+
+    uint32_t                                       submit_index_{ 0 }; // index of submissions across the trace
     std::unordered_map<format::HandleId, uint32_t> rec_cmd_index_;
     AnnotationHandler* writer_{ nullptr };
 };

@@ -23,22 +23,20 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-// The DiveFunctionData is used by the VulkanExportDiveConsumer to store the name, command buffer index, block index, and args for
-// a vulkan command.
 class DiveFunctionData
 {
   public:
-    DiveFunctionData(const std::string& name, uint32_t cmd_buffer_index, uint64_t block_index, const nlohmann::ordered_json& args);
+  DiveFunctionData(std::string name, uint32_t cmd_buffer_index, uint64_t block_index, nlohmann::ordered_json args);
 
-    const std::string& GetFunctionName() const;
-    uint32_t GetCmdBufferIndex() const;
-    uint64_t GetBlockIndex() const;
-    const nlohmann::ordered_json GetArgs() const;
-private:
-    nlohmann::ordered_json m_args;
-    uint64_t m_block_index;
-    std::string m_name;
-    uint32_t m_cmd_buffer_index;
+  std::string GetFunctionName();
+  uint32_t GetCmdBufferIndex();
+  uint64_t GetBlockIndex();
+  nlohmann::ordered_json GetArgs();
+
+  std::string name_;
+  uint32_t cmd_buffer_index_;
+  uint64_t block_index_;
+  nlohmann::ordered_json args_;
 };
 
 GFXRECON_END_NAMESPACE(util)

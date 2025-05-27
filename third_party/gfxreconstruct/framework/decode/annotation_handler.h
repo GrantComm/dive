@@ -43,9 +43,11 @@ class AnnotationHandler
                                    format::AnnotationType type,
                                    const std::string&     label,
                                    const std::string&     data) = 0;
-
+    // GOOGLE: Adds function definitions.
+    void WriteBlockStart();
+    void WriteBlockEnd();
     // GOOGLE: Adds overridable function definition for custom dive annotation processor.
-    virtual void WriteBlockEnd(const util::DiveFunctionData& function_data){}
+    virtual void WriteBlockEnd(util::DiveFunctionData function_data){}
 };
 
 GFXRECON_END_NAMESPACE(decode)

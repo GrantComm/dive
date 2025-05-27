@@ -18,11 +18,17 @@
 #include <cstdint>
 #include <iostream>
 #include <ostream>
-#include "third_party/gfxreconstruct/framework/decode/api_decoder.h"
-#include "third_party/gfxreconstruct/framework/util/logging.h"
-#include "third_party/gfxreconstruct/framework/util/output_stream.h"
+#include "decode/api_decoder.h"
+#include "util/logging.h"
+#include "util/output_stream.h"
 
-void DiveAnnotationProcessor::WriteBlockEnd(const gfxrecon::util::DiveFunctionData& function_data)
+DiveAnnotationProcessor::DiveAnnotationProcessor() {}
+
+DiveAnnotationProcessor::~DiveAnnotationProcessor() {}
+
+void DiveAnnotationProcessor::Destroy() {}
+
+void DiveAnnotationProcessor::WriteBlockEnd(gfxrecon::util::DiveFunctionData function_data)
 {
     std::string function_name = function_data.GetFunctionName();
 
@@ -30,21 +36,48 @@ void DiveAnnotationProcessor::WriteBlockEnd(const gfxrecon::util::DiveFunctionDa
     {
         std::unique_ptr<SubmitInfo> submit_ptr = std::make_unique<SubmitInfo>(function_name);
 
-        submit_ptr->SetVulkanCommands(m_current_submit_commands);
-        m_current_submit_commands.clear();
-        submit_ptr->SetCommandBufferCount(m_current_submit_command_buffer_count);
+        for (auto it = m_pre_submit_commands.begin(); it != m_pre_submit_commands.end(); ++it)
+        {
+            submit_ptr->AppendVkCmd(*it);
+        }
+        m_pre_submit_commands.clear();
+        submit_ptr->SetCommandBufferCount(m_command_buffer_count);
         m_submits.push_back(std::move(submit_ptr));
-        m_current_submit_command_buffer_count = 0;
+        m_curr_submit = nullptr;
+        m_command_buffer_count = 0;
     }
-    else
+    else if (function_name.find("vkCmd") != std::string::npos ||
+             function_name.find("vkBeginCommandBuffer") != std::string::npos)
     {
+        // Don't include the vkEndCommandBuffer call.
+        if (function_name.find("vkEndCommandBuffer") != std::string::npos)
+        {
+            return;
+        }
+
         VulkanCommandInfo vkCmd(function_data);
 
         if (function_name.find("vkBeginCommandBuffer") != std::string::npos)
         {
-            m_current_submit_command_buffer_count++;
+            m_command_buffer_count++;
         }
 
-        m_current_submit_commands.push_back(vkCmd);
+        if (m_curr_submit)  // Check if the pointer is not null.
+        {
+            m_curr_submit->AppendVkCmd(vkCmd);
+        }
+        else
+        {
+            // No active submit, so buffer the command.
+            m_pre_submit_commands.push_back(vkCmd);
+        }
     }
+}
+
+// Leave this function empty. It is necessary to avoid further changes to the gfxr file_processor.
+void DiveAnnotationProcessor::ProcessAnnotation(uint64_t                         block_index,
+                                                gfxrecon::format::AnnotationType type,
+                                                const std::string&               label,
+                                                const std::string&               data)
+{
 }
