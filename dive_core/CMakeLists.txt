@@ -204,6 +204,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE freedreno_ir3)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE gfxrecon_decode)
 target_include_directories(${PROJECT_NAME} PRIVATE ${THIRDPARTY_DIRECTORY}/gfxreconstruct/framework)
+target_link_libraries(${PROJECT_NAME} PRIVATE gfxr_ext)
+
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   target_link_libraries(${PROJECT_NAME} PRIVATE dl)

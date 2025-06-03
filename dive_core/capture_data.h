@@ -24,10 +24,10 @@
 #include "dive_core/common/dive_capture_format.h"
 #include "dive_core/common/emulate_pm4.h"
 #include "dive_core/common/memory_manager_base.h"
+#include "gfxr_ext/dive_annotation_processor.h" 
 #include "log.h"
 #include "progress_tracker.h"
 #include "third_party/gfxreconstruct/framework/decode/dive_block_data.h"
-
 // Forward declarations
 struct SqttFileChunkAsicInfo;
 
@@ -363,6 +363,7 @@ public:
         return m_vulkan_metadata_header;
     }
     const DiveVector<SubmitInfo> &GetSubmits() const;
+    const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &GetGfxrSubmits() const;
 
     CaptureData &operator=(CaptureData &&) = default;
 
@@ -430,6 +431,8 @@ private:
 
     // Metadata for the original GFXR file m_cur_capture_file, as well as modifications
     std::shared_ptr<gfxrecon::decode::DiveBlockData> m_gfxr_capture_block_data = nullptr;
+
+    std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> m_gfxr_submits;
 };
 
 }  // namespace Dive

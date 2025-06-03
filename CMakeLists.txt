@@ -118,6 +118,10 @@ if(NOT ANDROID)
         add_subdirectory(ui)
     endif()
 
+    if (EXISTS "${CMAKE_SOURCE_DIR}/gfxr_ext/CMakeLists.txt" AND NOT DIVE_NO_DISASSEMBLY)
+        add_subdirectory(gfxr_ext)
+    endif()
+
     add_subdirectory(gfxr_dump_resources)
 
     add_subdirectory(plugins)

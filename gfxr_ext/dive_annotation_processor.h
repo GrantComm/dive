@@ -16,10 +16,9 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include "dive_core/stl_replacement.h"
-#include "third_party/gfxreconstruct/framework/decode/annotation_handler.h"
-#include "util/defines.h"
-#include "util/platform.h"
+#include "../third_party/gfxreconstruct/framework/decode/annotation_handler.h"
+#include "../third_party/gfxreconstruct/framework/util/defines.h"
+#include "../third_party/gfxreconstruct/framework/util/platform.h"
 
 struct ApiCallInfo;
 
@@ -85,11 +84,11 @@ public:
             m_cmd_buffer_count = cmd_buffer_count;
         }
         uint32_t GetCommandBufferCount() const { return m_cmd_buffer_count; }
-        const DiveVector<VulkanCommandInfo>& GetVkCmds() const { return m_vulkan_cmds; }
+        const std::vector<VulkanCommandInfo>& GetVkCmds() const { return m_vulkan_cmds; }
         void AppendVkCmd(VulkanCommandInfo vkCmd) { m_vulkan_cmds.push_back(vkCmd); }
 
     private:
-        DiveVector<VulkanCommandInfo> m_vulkan_cmds{};
+        std::vector<VulkanCommandInfo> m_vulkan_cmds{};
         std::string                   m_name{ "" };
         uint32_t                      m_cmd_buffer_count{ 0 };
     };
@@ -97,13 +96,8 @@ public:
     DiveAnnotationProcessor() {}
     ~DiveAnnotationProcessor() {}
 
-    void EndStream();
-    bool IsValid() const;
-
     // Finalize the current block and stream it out.
     void WriteBlockEnd(const gfxrecon::util::DiveFunctionData& function_data) override;
-
-    void WriteMarker(const char* name, const std::string_view marker_type, uint64_t frame_number);
 
     // @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
     virtual void ProcessAnnotation(uint64_t                         block_index,
@@ -113,13 +107,11 @@ public:
     {
     }
 
-    bool WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
-
-    DiveVector<std::unique_ptr<SubmitInfo>> getSubmits() { return std::move(m_submits); }
+    std::vector<std::unique_ptr<SubmitInfo>> getSubmits() { return std::move(m_submits); }
 
 private:
     std::vector<VulkanCommandInfo>
     m_current_submit_commands;  // Buffer for commands before a submit
-    DiveVector<std::unique_ptr<SubmitInfo>> m_submits;
+    std::vector<std::unique_ptr<SubmitInfo>> m_submits;
     uint32_t                                m_current_submit_command_buffer_count = 0;
 };
