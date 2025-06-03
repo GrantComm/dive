@@ -20,11 +20,14 @@
 #include <QListIterator>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <iostream>
 
 // Forward declarations
 class QWidget;
 class DiveTreeView;
 class HoverHelp;
+class GfxrVulkanCommandFilterProxyModel;
+class GfxrVulkanCommandArgFilterProxyModel;
 namespace Dive
 {
 class CommandHierarchy;
@@ -63,11 +66,20 @@ public:
 
     const Dive::CommandHierarchy &GetCommandHierarchy() const;
 
+    GfxrVulkanCommandFilterProxyModel* GetProxyModel() const;
+
+    GfxrVulkanCommandArgFilterProxyModel* GetArgProxyModel() const;
+
     void RetainCurrentNode();
 
     void ExpandToLevel(int level);
 
     void SetDataCore(Dive::DataCore *data_core) { m_data_core = data_core; }
+
+    void SetProxyModel(GfxrVulkanCommandFilterProxyModel *proxyModel) { std::cout << "void SetProxyModel called" << std::endl; m_proxy_Model = proxyModel; }
+
+    void SetArgProxyModel(GfxrVulkanCommandArgFilterProxyModel *argProxyModel) { m_arg_proxy_Model = argProxyModel; }
+
 
 public slots:
     void setCurrentNode(uint64_t node_index);
@@ -103,4 +115,6 @@ private:
     QList<QModelIndex>           search_indexes;
     QList<QModelIndex>::Iterator search_index_it;
     Dive::DataCore              *m_data_core = nullptr;
+    GfxrVulkanCommandFilterProxyModel *m_proxy_Model = nullptr;
+    GfxrVulkanCommandArgFilterProxyModel *m_arg_proxy_Model = nullptr;
 };

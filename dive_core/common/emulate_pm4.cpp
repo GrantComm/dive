@@ -392,6 +392,23 @@ bool EmulatePM4::ExecuteSubmit(IEmulateCallbacks        &callbacks,
 }
 
 //--------------------------------------------------------------------------------------------------
+bool EmulatePM4::ExecuteGfxrSubmit(IEmulateCallbacks &callbacks,
+    const IMemoryManager     &mem_manager,
+    uint32_t                  submit_index,
+   const DiveVector<DiveAnnotationProcessor::VulkanCommandInfo> &vkCmds)
+{
+    for (uint32_t i = 0; i < vkCmds.size(); ++i)
+    {
+        DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info = vkCmds[i];
+        if (!callbacks.OnCommand(submit_index, vk_cmd_info))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 bool EmulatePM4::AdvanceCb(const IMemoryManager &mem_manager,
                            EmulateState         *emu_state_ptr,
                            IEmulateCallbacks    &callbacks,
@@ -900,6 +917,30 @@ bool IEmulateCallbacks::ProcessSubmits(const DiveVector<SubmitInfo> &submits,
         OnSubmitEnd(submit_index, submit_info);
     }
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool IEmulateCallbacks::ProcessGfxrSubmits(const DiveVector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &submits,
+    const IMemoryManager         &mem_manager)
+{
+    for (uint32_t submit_index = 0; submit_index < submits.size(); ++submit_index)
+    {
+        const DiveAnnotationProcessor::SubmitInfo& submit_info = *submits[submit_index];
+
+        OnGfxrSubmitStart(submit_index, submit_info);
+
+        EmulatePM4 emu;
+        DiveVector<DiveAnnotationProcessor::VulkanCommandInfo> vkcmds;
+        if (!emu.ExecuteGfxrSubmit(*this,
+        mem_manager,
+        submit_index,
+        submit_info.GetVkCmds()))
+        {
+            return false;
+        }
+        OnGfxrSubmitEnd(submit_index, submit_info);
+    }
+return true;
 }
 
 }  // namespace Dive

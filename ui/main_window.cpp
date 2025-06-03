@@ -41,6 +41,9 @@
 #include "command_model.h"
 #include "dive_core/log.h"
 #include "dive_tree_view.h"
+#include "gfxr_vulkan_command_model.h"
+#include "gfxr_vulkan_command_filter_proxy_model.h"
+#include "gfxr_vulkan_command_tab_view.h"
 #include "object_names.h"
 #include "settings.h"
 #include "trace_window.h"
@@ -58,6 +61,7 @@
 #include "shortcuts_window.h"
 #include "text_file_view.h"
 #include "tree_view_combo_box.h"
+#include "gfxr_vulkan_command_tab_view.h"
 
 static const int   kViewModeStringCount = 2;
 static const int   kEventViewModeStringCount = 1;
@@ -148,9 +152,16 @@ MainWindow::MainWindow()
         m_event_search_bar->hide();
 
         m_command_hierarchy_model = new CommandModel(m_data_core->GetCommandHierarchy());
+        m_gfxr_vulkan_command_hierarchy_model = new GfxrVulkanCommandModel(m_data_core->GetCommandHierarchy());
+    
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
         m_command_hierarchy_view->setModel(m_command_hierarchy_model);
         m_command_hierarchy_view->SetDataCore(m_data_core);
+
+        m_gfxr_vulkan_commands_filter_proxy_model = new GfxrVulkanCommandFilterProxyModel(m_command_hierarchy_view, &m_data_core->GetCommandHierarchy());
+
+        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_filter_proxy_model, m_gfxr_vulkan_command_hierarchy_model);
+
         m_event_search_bar->setTreeView(m_command_hierarchy_view);
 
         QLabel *goto_draw_call_label = new QLabel(tr("Go To:"));
@@ -370,13 +381,27 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
     if (view_mode == tr(kViewModeStrings[0]))  // Submit
     {
         const Dive::Topology &topology = command_hierarchy.GetSubmitHierarchyTopology();
-        m_command_hierarchy_model->SetTopologyToView(&topology);
+        if (m_gfxr_capture)
+        {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
+        }
+        else
+        {
+            m_command_hierarchy_model->SetTopologyToView(&topology);
+        }
         m_command_tab_view->SetTopologyToView(&topology);
     }
     else  // All Vulkan Calls + GPU Events
     {
         const Dive::Topology &topology = command_hierarchy.GetAllEventHierarchyTopology();
-        m_command_hierarchy_model->SetTopologyToView(&topology);
+        if (m_gfxr_capture)
+        {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
+        }
+        else
+        {
+            m_command_hierarchy_model->SetTopologyToView(&topology);
+        }
         m_command_tab_view->SetTopologyToView(&topology);
 
         // Put EventID column to the left of the tree. This forces the expand/collapse icon to be
@@ -410,7 +435,18 @@ void MainWindow::OnSelectionChanged(const QModelIndex &index)
 {
     // Determine which node it is, and emit this signal
     const Dive::CommandHierarchy &command_hierarchy = m_data_core->GetCommandHierarchy();
-    uint64_t                      selected_item_node_index = (uint64_t)(index.internalPointer());
+    uint64_t selected_item_node_index;
+
+    if (m_gfxr_capture)
+    {
+        QModelIndex sourceIndex = m_gfxr_vulkan_commands_filter_proxy_model->mapToSource(index);
+        selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else
+    {
+        selected_item_node_index = (uint64_t)(index.internalPointer());
+    }
+
     Dive::NodeType node_type = command_hierarchy.GetNodeType(selected_item_node_index);
     if (node_type == Dive::NodeType::kDrawDispatchBlitNode ||
         node_type == Dive::NodeType::kMarkerNode)
@@ -455,7 +491,70 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
     }
 
     m_command_hierarchy_model->BeginResetModel();
-    if (!m_data_core->ParseCaptureData())
+
+    // If loading a gfxr file, only display the arguments tab and remove the default tabs.
+    m_gfxr_capture = std::strstr(file_name, ".gfxr") != nullptr;
+    if (m_gfxr_capture)
+    {
+        m_gfxr_vulkan_commands_filter_proxy_model->setSourceModel(m_gfxr_vulkan_command_hierarchy_model);
+        m_command_hierarchy_view->setModel(m_gfxr_vulkan_commands_filter_proxy_model);
+        m_command_hierarchy_view->SetProxyModel(m_gfxr_vulkan_commands_filter_proxy_model);
+
+        for (int i = 0; i < 4; i++)
+        {
+            m_tab_widget->removeTab(0);
+        }
+        m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view, "Command Arguments");
+        QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+        SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+        m_command_tab_view,
+        SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::disconnect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_shader_view,
+                        SLOT(OnEventSelected(uint64_t)));
+       QObject::disconnect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_event_state_view,
+                        SLOT(OnEventSelected(uint64_t)));
+        QObject::connect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_gfxr_vulkan_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+    }
+    else
+    {
+        m_command_hierarchy_view->setModel(m_command_hierarchy_model);
+        m_command_hierarchy_view->SetProxyModel(nullptr);
+
+        // Remove the gfxr_vulkan_command_view_tab, and add the default tabs.
+        m_tab_widget->removeTab(0);
+        m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+        m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Commands");
+        m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+        m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+        QObject::connect(m_command_hierarchy_view->selectionModel(),
+        SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+        m_command_tab_view,
+        SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::connect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+        QObject::connect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_shader_view,
+                        SLOT(OnEventSelected(uint64_t)));
+       QObject::connect(this,
+                        SIGNAL(EventSelected(uint64_t)),
+                        m_event_state_view,
+                        SLOT(OnEventSelected(uint64_t)));
+    }
+    if (!m_data_core->ParseCaptureData(m_gfxr_capture))
     {
         HideOverlay();
         QMessageBox::critical(this,
@@ -514,7 +613,7 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnOpenFile()
 {
-    QString supported_files = QStringLiteral("Dive files (*.rd) ;; All files (*.*)");
+    QString supported_files = QStringLiteral("Dive files (*.rd);;GFXR files (*.gfxr);;All files (*.*)");
     QString file_name = QFileDialog::getOpenFileName(this,
                                                      "Open Document",
                                                      Settings::Get()->ReadLastFilePath(),

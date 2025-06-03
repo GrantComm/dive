@@ -41,7 +41,10 @@ class SqttView;
 class EventTimingView;
 #endif
 class CommandTabView;
+class GfxrVulkanCommandTabView;
 class CommandModel;
+class GfxrVulkanCommandModel;
+class GfxrVulkanCommandFilterProxyModel;
 class PropertyPanel;
 class HoverHelp;
 class QItemSelection;
@@ -149,6 +152,8 @@ private:
     QString       m_prev_command_view_mode;
     DiveTreeView *m_command_hierarchy_view;
     CommandModel *m_command_hierarchy_model;
+    GfxrVulkanCommandModel *m_gfxr_vulkan_command_hierarchy_model;
+    GfxrVulkanCommandFilterProxyModel *m_gfxr_vulkan_commands_filter_proxy_model;
     QPushButton  *m_search_trigger_button;
     SearchBar    *m_event_search_bar = nullptr;
 
@@ -167,6 +172,8 @@ private:
     int              m_shader_view_tab_index;
     EventStateView  *m_event_state_view;
     int              m_event_state_view_tab_index;
+    GfxrVulkanCommandTabView  *m_gfxr_vulkan_command_tab_view;
+    int              m_gfxr_vulkan_command_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)
     BufferView *m_buffer_view;
 #endif
@@ -189,4 +196,6 @@ private:
 
     // Overlay to be displayed while capture
     Overlay *m_overlay;
+    bool    m_gfxr_capture = false;
+
 };

@@ -31,6 +31,11 @@
 #include "dive_core/common/common.h"
 #include "dive_core/data_core.h"
 #include "hover_help_model.h"
+#include "gfxr_vulkan_command_model.h"
+#include "gfxr_vulkan_command_filter_proxy_model.h"
+#include "gfxr_vulkan_command_arg_filter_proxy_model.h"
+#include <iostream>
+
 
 // =================================================================================================
 // DiveTreeViewDelegate
@@ -47,12 +52,32 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
                                  const QStyleOptionViewItem &option,
                                  const QModelIndex          &index) const
 {
+    GfxrVulkanCommandFilterProxyModel* proxy_model = m_dive_tree_view_ptr->GetProxyModel();
+    GfxrVulkanCommandArgFilterProxyModel* arg_proxy_model = m_dive_tree_view_ptr->GetArgProxyModel();
+    QModelIndex sourceIndex;
+    uint64_t node_index;
+        
+    if (proxy_model)
+    {
+        sourceIndex = proxy_model->mapToSource(index);
+        node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else if (arg_proxy_model)
+    {
+        sourceIndex = arg_proxy_model->mapToSource(index);
+        node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else 
+    {
+        node_index = (uint64_t)(index.internalPointer());
+    }
+
     // Hover help messages
     if (option.state & QStyle::State_MouseOver)
     {
         const Dive::CommandHierarchy &command_hierarchy = m_dive_tree_view_ptr
                                                           ->GetCommandHierarchy();
-        uint64_t node_index = (uint64_t)(index.internalPointer());
+
         m_hover_help_ptr->SetCommandHierarchyNodeItem(command_hierarchy, node_index);
     }
 
@@ -64,7 +89,6 @@ void DiveTreeViewDelegate::paint(QPainter                   *painter,
 
         QStyle *style = options.widget ? options.widget->style() : QApplication::style();
 
-        uint64_t node_index = (uint64_t)(index.internalPointer());
         options.text = QString(m_dive_tree_view_ptr->GetCommandHierarchy().GetNodeDesc(node_index));
 
         QTextDocument doc;
@@ -147,9 +171,30 @@ bool DiveTreeView::RenderBranch(const QModelIndex &index) const
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::setCurrentNode(uint64_t node_index)
 {
-    auto        m = dynamic_cast<CommandModel *>(model());
-    QModelIndex ix = m->findNode(node_index);
-    ix = m->index(ix.row(), 1, ix.parent());
+    QModelIndex ix;
+
+    CommandModel* commandModel = dynamic_cast<CommandModel *>(model());
+    GfxrVulkanCommandModel* gfxrVulkanCommandModel;
+
+    QAbstractItemModel* m_ptr = nullptr;
+
+    if (m_proxy_Model) {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+        ix = gfxrVulkanCommandModel->findNode(node_index);
+    } 
+    else if (m_arg_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_arg_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+        ix = gfxrVulkanCommandModel->findNode(node_index);
+
+    } else {
+        m_ptr = commandModel;
+        ix = commandModel->findNode(node_index);
+    }
+
+    ix = m_ptr->index(ix.row(), 1, ix.parent());
     curr_node_selected = ix;
     scrollTo(ix);
     setCurrentIndex(ix);
@@ -158,7 +203,23 @@ void DiveTreeView::setCurrentNode(uint64_t node_index)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::expandNode(const QModelIndex &index)
 {
-    uint64_t node_index = (uint64_t)(index.internalPointer());
+    QModelIndex sourceIndex;
+    uint64_t node_index;
+    if (m_proxy_Model)
+    {
+        sourceIndex = m_proxy_Model->mapToSource(index);
+        node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else if (m_arg_proxy_Model)
+    {
+        sourceIndex = m_arg_proxy_Model->mapToSource(index);
+        node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else 
+    {
+        node_index = (uint64_t)(index.internalPointer());
+    }
+
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
         Dive::CommandHierarchy::MarkerType marker_type = m_command_hierarchy.GetMarkerNodeType(
@@ -173,7 +234,24 @@ void DiveTreeView::expandNode(const QModelIndex &index)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::collapseNode(const QModelIndex &index)
 {
-    uint64_t node_index = (uint64_t)(index.internalPointer());
+    QModelIndex sourceIndex;
+    uint64_t node_index;
+
+    if (m_proxy_Model)
+    {
+        sourceIndex = m_proxy_Model->mapToSource(index);
+        node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else if (m_arg_proxy_Model)
+    {
+        sourceIndex = m_arg_proxy_Model->mapToSource(index);
+        node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else 
+    {
+        node_index = (uint64_t)(index.internalPointer());
+    }
+
     if (m_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kMarkerNode)
     {
         Dive::CommandHierarchy::MarkerType marker_type = m_command_hierarchy.GetMarkerNodeType(
@@ -204,12 +282,31 @@ void DiveTreeView::gotoEvent(bool is_above)
     if (!current_idx.isValid())
         return;
 
-    auto m = dynamic_cast<CommandModel *>(model());
+    CommandModel* commandModel = dynamic_cast<CommandModel *>(model());
+    GfxrVulkanCommandModel* gfxrVulkanCommandModel;
+
+    QAbstractItemModel* m_ptr = nullptr;
+
+    if (m_proxy_Model) 
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+    }
+    else if (m_arg_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_arg_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+    }
+    else
+    {
+        m_ptr = commandModel;
+    }
+
     auto next_node_idx = is_above ? indexAbove(current_idx) : indexBelow(current_idx);
     while (next_node_idx.isValid())
     {
-        auto     event_id_idx = m->index(next_node_idx.row(), 1, next_node_idx.parent());
-        auto     event_id = m->data(event_id_idx, Qt::DisplayRole);
+        auto     event_id_idx = m_ptr->index(next_node_idx.row(), 1, next_node_idx.parent());
+        auto     event_id = m_ptr->data(event_id_idx, Qt::DisplayRole);
         uint64_t node_idx = (uint64_t)(next_node_idx.internalPointer());
         auto     node_type = m_command_hierarchy.GetNodeType(node_idx);
 
@@ -224,18 +321,39 @@ void DiveTreeView::gotoEvent(bool is_above)
     }
     if (next_node_idx.isValid())
     {
-        next_node_idx = m->index(next_node_idx.row(), 1, next_node_idx.parent());
+        next_node_idx = m_ptr->index(next_node_idx.row(), 1, next_node_idx.parent());
         scrollTo(next_node_idx);
         setCurrentIndex(next_node_idx);
     }
 }
 
-//--------------------------------------------------------------------------------------------------
 void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    curr_node_selected = current;
-    emit currentNodeChanged((uint64_t)current.internalPointer(),
-                            (uint64_t)previous.internalPointer());
+    QModelIndex sourceIndex;
+    uint64_t selected_item_node_index;
+    uint64_t previous_selected_item_node_index;
+    if (m_proxy_Model)
+    {
+        sourceIndex = m_proxy_Model->mapToSource(current);
+        selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+        sourceIndex = m_proxy_Model->mapToSource(previous);
+        previous_selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else if (m_arg_proxy_Model)
+    {
+        sourceIndex = m_arg_proxy_Model->mapToSource(current);
+        selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+        sourceIndex = m_proxy_Model->mapToSource(previous);
+        previous_selected_item_node_index = (uint64_t)(sourceIndex.internalPointer());
+    }
+    else 
+    {
+        selected_item_node_index = (uint64_t)(current.internalPointer());
+        curr_node_selected = current;
+        previous_selected_item_node_index = (uint64_t)previous.internalPointer();
+    }
+    
+        emit currentNodeChanged(selected_item_node_index, previous_selected_item_node_index);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,14 +363,46 @@ const Dive::CommandHierarchy &DiveTreeView::GetCommandHierarchy() const
 }
 
 //--------------------------------------------------------------------------------------------------
+GfxrVulkanCommandFilterProxyModel* DiveTreeView::GetProxyModel() const 
+{
+    return m_proxy_Model;
+}
+
+//--------------------------------------------------------------------------------------------------
+GfxrVulkanCommandArgFilterProxyModel* DiveTreeView::GetArgProxyModel() const 
+{
+    return m_arg_proxy_Model;
+}
+
+//--------------------------------------------------------------------------------------------------
 void DiveTreeView::RetainCurrentNode()
 {
     if (!curr_node_selected.isValid())
         return;
-    auto     m = dynamic_cast<CommandModel *>(model());
+
+    CommandModel* commandModel = dynamic_cast<CommandModel *>(model());
+    GfxrVulkanCommandModel* gfxrVulkanCommandModel;
+
+    QAbstractItemModel* m_ptr = nullptr;
     uint64_t node_index = (uint64_t)(curr_node_selected.internalPointer());
-    curr_node_selected = m->findNode(node_index);
-    curr_node_selected = m->index(curr_node_selected.row(), 1, curr_node_selected.parent());
+
+    if (m_proxy_Model) 
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+        curr_node_selected = gfxrVulkanCommandModel->findNode(node_index);
+    }
+    else if (m_arg_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_arg_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+        curr_node_selected = gfxrVulkanCommandModel->findNode(node_index);
+    } else {
+        m_ptr = commandModel;
+        curr_node_selected = commandModel->findNode(node_index);
+    }
+
+    curr_node_selected = m_ptr->index(curr_node_selected.row(), 1, curr_node_selected.parent());
     if (isExpanded(curr_node_selected.parent()))
     {
         scrollTo(curr_node_selected, QAbstractItemView::PositionAtCenter);
@@ -261,13 +411,13 @@ void DiveTreeView::RetainCurrentNode()
     else
     {
         // Reset selection and scroll to the approximate area where the previous node was
-        QModelIndex index = m->parent(curr_node_selected);
+        QModelIndex index = m_ptr->parent(curr_node_selected);
         setCurrentIndex(QModelIndex());
-        while (index.isValid() && !isExpanded(m->parent(index)))
-            index = m->parent(index);
+        while (index.isValid() && !isExpanded(m_ptr->parent(index)))
+            index = m_ptr->parent(index);
         if (index.isValid())
         {
-            index = m->index(index.row(), 1, index.parent());
+            index = m_ptr->index(index.row(), 1, index.parent());
             scrollTo(index, QAbstractItemView::PositionAtCenter);
         }
     }
@@ -311,10 +461,33 @@ void DiveTreeView::keyPressEvent(QKeyEvent *event)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::setAndScrollToNode(QModelIndex &idx)
 {
-    auto     m = dynamic_cast<CommandModel *>(model());
     uint64_t node_index = (uint64_t)(idx.internalPointer());
-    idx = m->findNode(node_index);
-    idx = m->index(idx.row(), 1, idx.parent());
+
+    CommandModel* commandModel = dynamic_cast<CommandModel *>(model());
+    GfxrVulkanCommandModel* gfxrVulkanCommandModel;
+
+    QAbstractItemModel* m_ptr = nullptr;
+
+    if (m_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+        curr_node_selected = gfxrVulkanCommandModel->findNode(node_index);
+    }
+    else if (m_arg_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_arg_proxy_Model->sourceModel());
+        m_ptr = gfxrVulkanCommandModel;
+        curr_node_selected = gfxrVulkanCommandModel->findNode(node_index);
+    }
+    else
+    {
+        m_ptr = commandModel;
+        curr_node_selected = commandModel->findNode(node_index);
+    }
+
+    idx = m_ptr->index(idx.row(), 1, idx.parent());
+
     scrollTo(idx);
     setCurrentIndex(idx);
 }
@@ -328,8 +501,23 @@ void DiveTreeView::searchNodeByText(const QString &search_text)
     if (search_text.isEmpty())
         return;
 
-    auto m = dynamic_cast<CommandModel *>(model());
-    search_indexes = m->search(m->index(0, 0), QVariant::fromValue(search_text));
+    CommandModel* commandModel = dynamic_cast<CommandModel *>(model());
+    GfxrVulkanCommandModel* gfxrVulkanCommandModel;
+
+    if (m_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_proxy_Model->sourceModel());
+        search_indexes = gfxrVulkanCommandModel->search(gfxrVulkanCommandModel->index(0, 0), QVariant::fromValue(search_text));
+    }
+    else if (m_arg_proxy_Model)
+    {
+        gfxrVulkanCommandModel = dynamic_cast<GfxrVulkanCommandModel *>(m_arg_proxy_Model->sourceModel());
+        search_indexes = gfxrVulkanCommandModel->search(gfxrVulkanCommandModel->index(0, 0), QVariant::fromValue(search_text));
+    }
+    else
+    {
+        search_indexes = commandModel->search(commandModel->index(0, 0), QVariant::fromValue(search_text));
+    }
     search_index_it = search_indexes.begin();
 
     if (!search_indexes.isEmpty())

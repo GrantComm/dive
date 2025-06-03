@@ -61,7 +61,8 @@ enum class NodeType
     kRegNode,
     kFieldNode,
     kPresentNode,
-    kRenderMarkerNode
+    kRenderMarkerNode,
+    kGfxrVulkanCommandArgNode
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +106,7 @@ public:
 private:
     friend class CommandHierarchy;
     friend class CommandHierarchyCreator;
+    friend class VulkanCommandHierarchyCreator;
 
     struct ChildrenInfo
     {
@@ -243,6 +245,7 @@ public:
 
 private:
     friend class CommandHierarchyCreator;
+    friend class VulkanCommandHierarchyCreator;
 
     enum TopologyType
     {
@@ -328,10 +331,14 @@ private:
         DiveVector<uint64_t>    m_event_node_indices;
 
         uint64_t AddNode(NodeType type, std::string &&desc, AuxInfo aux_info);
+        uint64_t AddGfxrNode(NodeType type, std::string &&desc);
     };
 
     // Add a node and returns index of the added node
     uint64_t AddNode(NodeType type, std::string &&desc, AuxInfo aux_info);
+    
+    // Add a gfxr node and returns index of the added node
+    uint64_t AddGfxrNode(NodeType type, std::string &&desc);
 
     Nodes    m_nodes;
     Topology m_topology[kTopologyTypeCount];
@@ -342,6 +349,7 @@ class CommandHierarchyCreator : public IEmulateCallbacks
 {
 public:
     CommandHierarchyCreator(EmulateStateTracker &state_tracker);
+    CommandHierarchyCreator();
     // If flatten_chain_nodes set to true, then chain nodes are children of the top-most
     // root ib or call ib node, and never a child of another chain node. This prevents a
     // deep tree of chain nodes when a capture chains together tons of IBs.
@@ -569,6 +577,7 @@ private:
 
     ILog *m_log_ptr = nullptr;
 
+    static EmulateStateTracker defaultStateTracker;
     EmulateStateTracker &m_state_tracker;
 };
 
