@@ -44,6 +44,12 @@ android {
     androidResources {
         ignoreAssetsPattern "XrLayer_gfxreconstruct.json"
     }
+    // Google: add wrap.sh
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
 }
 
 dependencies {
