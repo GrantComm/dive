@@ -24,6 +24,7 @@
 #include "command_hierarchy.h"
 #include "event_state.h"
 #include "progress_tracker.h"
+#include "gfxr_vulkan_command_hierarchy.h"
 
 namespace Dive
 {

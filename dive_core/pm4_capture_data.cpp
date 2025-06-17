@@ -26,6 +26,7 @@
 #include "dive_core/command_hierarchy.h"
 #include "dive_core/common/common.h"
 #include "freedreno_dev_info.h"
+#include "generated/generated_vulkan_dive_consumer.h"
 #if defined(DIVE_ENABLE_PERFETTO)
 #    include "perfetto_trace/trace_reader.h"
 #endif
