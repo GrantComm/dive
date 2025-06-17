@@ -21,13 +21,15 @@
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <iostream>
+#include <qsortfilterproxymodel.h>
 
 // Forward declarations
 class CommandModel;
 class DiveTreeView;
 class HoverHelp;
-class QWidget;
-
+class GfxrVulkanCommandFilterProxyModel;
+class GfxrVulkanCommandArgFilterProxyModel;
 namespace Dive
 {
 class CommandHierarchy;
@@ -92,6 +94,10 @@ public:
 
     const Dive::CommandHierarchy &GetCommandHierarchy() const;
 
+    GfxrVulkanCommandFilterProxyModel* GetProxyModel() const;
+
+    GfxrVulkanCommandArgFilterProxyModel* GetArgProxyModel() const;
+
     void RetainCurrentNode();
 
     void ExpandToLevel(int level);
@@ -99,6 +105,10 @@ public:
     void SetDataCore(Dive::DataCore *data_core) { m_data_core = data_core; }
 
     uint64_t GetNodeSourceIndex(const QModelIndex &proxy_model_index) const;
+    void SetVulkanCmdProxyModel(GfxrVulkanCommandFilterProxyModel *proxyModel) {m_proxy_Model = proxyModel; }
+
+    void SetVulkanCmdArgProxyModel(GfxrVulkanCommandArgFilterProxyModel *argProxyModel) { m_arg_proxy_Model = argProxyModel; }
+
 
 public slots:
     void setCurrentNode(uint64_t node_index);
@@ -106,6 +116,12 @@ public slots:
     void collapseNode(const QModelIndex &index);
     void gotoPrevEvent();
     void gotoNextEvent();
+
+    /*void searchProxyModelRecursive(
+        QSortFilterProxyModel* proxyModel,
+        const QString& searchText,
+        QModelIndex parentIndex,
+        QList<QModelIndex>& foundIndexes);*/
 
     // Search DiveTreeView by input text
     void searchNodeByText(const QString &search_text);
@@ -131,11 +147,13 @@ private:
     void SetAndScrollToNode(QModelIndex &proxy_model_idx);
     int  GetNearestSearchNode(uint64_t source_node_idx);
 
-    CommandModel *GetCommandModel();
+    QAbstractItemModel *GetCommandModel();
     QModelIndex   GetNodeSourceModelIndex(const QModelIndex &proxy_model_index) const;
 
     QModelIndex                  m_curr_node_selected;
     QList<QModelIndex>           m_search_indexes;
     QList<QModelIndex>::Iterator m_search_index_it;
     Dive::DataCore              *m_data_core = nullptr;
+    GfxrVulkanCommandFilterProxyModel *m_proxy_Model = nullptr;
+    GfxrVulkanCommandArgFilterProxyModel *m_arg_proxy_Model = nullptr;
 };

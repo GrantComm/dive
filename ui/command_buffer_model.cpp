@@ -249,6 +249,16 @@ int CommandBufferModel::rowCount(const QModelIndex &parent) const
 void CommandBufferModel::OnSelectionChanged(const QModelIndex &index)
 {
     uint64_t selected_node_index = (uint64_t)(index.internalPointer());
+
+    QAbstractItemModel* model = const_cast<QAbstractItemModel*>(index.model());
+    DiveFilterModel* dive_filter_model = dynamic_cast<DiveFilterModel *>(model);
+
+    if (dive_filter_model)
+    {
+        QModelIndex new_index = dive_filter_model->mapToSource(index);
+        selected_node_index = (uint64_t)new_index.internalPointer();
+    }
+
     if (m_selected_node_index == selected_node_index)  // Selected same item
         return;
 

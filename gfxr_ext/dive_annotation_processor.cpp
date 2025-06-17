@@ -18,9 +18,9 @@
 #include <cstdint>
 #include <iostream>
 #include <ostream>
-#include "third_party/gfxreconstruct/framework/decode/api_decoder.h"
-#include "third_party/gfxreconstruct/framework/util/logging.h"
-#include "third_party/gfxreconstruct/framework/util/output_stream.h"
+#include "../third_party/gfxreconstruct/framework/decode/api_decoder.h"
+#include "../third_party/gfxreconstruct/framework/util/logging.h"
+#include "../third_party/gfxreconstruct/framework/util/output_stream.h"
 
 void DiveAnnotationProcessor::WriteBlockEnd(const gfxrecon::util::DiveFunctionData& function_data)
 {
@@ -30,14 +30,25 @@ void DiveAnnotationProcessor::WriteBlockEnd(const gfxrecon::util::DiveFunctionDa
     {
         std::unique_ptr<SubmitInfo> submit_ptr = std::make_unique<SubmitInfo>(function_name);
 
-        submit_ptr->SetVulkanCommands(m_current_submit_commands);
+        for (auto it = m_current_submit_commands.begin(); it != m_current_submit_commands.end();
+             ++it)
+        {
+            submit_ptr->AppendVkCmd(*it);
+        }
         m_current_submit_commands.clear();
         submit_ptr->SetCommandBufferCount(m_current_submit_command_buffer_count);
         m_submits.push_back(std::move(submit_ptr));
         m_current_submit_command_buffer_count = 0;
     }
-    else
+    else if (function_name.find("vkCmd") != std::string::npos ||
+             function_name.find("vkBeginCommandBuffer") != std::string::npos)
     {
+        // Don't include the vkEndCommandBuffer call.
+        if (function_name.find("vkEndCommandBuffer") != std::string::npos)
+        {
+            return;
+        }
+
         VulkanCommandInfo vkCmd(function_data);
 
         if (function_name.find("vkBeginCommandBuffer") != std::string::npos)

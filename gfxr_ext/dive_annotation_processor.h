@@ -16,17 +16,16 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include "third_party/gfxreconstruct/framework/decode/annotation_handler.h"
-#include "util/defines.h"
-#include "util/platform.h"
+#include "../third_party/gfxreconstruct/framework/decode/annotation_handler.h"
+#include "../third_party/gfxreconstruct/framework/util/defines.h"
+#include "../third_party/gfxreconstruct/framework/util/platform.h"
 
 struct ApiCallInfo;
 
 // The DiveAnnotationProcessor is used by the VulkanExportDiveConsumer on each WriteBlockEnd call
 // made when processing the vulkan commands. WriteBlockEnd is called passing the function data
 // (name, command buffer index, args) and then DiveAnnotationProcessor converts the data to
-// SubmitInfo for vkQueueSubmits or VulkanCommandInfo for vulkan commands. These structs are then
-// used to construct the command hierarchy displayed in the Dive UI.
+// SubmitInfo for vkQueueSubmits or VulkanCommandInfo for vulkan commands.
 class DiveAnnotationProcessor : public gfxrecon::decode::AnnotationHandler
 {
 public:
@@ -80,36 +79,25 @@ public:
         }
 
         const std::string& GetSubmitText() const { return m_name; }
-        void               SetCommandBufferCount(uint32_t command_buffer_count)
+        void               SetCommandBufferCount(uint32_t cmd_buffer_count)
         {
-            m_command_buffer_count = command_buffer_count;
+            m_cmd_buffer_count = cmd_buffer_count;
         }
-        uint32_t GetCommandBufferCount() const { return m_command_buffer_count; }
-        const std::vector<VulkanCommandInfo>& GetVulkanCommands() const
-        {
-            return m_vulkan_commands;
-        }
-        void SetVulkanCommands(const std::vector<VulkanCommandInfo>& vulkan_commands)
-        {
-            m_vulkan_commands = std::move(vulkan_commands);
-        }
+        uint32_t GetCommandBufferCount() const { return m_cmd_buffer_count; }
+        const std::vector<VulkanCommandInfo>& GetVkCmds() const { return m_vulkan_cmds; }
+        void AppendVkCmd(VulkanCommandInfo vkCmd) { m_vulkan_cmds.push_back(vkCmd); }
 
     private:
-        std::vector<VulkanCommandInfo> m_vulkan_commands{};
-        std::string                    m_name{ "" };
-        uint32_t                       m_command_buffer_count{ 0 };
+        std::vector<VulkanCommandInfo> m_vulkan_cmds{};
+        std::string                   m_name{ "" };
+        uint32_t                      m_cmd_buffer_count{ 0 };
     };
 
     DiveAnnotationProcessor() {}
     ~DiveAnnotationProcessor() {}
 
-    void EndStream();
-    bool IsValid() const;
-
     // Finalize the current block and stream it out.
     void WriteBlockEnd(const gfxrecon::util::DiveFunctionData& function_data) override;
-
-    void WriteMarker(const char* name, const std::string_view marker_type, uint64_t frame_number);
 
     // @brief Convert annotations, which are simple {type:enum, key:string, value:string} objects.
     virtual void ProcessAnnotation(uint64_t                         block_index,
@@ -119,13 +107,11 @@ public:
     {
     }
 
-    bool WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
-
     std::vector<std::unique_ptr<SubmitInfo>> getSubmits() { return std::move(m_submits); }
 
 private:
     std::vector<VulkanCommandInfo>
     m_current_submit_commands;  // Buffer for commands before a submit
     std::vector<std::unique_ptr<SubmitInfo>> m_submits;
-    uint32_t                                 m_current_submit_command_buffer_count = 0;
+    uint32_t                                m_current_submit_command_buffer_count = 0;
 };
