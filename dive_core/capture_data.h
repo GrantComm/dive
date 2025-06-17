@@ -24,10 +24,10 @@
 #include "dive_core/common/dive_capture_format.h"
 #include "dive_core/common/emulate_pm4.h"
 #include "dive_core/common/memory_manager_base.h"
-#include "dive_core/common/dive_annotation_processor.h"
 #include "log.h"
 #include "progress_tracker.h"
 #include "gfxr_ext/decode/dive_block_data.h"
+#include "gfxr_ext/decode/dive_annotation_processor.h"
 
 // Forward declarations
 struct SqttFileChunkAsicInfo;

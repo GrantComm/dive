@@ -27,12 +27,12 @@
 #include "dive_core/common/common.h"
 #include "freedreno_dev_info.h"
 #include "generated/generated_vulkan_dive_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
 #if defined(DIVE_ENABLE_PERFETTO)
 #    include "perfetto_trace/trace_reader.h"
 #endif
 #include "pm4_info.h"
 #include "gfxr_ext/decode/dive_file_processor.h"
-#include "third_party/gfxreconstruct/framework/generated/generated_vulkan_decoder.h"
 
 namespace Dive
 {
