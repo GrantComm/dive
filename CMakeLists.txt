@@ -71,9 +71,6 @@ if (NOT ANDROID)
     add_subdirectory(third_party/googletest)
 endif()
 
-# For allowing full path includes
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 add_subdirectory(network)
 add_subdirectory(capture_service)
 add_subdirectory(layer)
