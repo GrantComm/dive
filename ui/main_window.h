@@ -33,6 +33,11 @@ class EventStateView;
 #ifndef NDEBUG
 class EventTimingView;
 #endif
+class CommandTabView;
+class GfxrVulkanCommandTabView;
+class CommandModel;
+class GfxrVulkanCommandModel;
+class GfxrVulkanCommandFilterProxyModel;
 class HoverHelp;
 class Overlay;
 class OverlayWidget;
@@ -106,7 +111,7 @@ private slots:
     void OnCrossReference(Dive::CrossRef);
     void OnFileLoaded();
     void OnTraceAvailable(const QString &);
-    void OnCommandBufferSearchBarVisibilityChange(bool isHidden);
+    void OnTabViewSearchBarVisibilityChange(bool isHidden);
     void OnTabViewChange();
     void ConnectSearchBar();
     void DisconnectSearchBar();
@@ -163,6 +168,8 @@ private:
     QString       m_prev_command_view_mode;
     DiveTreeView *m_command_hierarchy_view;
     CommandModel *m_command_hierarchy_model;
+    GfxrVulkanCommandModel *m_gfxr_vulkan_command_hierarchy_model;
+    GfxrVulkanCommandFilterProxyModel *m_gfxr_vulkan_commands_filter_proxy_model;
     QPushButton  *m_search_trigger_button;
     SearchBar    *m_event_search_bar = nullptr;
 
@@ -182,6 +189,8 @@ private:
     int              m_shader_view_tab_index;
     EventStateView  *m_event_state_view;
     int              m_event_state_view_tab_index;
+    GfxrVulkanCommandTabView  *m_gfxr_vulkan_command_tab_view;
+    int              m_gfxr_vulkan_command_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)
     BufferView *m_buffer_view;
 #endif
@@ -200,6 +209,7 @@ private:
 
     std::string m_unsaved_capture_path;
     bool        m_capture_saved = false;
+    bool        m_gfxr_capture = false;
     int         m_capture_num = 0;
 
     EventSelection *m_event_selection;
