@@ -127,25 +127,14 @@ bool DataCore::ParsePm4CaptureData()
         m_progress_tracker->sendMessage("Processing command buffers...");
     }
 
-    if (is_gfxr_capture)
+    if (!CreateMetaData(is_gfxr_capture))
     {
-        if (!CreateCommandHierarchy(is_gfxr_capture))
-        {
-            return false;
-        }
+        return false;
     }
 
-    if (!CreatePm4CommandHierarchy())
+    if (!CreateCommandHierarchy(is_gfxr_capture))
     {
-        if (!CreateMetaData())
-        {
-            return false;
-        }
-
-        if (!CreateCommandHierarchy())
-        {
-            return false;
-        }
+        return false;
     }
 
     return true;
