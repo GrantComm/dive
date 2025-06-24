@@ -475,7 +475,7 @@ try:
 
   # lint
   print("formatting " + "clang-format-18 -i -style=file " + sys.argv[3])
-  os.system("clang-format-18 -i -style=file " + sys.argv[3])
+  os.system("clang-format -i -style=file " + sys.argv[3])
 
 except IOError as e:
     errno, strerror = e.args
