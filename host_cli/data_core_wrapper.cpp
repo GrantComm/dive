@@ -17,7 +17,7 @@
 #include "data_core_wrapper.h"
 
 #include "dive_core/log.h"
-#include "dive_core/capture_data.h"
+#include "dive_core/gfxr_capture_data.h"
 #include "dive_core/data_core.h"
 
 namespace Dive::HostCli
@@ -32,14 +32,14 @@ DataCoreWrapper::DataCoreWrapper()
 bool DataCoreWrapper::IsGfxrLoaded() const
 {
     assert(m_data_core != nullptr);
-    return m_data_core->GetCaptureData().IsDiveBlockDataInitialized();
+    return m_data_core->GetGfxrCaptureData().IsDiveBlockDataInitialized();
 }
 
 absl::Status DataCoreWrapper::LoadGfxrFile(const std::string& original_gfxr_file_path)
 {
     assert(m_data_core != nullptr);
 
-    CaptureData::LoadResult load_result = m_data_core->GetMutableCaptureData().LoadGfxrFile(
+    GfxrCaptureData::LoadResult load_result = m_data_core->GetMutableGfxrCaptureData().LoadGfxrFile(
     original_gfxr_file_path.c_str());
     if (load_result != CaptureData::LoadResult::kSuccess)
     {
@@ -57,7 +57,7 @@ absl::Status DataCoreWrapper::WriteNewGfxrFile(const std::string& new_gfxr_file_
         return absl::FailedPreconditionError("Must load original GFXR first");
     }
 
-    bool write_result = m_data_core->GetMutableCaptureData().WriteModifiedGfxrFile(
+    bool write_result = m_data_core->GetMutableGfxrCaptureData().WriteModifiedGfxrFile(
     new_gfxr_file_path.c_str());
     if (!write_result)
     {

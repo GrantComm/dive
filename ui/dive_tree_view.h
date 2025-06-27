@@ -21,12 +21,15 @@
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <qsortfilterproxymodel.h>
 
 // Forward declarations
 class CommandModel;
 class DiveTreeView;
 class HoverHelp;
 class QWidget;
+class GfxrVulkanCommandFilterProxyModel;
+class GfxrVulkanCommandArgFilterProxyModel;
 
 namespace Dive
 {
@@ -131,7 +134,7 @@ private:
     void SetAndScrollToNode(QModelIndex &proxy_model_idx);
     int  GetNearestSearchNode(uint64_t source_node_idx);
 
-    CommandModel *GetCommandModel();
+    QAbstractItemModel *GetCommandModel();
     QModelIndex   GetNodeSourceModelIndex(const QModelIndex &proxy_model_index) const;
 
     QModelIndex                  m_curr_node_selected;

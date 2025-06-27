@@ -26,7 +26,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "capture_data.h"
+#include "pm4_capture_data.h"
 #include "capture_event_info.h"
 #include "dive_core/common/dive_capture_format.h"
 #include "dive_core/common/emulate_pm4.h"
@@ -41,7 +41,7 @@ namespace Dive
 {
 
 // Forward declarations
-class CaptureData;
+class Pm4CaptureData;
 class GFRData;
 class MemoryManager;
 class SubmitInfo;
@@ -62,7 +62,11 @@ enum class NodeType
     kRegNode,
     kFieldNode,
     kPresentNode,
-    kRenderMarkerNode
+    kRenderMarkerNode,
+    kGfxrVulkanSubmitNode,
+    kGfxrVulkanCommandBufferNode,
+    kGfxrVulkanCommandNode,
+    kGfxrVulkanCommandArgNode
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -106,6 +110,8 @@ public:
 private:
     friend class CommandHierarchy;
     friend class CommandHierarchyCreator;
+    friend class GfxrVulkanCommandHierarchyCreator;
+    friend class DiveCommandHierarchyCreator;
 
     struct ChildrenInfo
     {
@@ -286,6 +292,8 @@ public:
 
 private:
     friend class CommandHierarchyCreator;
+    friend class GfxrVulkanCommandHierarchyCreator;
+    friend class DiveCommandHierarchyCreator;
 
     enum TopologyType
     {
@@ -371,10 +379,13 @@ private:
         DiveVector<uint64_t>    m_event_node_indices;
 
         uint64_t AddNode(NodeType type, std::string &&desc, AuxInfo aux_info);
+        uint64_t AddGfxrNode(NodeType type, std::string &&desc);
     };
 
     // Add a node and returns index of the added node
     uint64_t AddNode(NodeType type, std::string &&desc, AuxInfo aux_info);
+    // Add a gfxr node and returns index of the added node
+    uint64_t AddGfxrNode(NodeType type, std::string &&desc);
     void     AddToFilterExcludeIndexList(uint64_t index, FilterListType filter_mode)
     {
         m_filter_exclude_indices_list[filter_mode].insert(index);
@@ -389,20 +400,26 @@ private:
 class CommandHierarchyCreator : public IEmulateCallbacks
 {
 public:
-    CommandHierarchyCreator(EmulateStateTracker &state_tracker);
+    CommandHierarchyCreator(CommandHierarchy &command_hierarchy, EmulateStateTracker &state_tracker);
+    CommandHierarchyCreator();
     // If flatten_chain_nodes set to true, then chain nodes are children of the top-most
     // root ib or call ib node, and never a child of another chain node. This prevents a
     // deep tree of chain nodes when a capture chains together tons of IBs.
     // Optional: Passing a reserve_size will allow the creator to pre-reserve the memory needed and
     // potentially speed up the creation
-    bool CreateTrees(CommandHierarchy       *command_hierarchy_ptr,
-                     const CaptureData      &capture_data,
+    bool CreateTrees(CommandHierarchy       &command_hierarchy_ptr,
+                     const Pm4CaptureData      &capture_data,
                      bool                    flatten_chain_nodes,
                      std::optional<uint64_t> reserve_size,
                      ILog                   *log_ptr);
+    
+    bool CreateTrees(CommandHierarchy       &command_hierarchy_ptr,
+                     const Pm4CaptureData      &capture_data,
+                     bool                    flatten_chain_nodes,
+                     std::optional<uint64_t> reserve_size);
 
     // This is used to create a command-hierarchy out of a PM4 universal stream (ie: single IB)
-    bool CreateTrees(CommandHierarchy *command_hierarchy_ptr,
+    bool CreateTrees(CommandHierarchy &command_hierarchy_ptr,
                      EngineType        engine_type,
                      QueueType         queue_type,
                      uint32_t         *command_dwords,
@@ -423,6 +440,15 @@ public:
                           uint32_t              ib_index,
                           uint64_t              va_addr,
                           Pm4Header             header) override;
+    
+    void  CreateTopologies();
+
+    CommandHierarchy &GetCommandHierarchy() {return m_command_hierarchy;}
+
+    DiveVector<DiveVector<uint64_t>> (*GetNodeChildren())[2] {return m_node_children;}
+    
+    DiveVector<uint64_t>* GetNodeRootNodeIndex() {return m_node_root_node_index;}
+
 
 private:
     union Type3Ordinal2
@@ -534,7 +560,6 @@ private:
                                uint64_t                       node_index,
                                uint64_t                       child_index) const;
     uint64_t GetChildCount(CommandHierarchy::TopologyType type, uint64_t node_index) const;
-    void     CreateTopologies();
 
     bool EventNodeHelper(uint64_t node_index, std::function<bool(uint32_t)> callback) const;
 
@@ -552,8 +577,8 @@ private:
         uint64_t m_group_addr;
     };
 
-    CommandHierarchy  *m_command_hierarchy_ptr = nullptr;  // Pointer to class being created
-    const CaptureData *m_capture_data_ptr = nullptr;
+    CommandHierarchy &m_command_hierarchy;
+    const Pm4CaptureData *m_capture_data_ptr = nullptr;
 
     // Parsing State
     DiveVector<uint64_t>

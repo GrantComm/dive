@@ -30,6 +30,7 @@
 #include "adreno.h"
 #include "dive_core/common/pm4_packets/pfp_pm4_packets.h"
 #include "dive_core/stl_replacement.h"
+#include "gfxr_ext/decode/dive_annotation_processor.h"
 #include "gpudefs.h"
 
 namespace Dive
@@ -97,7 +98,12 @@ static constexpr uint32_t kShaderEnableBitCount = 3;
 class IEmulateCallbacks
 {
 public:
-    bool ProcessSubmits(const DiveVector<SubmitInfo> &submits, const IMemoryManager &mem_manager);
+    bool ProcessDiveSubmits(const DiveVector<SubmitInfo> &submits, const IMemoryManager &mem_manager, const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_submits);
+
+    bool ProcessPm4Submits(const DiveVector<SubmitInfo> &submits, const IMemoryManager &mem_manager);
+
+    bool ProcessGfxrSubmits(
+    const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &submits);
 
     // Callback on an IB start. Also called for all call/chain IBs
     // A return value of false indicates to the emulator to skip parsing this IB
@@ -127,8 +133,19 @@ public:
         return true;
     }
 
-    virtual void OnSubmitStart(uint32_t submit_index, const SubmitInfo &submit_info) = 0;
-    virtual void OnSubmitEnd(uint32_t submit_index, const SubmitInfo &submit_info) = 0;
+    // Callback for each vulkan command.
+    virtual void OnCommand(uint32_t                                   submit_index,
+                           DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
+    {
+    }
+
+    virtual void OnSubmitStart(uint32_t submit_index, const SubmitInfo &submit_info) {}
+    virtual void OnSubmitEnd(uint32_t submit_index, const SubmitInfo &submit_info) {}
+
+    virtual void OnGfxrSubmit(uint32_t                                   submit_index,
+                              const DiveAnnotationProcessor::SubmitInfo &submit_info)
+    {
+    }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +242,10 @@ public:
                        uint32_t                  submit_index,
                        uint32_t                  num_ibs,
                        const IndirectBufferInfo *ib_ptr);
+
+    bool ExecuteGfxrSubmit(IEmulateCallbacks    &callbacks,
+                           uint32_t              submit_index,
+                           const std::vector<DiveAnnotationProcessor::VulkanCommandInfo> &vkCmds);
 
 private:
     // Keep all emulation state together
