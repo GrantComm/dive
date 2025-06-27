@@ -18,36 +18,43 @@
 // =====================================================================================================================
 
 #include "dive_core/command_hierarchy.h"
+#include "dive_core/common/emulate_pm4.h"
+#include "dive_core/gfxr_capture_data.h"
+#include <optional>
 
 namespace Dive
 {
 class GfxrVulkanCommandHierarchyCreator : public IEmulateCallbacks
 {
 public:
+    GfxrVulkanCommandHierarchyCreator(CommandHierarchy &command_hierarchy, CommandHierarchyCreator &pm4_command_hierarchy_creator,
+                                      GfxrCaptureData      &capture_data);
     GfxrVulkanCommandHierarchyCreator(CommandHierarchy &command_hierarchy,
-                                      CaptureData      &capture_data);
+                                      GfxrCaptureData      &capture_data);                                  
 
     bool CreateTrees();
+
+    void OnGfxrSubmit(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info);
+    void OnCommand(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info);
+
+    void CreateTopologies();
 
 private:
     void     GetArgs(const nlohmann::ordered_json &j,
                      uint64_t                      curr_index,
                      const std::string            &current_path = "");
-    void     CreateTopologies();
-    void     OnGfxrSubmit(uint32_t                                   submit_index,
-                          const DiveAnnotationProcessor::SubmitInfo &submit_info);
     uint64_t AddNode(NodeType type, std::string &&desc);
     void     AddChild(CommandHierarchy::TopologyType type,
                       uint64_t                       node_index,
                       uint64_t                       child_node_index);
-    void OnCommand(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info);
+    CommandHierarchy &m_command_hierarchy;
+    std::optional<std::reference_wrapper<CommandHierarchyCreator>> m_pm4_command_hierarchy_creator;
     uint64_t          m_cur_submit_node_index = 0;
     uint64_t          m_cur_command_buffer_node_index = 0;
-    CommandHierarchy &m_command_hierarchy;
-    CaptureData      &m_capture_data;
+    GfxrCaptureData      &m_gfxr_capture_data;
     // This is a list of child indices per node, ie. topology info
     // Once parsing is complete, we will create a topology from this
-    DiveVector<DiveVector<uint64_t>> m_node_children[CommandHierarchy::kTopologyTypeCount];
-    DiveVector<uint64_t>             m_node_root_node_index[CommandHierarchy::kTopologyTypeCount];
+    DiveVector<DiveVector<uint64_t>> m_gfxr_node_children[CommandHierarchy::kTopologyTypeCount];
+    DiveVector<uint64_t>             m_gfxr_node_root_node_index[CommandHierarchy::kTopologyTypeCount];
 };
 }  // namespace Dive

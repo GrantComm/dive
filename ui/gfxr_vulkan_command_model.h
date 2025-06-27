@@ -42,7 +42,7 @@ public:
     explicit GfxrVulkanCommandModel(const Dive::CommandHierarchy &command_hierarchy);
     ~GfxrVulkanCommandModel();
 
-    void Reset();
+    void Reset(Dive::CommandHierarchy &command_hierarchy);
     void BeginResetModel();
     void EndResetModel();
     void SetTopologyToView(const Dive::Topology *topology_ptr);

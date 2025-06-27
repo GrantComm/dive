@@ -67,16 +67,23 @@ void DiveFilterModel::SetMode(FilterMode filter_mode)
 
 bool DiveFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+    uint64_t node_index = (uint64_t)index.internalPointer();
+
+    // Ensure no gfxr nodes are displayed
+    Dive::NodeType current_node_type = m_command_hierarchy.GetNodeType(node_index);
+    
+    if (current_node_type == Dive::NodeType::kGfxrVulkanSubmitNode) {
+        return false;
+    }
+
     if (m_filter_mode == kNone)
     {
         return true;
     }
 
-    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
     if (!index.isValid())
         return false;
-
-    uint64_t node_index = (uint64_t)index.internalPointer();
 
     Dive::CommandHierarchy::FilterListType
     filter_list_type = Dive::CommandHierarchy::kFilterListTypeCount;

@@ -36,7 +36,7 @@ GfxrVulkanCommandModel::GfxrVulkanCommandModel(const Dive::CommandHierarchy &com
 GfxrVulkanCommandModel::~GfxrVulkanCommandModel() {}
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandModel::Reset()
+void GfxrVulkanCommandModel::Reset(Dive::CommandHierarchy &command_hierarchy)
 {
     emit beginResetModel();
     m_topology_ptr = nullptr;
