@@ -28,6 +28,7 @@
 #include "dive_core/common/pm4_packets/me_pm4_packets.h"
 
 #include "dive_strings.h"
+#include "log.h"
 #include "pm4_info.h"
 
 namespace Dive
@@ -499,7 +500,8 @@ CommandHierarchyCreator::CommandHierarchyCreator(CommandHierarchy     &command_h
 }
 
 //--------------------------------------------------------------------------------------------------
-bool CommandHierarchyCreator::CreateTrees(bool                    flatten_chain_nodes,
+bool CommandHierarchyCreator::CreateTrees(const Pm4CaptureData      &capture_data,
+                                          bool flatten_chain_nodes,
                                           std::optional<uint64_t> reserve_size)
 {
     // Clear/Reset internal data structures, just in case
@@ -534,7 +536,7 @@ bool CommandHierarchyCreator::CreateTrees(bool                    flatten_chain_
     m_num_events = 0;
     m_flatten_chain_nodes = flatten_chain_nodes;
 
-    if (!ProcessPm4Submits(m_pm4_capture_data.GetSubmits(), m_pm4_capture_data.GetMemoryManager()))
+    if (!ProcessPm4Submits(capture_data.GetSubmits(), capture_data.GetMemoryManager()))
     {
         return false;
     }
@@ -546,10 +548,51 @@ bool CommandHierarchyCreator::CreateTrees(bool                    flatten_chain_
 }
 
 //--------------------------------------------------------------------------------------------------
-bool CommandHierarchyCreator::CreateTrees(EngineType             engine_type,
-                                          QueueType              queue_type,
+bool CommandHierarchyCreator::CreateTrees(bool flatten_chain_nodes,
+                                          std::optional<uint64_t> reserve_size)
+{
+    std::cout << "CommandHierarchyCreator::CreateTrees correct function call made" << std::endl;
+
+    // Clear/Reset internal data structures, just in case
+    m_command_hierarchy = CommandHierarchy();
+
+    // Optional: Reserve the internal vectors based on passed-in value. Overguessing means more
+    // memory used during creation, and potentially more memory used while the capture is loaded.
+    // Underguessing means more allocations. For big captures, this is easily in the multi-millions,
+    // so pre-reserving the space is a signficiant performance win
+    if (reserve_size.has_value())
+    {
+        for (uint32_t topology = 0; topology < CommandHierarchy::kTopologyTypeCount; ++topology)
+        {
+            m_node_start_shared_child[topology].reserve(*reserve_size);
+            m_node_end_shared_child[topology].reserve(*reserve_size);
+            m_node_root_node_index[topology].reserve(*reserve_size);
+
+            m_node_children[topology][0].reserve(*reserve_size);
+            m_node_children[topology][1].reserve(*reserve_size);
+
+            m_command_hierarchy.m_nodes.m_node_type.reserve(*reserve_size);
+            m_command_hierarchy.m_nodes.m_description.reserve(*reserve_size);
+            m_command_hierarchy.m_nodes.m_aux_info.reserve(*reserve_size);
+            m_command_hierarchy.m_nodes.m_event_node_indices.reserve(*reserve_size);
+        }
+    }
+
+    // Add a dummy root node for easier management
+    uint64_t root_node_index = AddNode(NodeType::kRootNode, "", 0);
+    DIVE_VERIFY(root_node_index == Topology::kRootNodeIndex);
+
+    m_num_events = 0;
+    m_flatten_chain_nodes = flatten_chain_nodes;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool CommandHierarchyCreator::CreateTrees(EngineType        engine_type,
+                                          QueueType         queue_type,
                                           std::vector<uint32_t> &command_dwords,
-                                          uint32_t               size_in_dwords)
+                                          uint32_t          size_in_dwords)
 {
     // Note: This function is mostly a copy/paste from the main CreateTrees() function, but with
     // workarounds to handle a case where there is no marker_data or capture_data
@@ -597,8 +640,7 @@ bool CommandHierarchyCreator::CreateTrees(EngineType             engine_type,
 
     private:
         std::vector<uint32_t> &m_command_dwords;
-        uint32_t               m_size_in_dwords;
-        ;
+        uint32_t  m_size_in_dwords;
     };
 
     // Clear/Reset internal data structures, just in case
@@ -1039,24 +1081,21 @@ bool CommandHierarchyCreator::OnPacket(const IMemoryManager &mem_manager,
             if (marker == RM6_BINNING)
             {
                 m_tracking_first_tile_pass_start = true;
-                m_command_hierarchy
-                .AddToFilterExcludeIndexList(m_render_marker_index,
-                                             CommandHierarchy::kFirstTilePassOnly);
+                m_command_hierarchy.AddToFilterExcludeIndexList(m_render_marker_index,
+                                              CommandHierarchy::kFirstTilePassOnly);
             }
 
             if ((marker == RM6_GMEM) || (marker == RM6_RESOLVE))
             {
                 m_command_hierarchy.AddToFilterExcludeIndexList(m_render_marker_index,
-                                                                CommandHierarchy::kBinningPassOnly);
+                                              CommandHierarchy::kBinningPassOnly);
 
                 if (!m_tracking_first_tile_pass_start)
                 {
-                    m_command_hierarchy
-                    .AddToFilterExcludeIndexList(m_render_marker_index,
-                                                 CommandHierarchy::kFirstTilePassOnly);
-                    m_command_hierarchy
-                    .AddToFilterExcludeIndexList(m_render_marker_index,
-                                                 CommandHierarchy::kBinningAndFirstTilePass);
+                    m_command_hierarchy.AddToFilterExcludeIndexList(m_render_marker_index,
+                                                  CommandHierarchy::kFirstTilePassOnly);
+                    m_command_hierarchy.AddToFilterExcludeIndexList(m_render_marker_index,
+                                                  CommandHierarchy::kBinningAndFirstTilePass);
                 }
                 if (m_tracking_first_tile_pass_start && (marker == RM6_RESOLVE))
                 {
@@ -1150,7 +1189,9 @@ void CommandHierarchyCreator::OnSubmitEnd(uint32_t submit_index, const SubmitInf
                   return lhs_index < rhs_index;
               });
 
-    // Insert present node to event topology, when appropriate
+    // Insert present node to event topology, when appropriate.
+    // The check for nullptr was removed because m_pm4_capture_data is a reference and cannot be null.
+    // The loop condition itself handles the case of zero presents.
     for (uint32_t i = 0; i < m_pm4_capture_data.GetNumPresents(); ++i)
     {
         const PresentInfo &present_info = m_pm4_capture_data.GetPresentInfo(i);
@@ -1167,23 +1208,23 @@ void CommandHierarchyCreator::OnSubmitEnd(uint32_t submit_index, const SubmitInf
             uint32_t    vk_color_space = present_info.GetSurfaceVkColorSpaceKHR();
             const char *color_space_string = GetVkColorSpaceKhrString(vk_color_space);
             DIVE_ASSERT(color_space_string != nullptr);
-            present_string_stream << "Present: " << i
-                                  << ", FullScreen: " << present_info.IsFullScreen() << ", Engine: "
-                                  << kEngineTypeStrings[(uint32_t)present_info.GetEngineType()]
-                                  << ", Queue: "
-                                  << kQueueTypeStrings[(uint32_t)present_info.GetQueueType()]
-                                  << ", SurfaceAddr: 0x" << std::hex
-                                  << present_info.GetSurfaceAddr() << std::dec
-                                  << ", SurfaceSize: " << present_info.GetSurfaceSize()
-                                  << ", VkFormat: " << format_string
-                                  << ", VkColorSpaceKHR: " << color_space_string;
+            present_string_stream
+            << "Present: " << i << ", FullScreen: " << present_info.IsFullScreen()
+            << ", Engine: " << kEngineTypeStrings[(uint32_t)present_info.GetEngineType()]
+            << ", Queue: " << kQueueTypeStrings[(uint32_t)present_info.GetQueueType()]
+            << ", SurfaceAddr: 0x" << std::hex << present_info.GetSurfaceAddr() << std::dec
+            << ", SurfaceSize: " << present_info.GetSurfaceSize()
+            << ", VkFormat: " << format_string << ", VkColorSpaceKHR: " << color_space_string;
         }
         else
         {
             present_string_stream << "Present: " << i;
         }
-        uint64_t present_node_index = AddNode(NodeType::kPresentNode, present_string_stream.str());
-        AddChild(CommandHierarchy::kAllEventTopology, Topology::kRootNodeIndex, present_node_index);
+        uint64_t present_node_index = AddNode(NodeType::kPresentNode,
+                                              present_string_stream.str());
+        AddChild(CommandHierarchy::kAllEventTopology,
+                 Topology::kRootNodeIndex,
+                 present_node_index);
     }
 }
 
@@ -2253,7 +2294,10 @@ void CommandHierarchyCreator::CreateTopologies()
         {
             DIVE_ASSERT(m_node_children[topology][0].size() == m_node_children[topology][1].size());
             cur_topology.AddChildren(node_index, m_node_children[topology][0][node_index]);
-            cur_topology.AddSharedChildren(node_index, m_node_children[topology][1][node_index]);
+            if (m_node_children[topology][0].size() == m_node_children[topology][1].size())
+            {
+                cur_topology.AddSharedChildren(node_index, m_node_children[topology][1][node_index]);
+            }
         }
         cur_topology.m_start_shared_child = std::move(m_node_start_shared_child[topology]);
         cur_topology.m_end_shared_child = std::move(m_node_end_shared_child[topology]);

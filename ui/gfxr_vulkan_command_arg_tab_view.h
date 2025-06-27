@@ -14,7 +14,6 @@
  limitations under the License.
 */
 
-#include "dive_core/data_core.h"
 #include <QFrame>
 #include <QSortFilterProxyModel>
 
@@ -35,24 +34,23 @@ class Topology;
 };  // namespace Dive
 
 //--------------------------------------------------------------------------------------------------
-class GfxrVulkanCommandTabView : public QFrame
+class GfxrVulkanCommandArgsTabView : public QFrame
 {
     Q_OBJECT
 
 public:
-    GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent = nullptr);
+    GfxrVulkanCommandArgsTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandArgFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent = nullptr);
 
     void SetTopologyToView(const Dive::Topology *topology_ptr);
-    
+
     void ResetModel(Dive::CommandHierarchy &command_hierarchy);
 
 public slots:
     void OnSelectionChanged(const QModelIndex &index);
-    void OnSearchCommands();
+    void OnSearchCommandArgs();
     void OnSearchBarVisibilityChange(bool isHidden);
     void ConnectSearchBar();
     void DisconnectSearchBar();
-    void ExpandAll();
 
 signals:
     // Update property panel for node information.

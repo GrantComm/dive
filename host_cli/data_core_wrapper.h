@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#include "dive_core/capture_data.h"
+#include "dive_core/gfxr_capture_data.h"
 #include "dive_core/data_core.h"
 
 #include "absl/status/status.h"

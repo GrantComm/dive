@@ -46,6 +46,8 @@
 #include "dive_tree_view.h"
 #include "gfxr_vulkan_command_model.h"
 #include "gfxr_vulkan_command_filter_proxy_model.h"
+#include "gfxr_vulkan_command_arg_filter_proxy_model.h"
+#include "gfxr_vulkan_command_arg_tab_view.h"
 #include "gfxr_vulkan_command_tab_view.h"
 #include "object_names.h"
 #include "settings.h"
@@ -68,7 +70,6 @@
 #include "shortcuts_window.h"
 #include "text_file_view.h"
 #include "tree_view_combo_box.h"
-#include "gfxr_vulkan_command_tab_view.h"
 
 static constexpr int         kViewModeStringCount = 2;
 static constexpr int         kEventViewModeStringCount = 1;
@@ -190,7 +191,7 @@ MainWindow::MainWindow()
 
         m_gfxr_vulkan_commands_filter_proxy_model = new GfxrVulkanCommandFilterProxyModel(m_command_hierarchy_view, &m_data_core->GetCommandHierarchy());
 
-        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_filter_proxy_model, m_gfxr_vulkan_command_hierarchy_model);
+        m_gfxr_vulkan_commands_args_filter_proxy_model = new GfxrVulkanCommandArgFilterProxyModel(m_command_hierarchy_view, &m_data_core->GetCommandHierarchy());
 
         m_event_search_bar->setTreeView(m_command_hierarchy_view);
 
@@ -239,11 +240,15 @@ MainWindow::MainWindow()
         m_overview_tab_view = new OverviewTabView(m_data_core->GetCaptureMetadata(),
                                                   *m_event_selection);
         m_event_state_view = new EventStateView(*m_data_core);
-        m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
-
-        m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Commands");
-        m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_filter_proxy_model, m_gfxr_vulkan_command_hierarchy_model);
+        m_gfxr_vulkan_command_arguments_tab_view = new GfxrVulkanCommandArgsTabView(m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_args_filter_proxy_model, m_gfxr_vulkan_command_hierarchy_model);
+    
+        m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view, "Commands");
+        m_gfxr_vulkan_command_arguments_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
+        m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Command Buffers");
         m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+        m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+        m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
 #if defined(ENABLE_CAPTURE_BUFFERS)
         m_buffer_view = new BufferView(*m_data_core);
         m_tab_widget->addTab(m_buffer_view, "Buffers");
@@ -285,28 +290,6 @@ MainWindow::MainWindow()
                      SIGNAL(textHighlighted(const QString &)),
                      this,
                      SLOT(OnCommandViewModeComboBoxHover(const QString &)));
-    QObject::connect(m_command_hierarchy_view,
-                     SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
-                     m_command_tab_view,
-                     SLOT(OnSelectionChanged(const QModelIndex &)));
-    QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                     this,
-                     SLOT(OnSelectionChanged(const QModelIndex &)));
-    QObject::connect(this,
-                     SIGNAL(EventSelected(uint64_t)),
-                     m_shader_view,
-                     SLOT(OnEventSelected(uint64_t)));
-    QObject::connect(this,
-                     SIGNAL(EventSelected(uint64_t)),
-                     m_event_state_view,
-                     SLOT(OnEventSelected(uint64_t)));
-#if defined(ENABLE_CAPTURE_BUFFERS)
-    QObject::connect(this,
-                     SIGNAL(EventSelected(uint64_t)),
-                     m_buffer_view,
-                     SLOT(OnEventSelected(uint64_t)));
-#endif
     QObject::connect(m_hover_help,
                      SIGNAL(CurrStringChanged(const QString &)),
                      m_property_panel,
@@ -565,58 +548,14 @@ void MainWindow::OnFilterModeChange(const QString &filter_mode)
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
+bool MainWindow::LoadDiveFile(const char *file_name, bool is_temp_file)
 {
+    m_gfxr_capture = false;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-    // Get the current selection model before it potentially changes.
-    QItemSelectionModel* currentSelectionModel = m_command_hierarchy_view->selectionModel();
-
-    // Disconnect ALL signals from the selection model to ALL slots.
-    if (currentSelectionModel)
-    {
-        QObject::disconnect(currentSelectionModel, nullptr, nullptr, nullptr);
-    }
-
-    // Disconnect relevant signals from the view itself.
-    QObject::disconnect(m_command_hierarchy_view, nullptr, nullptr, nullptr);
-    // Disconnect any other relevant objects if they might hold stale connections
-    QObject::disconnect(m_command_tab_view, nullptr, nullptr, nullptr);
-    QObject::disconnect(m_gfxr_vulkan_command_tab_view, nullptr, nullptr, nullptr);
-    // Also disconnect these specific signals which are reconnected conditionally
-    QObject::disconnect(this,
-        SIGNAL(EventSelected(uint64_t)),
-        m_shader_view,
-        SLOT(OnEventSelected(uint64_t)));
-QObject::disconnect(this,
-        SIGNAL(EventSelected(uint64_t)),
-        m_event_state_view,
-        SLOT(OnEventSelected(uint64_t)));
-#if defined(ENABLE_CAPTURE_BUFFERS)
-QObject::disconnect(this,
-        SIGNAL(EventSelected(uint64_t)),
-        m_buffer_view,
-        SLOT(OnEventSelected(uint64_t)));
-#endif
-
-    // Temporarily set the model to nullptr and clear selection/current index
-    // before loading new data. This forces a clean break.
-    m_command_hierarchy_view->setModel(nullptr);
-    if (currentSelectionModel) {
-        currentSelectionModel->clearSelection();
-    }
     m_command_hierarchy_view->setCurrentIndex(QModelIndex());
 
-    // Reset models and views that display data from the capture
-    m_command_tab_view->ResetModel();
-    m_gfxr_vulkan_command_tab_view->ResetModel();
-    m_gfxr_vulkan_command_hierarchy_model->Reset();
-    m_command_hierarchy_model->Reset();
-    m_event_selection->Reset();
-    m_shader_view->Reset();
-    m_text_file_view->Reset();
-    m_prev_command_view_mode = QString();
-    Dive::CaptureData::LoadResult load_res = m_data_core->LoadPm4CaptureData(file_name);
+    Dive::CaptureData::LoadResult load_res = m_data_core->LoadDiveCaptureData(file_name);
     if (load_res != Dive::CaptureData::LoadResult::kSuccess)
     {
         HideOverlay();
@@ -631,8 +570,7 @@ QObject::disconnect(this,
         return false;
     }
 
-    m_command_hierarchy_model->BeginResetModel();
-    if (!m_data_core->ParsePm4CaptureData())
+    if (!m_data_core->ParseDiveCaptureData())
     {
         HideOverlay();
         QMessageBox::critical(this,
@@ -641,25 +579,69 @@ QObject::disconnect(this,
         return false;
     }
 
-    // --- Re-enable signals and interaction after all models/views are set up ---
-    this->blockSignals(false);
-    QApplication::instance()->blockSignals(false);
-    this->setUpdatesEnabled(true); // Re-enable updates for the whole window
-    m_command_hierarchy_view->setEnabled(true); // Re-enable interaction
+    Dive::CommandHierarchy& newHierarchy = m_data_core->GetCommandHierarchy();
 
-    // Set initial selection *after* data is parsed, signals are re-enabled, and view is enabled
-    QModelIndex firstIndex = m_command_hierarchy_view->model()->index(0, 0);
-    if (firstIndex.isValid() && m_command_hierarchy_view->selectionModel()) {
-        m_command_hierarchy_view->selectionModel()->setCurrentIndex(firstIndex, QItemSelectionModel::ClearAndSelect);
+    // 1. Reset the GFXR Vulkan command model (ModelA) directly in MainWindow
+    //    This ensures its internal 'm_command_hierarchy' is updated.
+    m_gfxr_vulkan_command_hierarchy_model->Reset(newHierarchy);
+
+    
+
+    // Reset models and views that display data from the capture
+    m_gfxr_vulkan_command_tab_view->ResetModel(m_data_core->GetCommandHierarchy());
+    m_gfxr_vulkan_command_arguments_tab_view->ResetModel(m_data_core->GetCommandHierarchy());
+    m_gfxr_vulkan_command_hierarchy_model->Reset(m_data_core->GetCommandHierarchy());
+    m_command_tab_view->ResetModel();
+    m_command_hierarchy_model->Reset();
+    m_event_selection->Reset();
+    m_shader_view->Reset();
+    m_text_file_view->Reset();
+    m_prev_command_view_mode = QString();
+
+    m_command_hierarchy_model->BeginResetModel();
+
+    // Remove all the tabs.
+    while (m_tab_widget->count() > 0) {
+        m_tab_widget->removeTab(0);
     }
+
+    // Add the tabs required for a .dive file.
+    m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view, "Commands");
+    m_gfxr_vulkan_command_arguments_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
+    m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Command Buffers");
+    m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+    m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+    m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+#if defined(ENABLE_CAPTURE_BUFFERS)
+        // If m_buffer_view is dynamically created/deleted, handle it here.
+        // If it's a fixed member, ensure it's reset.
+        if (!m_buffer_view) { // Only create if null, otherwise just reset
+             m_buffer_view = new BufferView(*m_data_core);
+        } else {
+             // m_buffer_view->Reset(); // Assuming it has a reset method
+        }
+        m_tab_widget->addTab(m_buffer_view, "Buffers");
+#endif
+
+    m_filter_model->SetMode(DiveFilterModel::kBinningAndFirstTilePass);
+    m_command_hierarchy_view->setModel(m_filter_model);
+
+    m_filter_mode_combo_box->setEnabled(true);
+    m_view_mode_combo_box->setEnabled(true);
+
+    ConnectDiveFileTabs();
 
     {
         OnCommandViewModeChange(tr(kEventViewModeStrings[0]));
     }
 
-    m_command_hierarchy_model->EndResetModel(); // For your non-Vulkan model
-    m_gfxr_vulkan_command_hierarchy_model->EndResetModel(); // For your Vulkan model
+    m_command_hierarchy_model->EndResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->EndResetModel();
 
+    std::cout << "m_command_hierarchy_model row count: " <<  m_command_hierarchy_model->rowCount() << std::endl; // This is the left panel's model.
+    // Add one more print for the GFXR Vulkan model:
+    std::cout << "m_gfxr_vulkan_command_hierarchy_model row count (after all resets): " << m_gfxr_vulkan_command_hierarchy_model->rowCount() << std::endl;
+    
     ExpandResizeHierarchyView();
     m_hover_help->SetCurItem(HoverHelp::Item::kNone);
     m_capture_file = QString(file_name);
@@ -686,6 +668,234 @@ QObject::disconnect(this,
     FileLoaded();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::LoadAdrenoRdFile(const char *file_name, bool is_temp_file)
+{
+    m_gfxr_capture = false;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    m_log_record.Reset();
+
+    m_command_hierarchy_view->setCurrentIndex(QModelIndex());
+
+    Dive::CaptureData::LoadResult load_res = m_data_core->LoadPm4CaptureData(file_name);
+    if (load_res != Dive::CaptureData::LoadResult::kSuccess)
+    {
+        HideOverlay();
+        QString error_msg;
+        if (load_res == Dive::CaptureData::LoadResult::kFileIoError)
+            error_msg = QString("File I/O error!");
+        else if (load_res == Dive::CaptureData::LoadResult::kCorruptData)
+            error_msg = QString("File corrupt!");
+        else if (load_res == Dive::CaptureData::LoadResult::kVersionError)
+            error_msg = QString("Incompatible version!");
+        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
+        return false;
+    }
+
+    // Reset models and views that display data from the capture
+    m_command_tab_view->ResetModel();
+    m_command_hierarchy_model->Reset();
+    m_event_selection->Reset();
+    m_shader_view->Reset();
+    m_text_file_view->Reset();
+    m_prev_command_view_mode = QString();
+
+    m_command_hierarchy_model->BeginResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->BeginResetModel();
+
+    // Remove all the tabs.
+    while (m_tab_widget->count() > 0) {
+        m_tab_widget->removeTab(0);
+    }
+
+    if (!m_data_core->ParsePm4CaptureData())
+    {
+        HideOverlay();
+        QMessageBox::critical(this,
+                              QString("Error parsing file"),
+                              (QString("Unable to parse file: ") + file_name));
+        return false;
+    }
+
+    // Add the tabs required for an AdrenoRd file.
+    m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+    m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Command Buffers");
+    m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+    m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+#if defined(ENABLE_CAPTURE_BUFFERS)
+        // If m_buffer_view is dynamically created/deleted, handle it here.
+        // If it's a fixed member, ensure it's reset.
+        if (!m_buffer_view) { // Only create if null, otherwise just reset
+             m_buffer_view = new BufferView(*m_data_core);
+        } else {
+             // m_buffer_view->Reset(); // Assuming it has a reset method
+        }
+        m_tab_widget->addTab(m_buffer_view, "Buffers");
+#endif
+
+    m_filter_model->SetMode(DiveFilterModel::kBinningAndFirstTilePass);
+    m_command_hierarchy_view->setModel(m_filter_model);
+
+    m_filter_mode_combo_box->setEnabled(true);
+    m_view_mode_combo_box->setEnabled(true);
+
+    ConnectAdrenoRdFileTabs();
+
+    {
+        OnCommandViewModeChange(tr(kEventViewModeStrings[0]));
+    }
+
+    m_command_hierarchy_model->EndResetModel();
+    
+    ExpandResizeHierarchyView();
+    m_hover_help->SetCurItem(HoverHelp::Item::kNone);
+    m_capture_file = QString(file_name);
+    QFileInfo file_info(m_capture_file);
+    SetCurrentFile(m_capture_file, is_temp_file);
+    emit SetSaveAsMenuStatus(true);
+    if (m_unsaved_capture_path.empty())
+    {
+        emit SetSaveMenuStatus(false);
+    }
+    else
+    {
+        emit SetSaveMenuStatus(true);
+    }
+    HideOverlay();
+    ShowTempStatus(tr("File loaded successfully"));
+    [[maybe_unused]] int64_t
+    time_used_to_load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::steady_clock::now() - begin)
+                           .count();
+
+    DIVE_DEBUG_LOG("Time used to load the capture is %f seconds.", (time_used_to_load_ms / 1000.0));
+
+    FileLoaded();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::LoadGfxrFile(const char *file_name, bool is_temp_file)
+{
+      std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    m_log_record.Reset();
+
+    m_command_hierarchy_view->setCurrentIndex(QModelIndex());
+
+    Dive::CaptureData::LoadResult load_res = m_data_core->LoadGfxrCaptureData(file_name);
+    if (load_res != Dive::CaptureData::LoadResult::kSuccess)
+    {
+        HideOverlay();
+        QString error_msg;
+        if (load_res == Dive::CaptureData::LoadResult::kFileIoError)
+            error_msg = QString("File I/O error!");
+        else if (load_res == Dive::CaptureData::LoadResult::kCorruptData)
+            error_msg = QString("File corrupt!");
+        else if (load_res == Dive::CaptureData::LoadResult::kVersionError)
+            error_msg = QString("Incompatible version!");
+        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
+        return false;
+    }
+
+    // Reset models and views that display data from the capture
+    m_gfxr_vulkan_command_tab_view->ResetModel(m_data_core->GetCommandHierarchy());
+    m_gfxr_vulkan_command_hierarchy_model->Reset(m_data_core->GetCommandHierarchy());
+    m_prev_command_view_mode = QString();
+    
+    m_gfxr_vulkan_command_hierarchy_model->BeginResetModel();
+
+    // Remove all the tabs.
+    while (m_tab_widget->count() > 0) {
+        m_tab_widget->removeTab(0);
+    }
+
+    if (!m_data_core->ParseGfxrCaptureData())
+    {
+        HideOverlay();
+        QMessageBox::critical(this,
+                              QString("Error parsing file"),
+                              (QString("Unable to parse file: ") + file_name));
+        return false;
+    }
+
+    m_gfxr_capture = std::strstr(file_name, ".gfxr") != nullptr;
+
+    m_gfxr_vulkan_commands_filter_proxy_model->setSourceModel(m_gfxr_vulkan_command_hierarchy_model);
+    m_command_hierarchy_view->setModel(m_gfxr_vulkan_commands_filter_proxy_model);
+
+    ConnectGfxrFileTabs();
+
+    m_gfxr_vulkan_command_arguments_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
+
+    // Ensure the submit topology is displayed.
+    m_view_mode_combo_box->currentTextChanged("Submit");
+    // Disable the Mode and Filter combo boxes.
+    m_view_mode_combo_box->setEnabled(false);
+    m_filter_mode_combo_box->setEnabled(false);
+
+
+    m_gfxr_vulkan_command_hierarchy_model->EndResetModel();
+    
+    ExpandResizeHierarchyView();
+    m_hover_help->SetCurItem(HoverHelp::Item::kNone);
+    m_capture_file = QString(file_name);
+    QFileInfo file_info(m_capture_file);
+    SetCurrentFile(m_capture_file, is_temp_file);
+    emit SetSaveAsMenuStatus(true);
+    if (m_unsaved_capture_path.empty())
+    {
+        emit SetSaveMenuStatus(false);
+    }
+    else
+    {
+        emit SetSaveMenuStatus(true);
+    }
+    HideOverlay();
+    ShowTempStatus(tr("File loaded successfully"));
+    [[maybe_unused]] int64_t
+    time_used_to_load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::steady_clock::now() - begin)
+                           .count();
+
+    DIVE_DEBUG_LOG("Time used to load the capture is %f seconds.", (time_used_to_load_ms / 1000.0));
+
+    FileLoaded();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
+{
+    // Check the file type to determine what is loaded.
+    std::string file_extension = std::filesystem::path(file_name).extension().generic_string();
+
+    // Disconnect the signals for all of the possible tabs.
+    DisconnectAllTabs();
+
+    if (file_extension.compare(".dive") == 0)
+    {
+        return LoadDiveFile(file_name, is_temp_file);
+    }
+    else if (file_extension.compare(".rd") == 0)
+    {
+        return LoadAdrenoRdFile(file_name, is_temp_file);
+    }
+    else if (file_extension.compare(".gfxr") == 0)
+    {
+        return LoadDiveFile(file_name, is_temp_file);
+        // return LoadGfxrFile(file_name, is_temp_file);
+    }
+    else
+    {
+        HideOverlay();
+        QString error_msg = QString("File type not supported!");
+        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1177,13 +1387,23 @@ void MainWindow::ShowTempStatus(const QString &status_message)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::ExpandResizeHierarchyView()
 {
+    m_gfxr_vulkan_command_tab_view->ExpandAll();
     m_command_hierarchy_view->expandAll();
 
     // Set to -1 so that resizeColumnToContents() will consider *all* rows to determine amount
     // to resize. This can potentially be slow!
     // Then resize each column. This will also auto-adjust horizontal scroll bar size.
     m_command_hierarchy_view->header()->setResizeContentsPrecision(-1);
-    uint32_t column_count = (uint32_t)m_command_hierarchy_model->columnCount(QModelIndex());
+    uint32_t column_count;
+    if (!m_gfxr_capture)
+    {
+        column_count = (uint32_t)m_command_hierarchy_model->columnCount(QModelIndex());
+
+    }
+    else
+    {
+        column_count = (uint32_t)m_gfxr_vulkan_command_hierarchy_model->columnCount(QModelIndex());
+    }
     for (uint32_t column = 0; column < column_count; ++column)
         m_command_hierarchy_view->resizeColumnToContents(column);
 }
@@ -1363,4 +1583,214 @@ void MainWindow::DisconnectSearchBar()
                         &DiveTreeView::updateSearch,
                         m_event_search_bar,
                         &SearchBar::updateSearchResults);
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::DisconnectAllTabs()
+{
+    // Get the current selection model before it potentially changes.
+    QItemSelectionModel* currentSelectionModel = m_command_hierarchy_view->selectionModel();
+
+    // Disconnect ALL signals from the selection model to ALL slots.
+    if (currentSelectionModel)
+    {
+        QObject::disconnect(currentSelectionModel, nullptr, nullptr, nullptr);
+    }
+
+    // Disconnect relevant signals from the view itself.
+    /*QObject::disconnect(m_command_hierarchy_view, nullptr, nullptr, nullptr);
+    // Disconnect any other relevant objects if they might hold stale connections
+    QObject::disconnect(m_command_tab_view, nullptr, nullptr, nullptr);
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view, nullptr, nullptr, nullptr);
+    QObject::disconnect(m_gfxr_vulkan_command_arguments_tab_view, nullptr, nullptr, nullptr);*/
+
+    QObject::disconnect(m_command_hierarchy_view,
+                         SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+
+    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         this,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+    
+    QObject::disconnect(m_command_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    QObject::disconnect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_shader_view,
+        SLOT(OnEventSelected(uint64_t)));
+
+    QObject::disconnect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_event_state_view,
+        SLOT(OnEventSelected(uint64_t)));
+#if defined(ENABLE_CAPTURE_BUFFERS)
+QObject::disconnect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_buffer_view,
+        SLOT(OnEventSelected(uint64_t)));
+#endif
+
+    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_gfxr_vulkan_command_arguments_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+                         
+    QObject::disconnect(m_gfxr_vulkan_command_arguments_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_gfxr_vulkan_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    // Temporarily set the model to nullptr and clear selection/current index
+    // before loading new data. This forces a clean break.
+    m_command_hierarchy_view->setModel(nullptr);
+    if (currentSelectionModel) {
+        currentSelectionModel->clearSelection();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::ConnectDiveFileTabs()
+{
+    QObject::connect(m_command_hierarchy_view,
+                         SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         this,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+    
+    QObject::connect(m_command_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    QObject::connect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_shader_view,
+        SLOT(OnEventSelected(uint64_t)));
+
+    QObject::connect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_event_state_view,
+        SLOT(OnEventSelected(uint64_t)));
+#if defined(ENABLE_CAPTURE_BUFFERS)
+QObject::disconnect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_buffer_view,
+        SLOT(OnEventSelected(uint64_t)));
+#endif
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_gfxr_vulkan_command_arguments_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+                         
+    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_gfxr_vulkan_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::ConnectAdrenoRdFileTabs()
+{
+    QObject::connect(m_command_hierarchy_view,
+                         SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         this,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+    
+    QObject::connect(m_command_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    QObject::connect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_shader_view,
+        SLOT(OnEventSelected(uint64_t)));
+
+    QObject::connect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_event_state_view,
+        SLOT(OnEventSelected(uint64_t)));
+#if defined(ENABLE_CAPTURE_BUFFERS)
+QObject::connect(this,
+        SIGNAL(EventSelected(uint64_t)),
+        m_buffer_view,
+        SLOT(OnEventSelected(uint64_t)));
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::ConnectGfxrFileTabs()
+{
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_gfxr_vulkan_command_arguments_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+                         
+    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                         SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                         m_gfxr_vulkan_command_tab_view,
+                         SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(HideOtherSearchBars()),
+                         this,
+                         SLOT(OnTabViewChange()));
 }

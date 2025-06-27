@@ -16,7 +16,7 @@
 
 #include "data_core_wrapper.h"
 
-#include "dive_core/capture_data.h"
+#include "dive_core/gfxr_capture_data.h"
 #include "dive_core/data_core.h"
 
 namespace Dive::HostCli
@@ -38,7 +38,7 @@ absl::Status DataCoreWrapper::LoadGfxrFile(const std::string& original_gfxr_file
 {
     assert(m_data_core != nullptr);
 
-    CaptureData::LoadResult load_result = m_data_core->GetMutableGfxrCaptureData().LoadCaptureFile(
+    GfxrCaptureData::LoadResult load_result = m_data_core->GetMutableGfxrCaptureData().LoadCaptureFile(
     original_gfxr_file_path.c_str());
     if (load_result != CaptureData::LoadResult::kSuccess)
     {

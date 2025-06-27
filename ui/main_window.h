@@ -35,9 +35,11 @@ class EventTimingView;
 #endif
 class CommandTabView;
 class GfxrVulkanCommandTabView;
+class GfxrVulkanCommandArgsTabView;
 class CommandModel;
 class GfxrVulkanCommandModel;
 class GfxrVulkanCommandFilterProxyModel;
+class GfxrVulkanCommandArgFilterProxyModel;
 class HoverHelp;
 class Overlay;
 class OverlayWidget;
@@ -74,6 +76,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     ~MainWindow();
+    bool LoadDiveFile(const char *file_name, bool is_temp_file = false);
+    bool LoadAdrenoRdFile(const char *file_name, bool is_temp_file = false);
+    bool LoadGfxrFile(const char *file_name, bool is_temp_file = false);
     bool LoadFile(const char *file_name, bool is_temp_file = false);
 
     bool InitializePlugins();
@@ -115,6 +120,10 @@ private slots:
     void OnTabViewChange();
     void ConnectSearchBar();
     void DisconnectSearchBar();
+    void DisconnectAllTabs();
+    void ConnectDiveFileTabs();
+    void ConnectAdrenoRdFileTabs();
+    void ConnectGfxrFileTabs();
 
 private:
     void    CreateActions();
@@ -170,6 +179,7 @@ private:
     CommandModel *m_command_hierarchy_model;
     GfxrVulkanCommandModel *m_gfxr_vulkan_command_hierarchy_model;
     GfxrVulkanCommandFilterProxyModel *m_gfxr_vulkan_commands_filter_proxy_model;
+    GfxrVulkanCommandArgFilterProxyModel *m_gfxr_vulkan_commands_args_filter_proxy_model;
     QPushButton  *m_search_trigger_button;
     SearchBar    *m_event_search_bar = nullptr;
 
@@ -191,6 +201,8 @@ private:
     int              m_event_state_view_tab_index;
     GfxrVulkanCommandTabView  *m_gfxr_vulkan_command_tab_view;
     int              m_gfxr_vulkan_command_view_tab_index;
+    GfxrVulkanCommandArgsTabView  *m_gfxr_vulkan_command_arguments_tab_view;
+    int              m_gfxr_vulkan_command_arguments_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)
     BufferView *m_buffer_view;
 #endif

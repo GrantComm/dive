@@ -15,6 +15,7 @@
 #define GFXRVULKANCOMMANDFILTERPROXYMODEL_H
 
 #include <QSortFilterProxyModel>
+#include <iostream>
 #include "dive_core/command_hierarchy.h"
 #include "gfxr_vulkan_command_model.h"
 
@@ -29,6 +30,15 @@ class GfxrVulkanCommandFilterProxyModel : public QSortFilterProxyModel {
 
 public:
     GfxrVulkanCommandFilterProxyModel(QObject *parent = nullptr, const Dive::CommandHierarchy *command_hierarchy = nullptr);
+
+    void refreshFilter() {
+        if (sourceModel() == nullptr) {
+        std::cout << "ERROR: Proxy source model is null!" << std::endl;
+    }
+    
+        invalidateFilter(); // Call the protected method from within your class
+    }
+
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;

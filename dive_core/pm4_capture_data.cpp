@@ -514,141 +514,33 @@ bool MemoryManager::IsValid(uint32_t submit_index, uint64_t addr, uint64_t size)
 }
 
 // =================================================================================================
-// SubmitInfo
+// TextInfo
 // =================================================================================================
-SubmitInfo::SubmitInfo(EngineType                       engine_type,
-                       QueueType                        queue_type,
-                       uint8_t                          engine_index,
-                       bool                             is_dummy_submit,
-                       DiveVector<IndirectBufferInfo> &&ibs)
+TextInfo::TextInfo(std::string name, uint64_t size, DiveVector<char> &&text)
 {
-    m_engine_type = engine_type;
-    m_queue_type = queue_type;
-    m_engine_index = engine_index;
-    m_is_dummy_submit = is_dummy_submit;
-    m_ibs = ibs;
-}
-
-//--------------------------------------------------------------------------------------------------
-EngineType SubmitInfo::GetEngineType() const
-{
-    return m_engine_type;
-}
-
-//--------------------------------------------------------------------------------------------------
-QueueType SubmitInfo::GetQueueType() const
-{
-    return m_queue_type;
-}
-
-//--------------------------------------------------------------------------------------------------
-uint8_t SubmitInfo::GetEngineIndex() const
-{
-    return m_engine_index;
-}
-
-//--------------------------------------------------------------------------------------------------
-bool SubmitInfo::IsDummySubmit() const
-{
-    return m_is_dummy_submit;
-}
-
-//--------------------------------------------------------------------------------------------------
-uint32_t SubmitInfo::GetNumIndirectBuffers() const
-{
-    return (uint32_t)m_ibs.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-const IndirectBufferInfo &SubmitInfo::GetIndirectBufferInfo(uint32_t ib_index) const
-{
-    return m_ibs[ib_index];
-}
-
-//--------------------------------------------------------------------------------------------------
-const IndirectBufferInfo *SubmitInfo::GetIndirectBufferInfoPtr() const
-{
-    return &m_ibs[0];
-}
-
-//--------------------------------------------------------------------------------------------------
-void SubmitInfo::AppendIb(const IndirectBufferInfo &ib)
-{
-    m_ibs.push_back(ib);
-}
-
-// =================================================================================================
-// Present Info
-// =================================================================================================
-PresentInfo::PresentInfo()
-{
-    m_valid_data = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-PresentInfo::PresentInfo(EngineType engine_type,
-                         QueueType  queue_type,
-                         uint32_t   submit_index,
-                         bool       full_screen,
-                         uint64_t   addr,
-                         uint64_t   size,
-                         uint32_t   vk_format,
-                         uint32_t   vk_color_space)
-{
-    m_valid_data = true;
-    m_engine_type = engine_type;
-    m_queue_type = queue_type;
-    m_submit_index = submit_index;
-    m_full_screen = full_screen;
-    m_addr = addr;
+    m_name = std::move(name);
     m_size = size;
-    m_vk_format = vk_format;
-    m_vk_color_space = vk_color_space;
+    m_text = text;
 }
 
 //--------------------------------------------------------------------------------------------------
-bool PresentInfo::HasValidData() const
+const std::string &TextInfo::GetName() const
 {
-    return m_valid_data;
+    return m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
-EngineType PresentInfo::GetEngineType() const
-{
-    return m_engine_type;
-}
-
-//--------------------------------------------------------------------------------------------------
-QueueType PresentInfo::GetQueueType() const
-{
-    return m_queue_type;
-}
-
-//--------------------------------------------------------------------------------------------------
-uint32_t PresentInfo::GetSubmitIndex() const
-{
-    return m_submit_index;
-}
-
-//--------------------------------------------------------------------------------------------------
-bool PresentInfo::IsFullScreen() const
-{
-    return m_full_screen;
-}
-
-//--------------------------------------------------------------------------------------------------
-uint64_t PresentInfo::GetSurfaceAddr() const
-{
-    return m_addr;
-}
-
-//--------------------------------------------------------------------------------------------------
-uint64_t PresentInfo::GetSurfaceSize() const
+uint64_t TextInfo::GetSize() const
 {
     return m_size;
 }
 
 //--------------------------------------------------------------------------------------------------
+const char *TextInfo::GetText() const
+{
+    return m_text.data();
+}
+
 uint32_t PresentInfo::GetSurfaceVkFormat() const
 {
     return m_vk_format;
@@ -744,34 +636,6 @@ uint64_t RingInfo::GetEmittedFenceAddress() const
 uint64_t RingInfo::GetSignaledFenceAddress() const
 {
     return m_fence_signaled_addr;
-}
-
-// =================================================================================================
-// TextInfo
-// =================================================================================================
-TextInfo::TextInfo(std::string name, uint64_t size, DiveVector<char> &&text)
-{
-    m_name = std::move(name);
-    m_size = size;
-    m_text = text;
-}
-
-//--------------------------------------------------------------------------------------------------
-const std::string &TextInfo::GetName() const
-{
-    return m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-uint64_t TextInfo::GetSize() const
-{
-    return m_size;
-}
-
-//--------------------------------------------------------------------------------------------------
-const char *TextInfo::GetText() const
-{
-    return m_text.data();
 }
 
 // =================================================================================================
@@ -1622,5 +1486,4 @@ std::string Pm4CaptureData::GetFileFormatVersion() const
        << m_data_header.m_revision;
     return os.str();
 }
-
 }  // namespace Dive

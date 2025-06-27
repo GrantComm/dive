@@ -21,10 +21,10 @@
 #include "pm4_capture_data.h"
 #include "gfxr_capture_data.h"
 #include "capture_event_info.h"
-#include "command_hierarchy.h"
+// #include "command_hierarchy.h"
 #include "event_state.h"
 #include "progress_tracker.h"
-#include "gfxr_vulkan_command_hierarchy.h"
+#include "dive_command_hierarchy.h"
 
 namespace Dive
 {
@@ -66,19 +66,22 @@ public:
     DataCore(ProgressTracker *progress_tracker);
 
     // Load the capture file
+    CaptureData::LoadResult LoadDiveCaptureData(const char *file_name);
     CaptureData::LoadResult LoadPm4CaptureData(const char *file_name);
     CaptureData::LoadResult LoadGfxrCaptureData(const char *file_name);
 
     // Parse the capture to generate info that describes the capture
+    bool ParseDiveCaptureData();
     bool ParsePm4CaptureData();
     bool ParseGfxrCaptureData();
 
-    // Create meta data from the captured pm4 data
-    bool CreateMetaData();
+    // Create meta data from the captured data
+    bool CreateDiveMetaData();
+     bool CreatePm4MetaData();
 
     // Get the pm4 capture data (includes access to raw command buffers and memory blocks)
     const Pm4CaptureData &GetPm4CaptureData() const;
-    CaptureData          &GetMutablePm4CaptureData();
+    Pm4CaptureData       &GetMutablePm4CaptureData();
 
     // Get the gfxr capture data
     const GfxrCaptureData &GetGfxrCaptureData() const;
@@ -87,16 +90,23 @@ public:
     // Get the command-hierarchy, which is a tree view interpretation of the command buffer
     const CommandHierarchy &GetCommandHierarchy() const;
 
+    CommandHierarchy &GetCommandHierarchy();
+
     // Get metadata describing the capture (info obtained by parsing the capture)
     const CaptureMetadata &GetCaptureMetadata() const;
 
 private:
-    // Create pm4 command hierarchy from the captured data
+    // Create command hierarchy from the captured data
+    bool CreateDiveCommandHierarchy();
     bool CreatePm4CommandHierarchy();
-    // The relatively raw captured pm4 data (memory & submit blocks)
+    bool CreateGfxrCommandHierarchy();
+    // The relatively raw captured data (memory & submit blocks)
+    DiveCaptureData m_dive_capture_data;
+    // The relatively raw captured data (memory & submit blocks)
     Pm4CaptureData m_pm4_capture_data;
-    // The relatively raw captured gfxr data
+    // The relatively raw captured gfxr data.
     GfxrCaptureData m_gfxr_capture_data;
+
     // Metadata for the capture data in m_capture_data
     CaptureMetadata m_capture_metadata;
 };

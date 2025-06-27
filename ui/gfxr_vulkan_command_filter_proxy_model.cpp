@@ -13,6 +13,7 @@
 
 #include "gfxr_vulkan_command_filter_proxy_model.h"
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 GfxrVulkanCommandFilterProxyModel::GfxrVulkanCommandFilterProxyModel(QObject *parent, const Dive::CommandHierarchy *command_hierarchy)
@@ -21,6 +22,7 @@ GfxrVulkanCommandFilterProxyModel::GfxrVulkanCommandFilterProxyModel(QObject *pa
 }
 
 bool GfxrVulkanCommandFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
+    std::cout << "GfxrVulkanCommandFilterProxyModel::filterAcceptsRow called" << std::endl;
     QModelIndex indexInSource = sourceModel()->index(sourceRow, 0, sourceParent);
 
     if (!indexInSource.isValid()) {

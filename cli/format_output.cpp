@@ -27,7 +27,7 @@
 #include <sstream>
 #include <string>
 
-#include "dive_core/capture_data.h"
+#include "dive_core/pm4_capture_data.h"
 #include "dive_core/command_hierarchy.h"
 #include "dive_core/data_core.h"
 #include "dive_core/dive_strings.h"
@@ -548,7 +548,7 @@ bool ParseCapture(const char                              *filename,
     command_hierarchy = std::make_unique<Dive::CommandHierarchy>();
     std::unique_ptr<EmulateStateTracker> state_tracker(new EmulateStateTracker);
     Dive::CommandHierarchyCreator        creator(*command_hierarchy, *capture_data, *state_tracker);
-    if (!creator.CreateTrees(true, std::nullopt))
+    if (!creator.CreateTrees(*capture_data, true, std::nullopt))
     {
         command_hierarchy.reset();
         std::cerr << "Error parsing capture!" << std::endl;

@@ -14,7 +14,7 @@
  limitations under the License.
 */
 
-#include "gfxr_vulkan_command_tab_view.h"
+#include "gfxr_vulkan_command_arg_tab_view.h"
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -28,14 +28,15 @@
 #include "search_bar.h"
 #include "shortcuts.h"
 
+#include "dive_core/gfxr_vulkan_command_hierarchy.h"
 #include "object_names.h"
 
 // =================================================================================================
-// GfxrVulkanCommandTabView
+// GfxrVulkanCommandArgsTabView
 // =================================================================================================
-GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent) :
+GfxrVulkanCommandArgsTabView::GfxrVulkanCommandArgsTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandArgFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent) :
     m_vulkan_command_hierarchy(vulkan_command_hierarchy),
-    m_proxy_Model(proxy_model),
+    m_arg_proxy_Model(proxy_model),
     m_command_hierarchy_model(command_hierarchy_model)
 {
     m_command_hierarchy_view = new DiveTreeView(m_vulkan_command_hierarchy);
@@ -74,59 +75,17 @@ GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy 
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::SetTopologyToView(const Dive::Topology *topology_ptr)
+void GfxrVulkanCommandArgsTabView::SetTopologyToView(const Dive::Topology *topology_ptr)
 {
     m_command_hierarchy_model->SetTopologyToView(topology_ptr);
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::ResetModel(Dive::CommandHierarchy &command_hierarchy)
+void GfxrVulkanCommandArgsTabView::ResetModel(Dive::CommandHierarchy &command_hierarchy)
 {
-    std::cout << "GfxrVulkanCommandTabView::ResetModel called." << std::endl;
-
-    m_command_hierarchy_model->Reset(command_hierarchy); // This should emit begin/endResetModel
-
-    // 1. Check if the proxy model itself is valid and has a source
-    if (m_proxy_Model == nullptr) {
-        std::cout << "ERROR: GfxrVulkanCommandTabView::m_proxy_Model is NULL!" << std::endl;
-        return;
-    }
-    if (m_command_hierarchy_model == nullptr) {
-        std::cout << "ERROR: GfxrVulkanCommandTabView::m_command_hierarchy_model is NULL!" << std::endl;
-        return;
-    }
-
-    // Verify source model
-    QAbstractItemModel *currentSource = m_proxy_Model->sourceModel();
-    if (currentSource != m_command_hierarchy_model) {
-        std::cout << "WARNING: Proxy's source model is NOT the expected m_command_hierarchy_model." << std::endl;
-        // Re-set it, just to be absolutely sure. This might be the fix.
-        m_proxy_Model->setSourceModel(m_command_hierarchy_model);
-        std::cout << "Re-set proxy's source model." << std::endl;
-    } else {
-        std::cout << "Proxy's source model is correctly set." << std::endl;
-    }
-
-    // 2. Check source model's row count
-    int sourceRowCount = m_command_hierarchy_model->rowCount();
-    std::cout << "Source Model (m_command_hierarchy_model) rowCount(): " << sourceRowCount << std::endl;
-    if (sourceRowCount == 0) {
-        std::cout << "WARNING: Source model has 0 rows. Proxy will have nothing to filter." << std::endl;
-    }
-
-    // 3. Trigger filter and check proxy's row count
-    m_proxy_Model->refreshFilter(); // Calls invalidateFilter()
-    std::cout << "Called m_proxy_Model->refreshFilter()." << std::endl;
-
-    // Ensure the view is set to the proxy (redundant, but for certainty)
-    m_command_hierarchy_view->setModel(m_proxy_Model);
-    m_command_hierarchy_view->reset(); // Force view refresh
-    std::cout << "Called m_command_hierarchy_view->setModel() and reset()." << std::endl;
-
-    int proxyRowCount = m_proxy_Model->rowCount();
-    std::cout << "GfxrVulkanCommandTabView::ResetModel() final m_proxy_Model->rowCount() = " << proxyRowCount << std::endl;
-
+    m_command_hierarchy_model->Reset(command_hierarchy);
     // Reset search results
+    m_command_hierarchy_view->reset();
     if (m_search_bar->isVisible())
     {
         m_search_bar->clearSearch();
@@ -134,15 +93,15 @@ void GfxrVulkanCommandTabView::ResetModel(Dive::CommandHierarchy &command_hierar
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
+void GfxrVulkanCommandArgsTabView::OnSelectionChanged(const QModelIndex &index)
 {    
     if (!index.isValid() || index.parent() == QModelIndex())
     {
         return;
     }
 
-    /*QModelIndex sourceIndex = m_proxy_Model->mapToSource(index);
-    m_arg_proxy_Model->setTargetParentSourceIndex(sourceIndex);*/
+    QModelIndex sourceIndex = m_proxy_Model->mapToSource(index);
+    m_arg_proxy_Model->setTargetParentSourceIndex(sourceIndex);
 
     // Resize columns to fit
     uint32_t column_count = (uint32_t)m_command_hierarchy_model->columnCount(QModelIndex());
@@ -159,7 +118,7 @@ void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::OnSearchCommands()
+void GfxrVulkanCommandArgsTabView::OnSearchCommandArgs()
 {
     if (m_search_bar->isVisible())
     {
@@ -182,7 +141,7 @@ void GfxrVulkanCommandTabView::OnSearchCommands()
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::OnSearchBarVisibilityChange(bool isHidden)
+void GfxrVulkanCommandArgsTabView::OnSearchBarVisibilityChange(bool isHidden)
 {
     if (isHidden)
     {
@@ -194,7 +153,7 @@ void GfxrVulkanCommandTabView::OnSearchBarVisibilityChange(bool isHidden)
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::ConnectSearchBar()
+void GfxrVulkanCommandArgsTabView::ConnectSearchBar()
 {
     QObject::connect(m_search_bar,
                      SIGNAL(new_search(const QString &)),
@@ -215,7 +174,7 @@ void GfxrVulkanCommandTabView::ConnectSearchBar()
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::DisconnectSearchBar()
+void GfxrVulkanCommandArgsTabView::DisconnectSearchBar()
 {
     QObject::disconnect(m_search_bar,
                         SIGNAL(new_search(const QString &)),
@@ -233,10 +192,4 @@ void GfxrVulkanCommandTabView::DisconnectSearchBar()
                         &DiveTreeView::updateSearch,
                         m_search_bar,
                         &SearchBar::updateSearchResults);
-}
-
-//--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::ExpandAll()
-{
-    m_command_hierarchy_view->expandAll();
 }

@@ -197,7 +197,7 @@ public:
 
 private:
     bool       m_valid_data;
-    uint32_t   m_submit_index;  // After what index in CaptureData::m_submits was there a present
+    uint32_t   m_submit_index;  // After what index in Pm4CaptureData::m_submits was there a present
     EngineType m_engine_type;
     QueueType  m_queue_type;
     bool       m_full_screen;
