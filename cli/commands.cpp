@@ -446,7 +446,7 @@ bool RawPM4Command::PrintRawPm4(const char* file_name, int raw_cmd_buffer_type)
     }
 
     Dive::CommandHierarchy               command_hierarchy;
-    CaptureData                          capture_data;
+    Pm4CaptureData                       capture_data;
     std::unique_ptr<EmulateStateTracker> state_tracker(new EmulateStateTracker);
     Dive::CommandHierarchyCreator cmd_hier_creator(command_hierarchy, capture_data, *state_tracker);
     Dive::LogConsole              log;
