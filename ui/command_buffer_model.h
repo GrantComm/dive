@@ -20,12 +20,14 @@ limitations under the License.
 
 #include <vector>
 #include "dive_core/common.h"
+#include "dive_tree_view.h"
 
 // Forward Declarations
 namespace Dive
 {
 class CommandHierarchy;
 class Topology;
+class DiveFilterModel;
 };  // namespace Dive
 
 class CommandBufferModel : public QAbstractItemModel
