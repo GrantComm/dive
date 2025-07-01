@@ -197,7 +197,7 @@ public:
 
 private:
     bool       m_valid_data;
-    uint32_t   m_submit_index;  // After what index in Pm4CaptureData::m_submits was there a present
+    uint32_t   m_submit_index;  // After what index in CaptureData::m_submits was there a present
     EngineType m_engine_type;
     QueueType  m_queue_type;
     bool       m_full_screen;
@@ -334,6 +334,8 @@ public:
     Pm4CaptureData(ProgressTracker *progress_tracker);
     virtual ~Pm4CaptureData() = default;
 
+    LoadResult LoadCaptureFile(const char *file_name) override;
+
     CaptureDataHeader::CaptureType          GetCaptureType() const;
     const MemoryManager                    &GetMemoryManager() const;
     uint32_t                                GetNumSubmits() const;
@@ -353,9 +355,9 @@ public:
     const DiveVector<SubmitInfo> &GetSubmits() const;
 
     Pm4CaptureData &operator=(Pm4CaptureData &&) = default;
-    LoadResult      LoadCaptureFile(const char *file_name);
-    LoadResult      LoadCaptureFileStream(std::istream &capture_file);
-    LoadResult      LoadAdrenoRdFile(FileReader &capture_file);
+
+    LoadResult LoadCaptureFileStream(std::istream &capture_file);
+    LoadResult LoadAdrenoRdFile(FileReader &capture_file);
 #if defined(DIVE_ENABLE_PERFETTO)
     LoadResult LoadPerfettoFile(const char *file_name);
 #endif

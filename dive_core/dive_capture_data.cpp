@@ -39,7 +39,7 @@ CaptureData::LoadResult DiveCaptureData::LoadFile(const char *file_name)
     CaptureData::LoadResult result;
 
     m_gfxr_capture_data = GfxrCaptureData();
-    result = m_gfxr_capture_data.LoadGfxrFile(file_name);
+    result = m_gfxr_capture_data.LoadCaptureFile(file_name);
     m_pm4_capture_data = Pm4CaptureData(m_progress_tracker,
                                     m_log_ptr);                              
     /*m_capture_metadata = CaptureMetadata();
