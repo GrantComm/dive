@@ -51,14 +51,14 @@ CaptureData::LoadResult DataCore::LoadPm4CaptureData(const char *file_name)
     m_pm4_capture_data = Pm4CaptureData(m_progress_tracker,
                                     m_log_ptr);  // Clear any previously loaded data
     m_capture_metadata = CaptureMetadata();
-    return m_pm4_capture_data.LoadFile(file_name);
+    return m_pm4_capture_data.LoadCaptureFile(file_name);
 }
 
 //--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult DataCore::LoadGfxrCaptureData(const char *file_name)
 {
     m_gfxr_capture_data = GfxrCaptureData();
-    return m_gfxr_capture_data.LoadGfxrFile(file_name);
+    return m_gfxr_capture_data.LoadCaptureFile(file_name);
 }
 
 //--------------------------------------------------------------------------------------------------

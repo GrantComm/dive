@@ -538,7 +538,7 @@ bool ParseCapture(const char                              *filename,
     Dive::LogConsole                    log;
     std::unique_ptr<Dive::Pm4CaptureData> &capture_data = *out_capture_data;
     capture_data = std::make_unique<Dive::Pm4CaptureData>(&log);
-    if (capture_data->LoadFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
+    if (capture_data->LoadCaptureFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
     {
         capture_data.reset();
         std::cerr << "Not able to open: " << filename << std::endl;
@@ -564,7 +564,7 @@ int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 {
     Dive::LogConsole   log;
     Dive::Pm4CaptureData *capture_data_ptr = new Dive::Pm4CaptureData(&log);
-    if (capture_data_ptr->LoadFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
+    if (capture_data_ptr->LoadCaptureFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Not able to open: " << filename << std::endl;
         return EXIT_FAILURE;

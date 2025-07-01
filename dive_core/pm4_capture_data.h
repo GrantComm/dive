@@ -37,6 +37,118 @@ namespace Dive
 {
 
 //--------------------------------------------------------------------------------------------------
+class MemoryAllocationInfo
+{
+public:
+    // Find the internal memory allocation data for the given range
+    // "Internal" allocations are those made by the driver on behalf of the application
+    const MemoryAllocationData *FindInternalAllocation(uint64_t va_addr, uint64_t size) const;
+
+    // Find the global memory allocation data for the given range
+    // "Global" allocations are those made by the application via vkAllocateMemory
+    const MemoryAllocationData *FindGlobalAllocation(uint64_t va_addr, uint64_t size) const;
+
+    // Find the submit memory allocation data for the given range
+    // "Submit" allocations are those memory references passed to kernel during submit time
+    const MemoryAllocationData *FindSubmitAllocation(uint32_t submit_index,
+                                                     uint64_t va_addr,
+                                                     uint64_t size) const;
+
+    // Add memory allocation info. The 'type' parameter indicates which array to add it to
+    void AddMemoryAllocations(uint32_t                           submit_index,
+                              MemoryAllocationsDataHeader::Type  type,
+                              DiveVector<MemoryAllocationData> &&allocations);
+
+private:
+    struct SubmitAllocations
+    {
+        uint32_t                         m_submit_index;
+        DiveVector<MemoryAllocationData> m_allocations;
+    };
+
+    // Allocations done by the driver, for resources like load-sh buffers, shader binaries, etc
+    DiveVector<MemoryAllocationData> m_internal_allocs;
+
+    // Allocations done by the application via vkAllocateMemory
+    DiveVector<MemoryAllocationData> m_global_allocs;
+};
+
+//--------------------------------------------------------------------------------------------------
+// Container for the memory data of a memory block
+struct MemoryData
+{
+    uint32_t m_data_size;
+    uint8_t *m_data_ptr;
+};
+
+//--------------------------------------------------------------------------------------------------
+// Handles the loading/storage/caching of all memory blocks in the capture data file
+// Assumption is that memory is not re-used from within a submit, but can be re-used
+//  in between submits. So a "submit_index" is an important identifier for a memory block.
+class MemoryManager : public IMemoryManager
+{
+public:
+    virtual ~MemoryManager();
+
+    // Use an r-value reference instead of normal reference to prevent an extra copy
+    // Given the amount of memory potentially in a capture, this can be significant
+    void AddMemoryBlock(uint32_t submit_index, uint64_t va_addr, MemoryData &&data);
+
+    // Add memory allocation info to internal MemoryAllocationInfo object
+    void AddMemoryAllocations(uint32_t                           submit_index,
+                              MemoryAllocationsDataHeader::Type  type,
+                              DiveVector<MemoryAllocationData> &&allocations);
+
+    // Finalize load. After this, no memory block should be added!
+    // same_submit_copy_only - If set, then RetrieveMemoryData() will only copy from memory blocks
+    // used in the same submit. If not set, then allowed to use any allocations from any submit,
+    // with the assumption that there is no overlap in captured memory
+    void Finalize(bool same_submit_copy_only, bool duplicate_ib_capture);
+
+    const MemoryAllocationInfo &GetMemoryAllocationInfo() const;
+
+    // Load the given va/size from the memory blocks
+    virtual bool RetrieveMemoryData(void    *buffer_ptr,
+                                    uint32_t submit_index,
+                                    uint64_t va_addr,
+                                    uint64_t size) const override;
+
+    // Keep grabbing contiguous memory blocks until the callback returns false
+    virtual bool GetMemoryOfUnknownSizeViaCallback(uint32_t     submit_index,
+                                                   uint64_t     va_addr,
+                                                   PfnGetMemory data_callback,
+                                                   void        *user_ptr) const override;
+
+    // Given an address, find the maximum contiguous amount of memory accessible from that point
+    virtual uint64_t GetMaxContiguousSize(uint32_t submit_index, uint64_t va_addr) const override;
+
+    // Determine if given range is covered by memory blocks
+    virtual bool IsValid(uint32_t submit_index, uint64_t addr, uint64_t size) const override;
+
+private:
+    struct MemoryBlock
+    {
+        uint64_t m_va_addr;
+        uint32_t m_submit_index;
+        uint32_t m_data_size;
+        uint8_t *m_data_ptr;
+    };
+
+    // mutable variable for caching reasons
+    mutable const MemoryBlock *m_last_used_block_ptr = nullptr;
+
+    // Memory blocks containing all the captured memory data
+    DiveVector<MemoryBlock> m_memory_blocks;
+
+    // All the captured memory allocation info
+    MemoryAllocationInfo m_memory_allocations;
+
+    // If set, then only memory blocks from same submit are considered
+    // Otherwise, all previous submits are considered as well
+    bool m_same_submit_only = true;
+};
+
+//--------------------------------------------------------------------------------------------------
 class SubmitInfo
 {
 public:
@@ -87,7 +199,7 @@ public:
 
 private:
     bool       m_valid_data;
-    uint32_t   m_submit_index;  // After what index in Pm4CaptureData::m_submits was there a present
+    uint32_t   m_submit_index;  // After what index in CaptureData::m_submits was there a present
     EngineType m_engine_type;
     QueueType  m_queue_type;
     bool       m_full_screen;
@@ -139,6 +251,22 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------
+class TextInfo
+{
+public:
+    TextInfo(std::string name, uint64_t size, DiveVector<char> &&data);
+
+    const std::string &GetName() const;
+    uint64_t           GetSize() const;
+    const char        *GetText() const;
+
+private:
+    std::string      m_name;
+    uint64_t         m_size;
+    DiveVector<char> m_text;
+};
+
+//--------------------------------------------------------------------------------------------------
 // State for a single wave, including SGPRS and VGPRS
 class WaveStateInfo
 {
@@ -187,6 +315,20 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------------
+class FileReader
+{
+public:
+    FileReader(const char *file_name);
+    int     open();
+    int64_t read(char *buf, int64_t size);
+    int     close();
+
+private:
+    std::string                                                   m_file_name;
+    std::unique_ptr<struct archive, decltype(&archive_read_free)> m_handle;
+};
+
+//--------------------------------------------------------------------------------------------------
 class Pm4CaptureData : public CaptureData
 {
 public:
@@ -195,7 +337,7 @@ public:
     Pm4CaptureData(ProgressTracker *progress_tracker, ILog *log_ptr);
     virtual ~Pm4CaptureData() = default;
 
-    LoadResult LoadFile(const char *file_name);
+    LoadResult LoadCaptureFile(const char *file_name) override;
 
     CaptureDataHeader::CaptureType          GetCaptureType() const;
     const MemoryManager                    &GetMemoryManager() const;
@@ -218,7 +360,7 @@ public:
 
     Pm4CaptureData &operator=(Pm4CaptureData &&) = default;
 
-    LoadResult LoadCaptureFile(std::istream &capture_file);
+    LoadResult LoadCaptureFileStream(std::istream &capture_file);
     LoadResult LoadAdrenoRdFile(FileReader &capture_file);
 #if defined(DIVE_ENABLE_PERFETTO)
     LoadResult LoadPerfettoFile(const char *file_name);
@@ -228,7 +370,7 @@ public:
     std::string GetFileFormatVersion() const;
 
 private:
-    LoadResult LoadCaptureFile(const char *file_name);
+    LoadResult LoadDiveCaptureFile(const char *file_name);
     LoadResult LoadAdrenoRdFile(const char *file_name);
     bool       LoadCapture(std::istream &capture_file, const CaptureDataHeader &data_header);
     bool       LoadMemoryAllocBlock(std::istream &capture_file);

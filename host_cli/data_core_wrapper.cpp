@@ -39,7 +39,7 @@ absl::Status DataCoreWrapper::LoadGfxrFile(const std::string& original_gfxr_file
 {
     assert(m_data_core != nullptr);
 
-    GfxrCaptureData::LoadResult load_result = m_data_core->GetMutableGfxrCaptureData().LoadGfxrFile(
+    GfxrCaptureData::LoadResult load_result = m_data_core->GetMutableGfxrCaptureData().LoadCaptureFile(
     original_gfxr_file_path.c_str());
     if (load_result != CaptureData::LoadResult::kSuccess)
     {
