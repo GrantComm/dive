@@ -40,11 +40,11 @@ class GfxrVulkanCommandTabView : public QFrame
     Q_OBJECT
 
 public:
-    GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent = nullptr);
+    GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel &proxy_model, GfxrVulkanCommandModel &command_hierarchy_model, QWidget *parent = nullptr);
 
     void SetTopologyToView(const Dive::Topology *topology_ptr);
     
-    void ResetModel(Dive::CommandHierarchy &command_hierarchy);
+    void ResetModel();
 
 public slots:
     void OnSelectionChanged(const QModelIndex &index);
@@ -53,11 +53,15 @@ public slots:
     void ConnectSearchBar();
     void DisconnectSearchBar();
     void ExpandAll();
+    void OnCorrelateCommand(const QPoint &pos);
 
 signals:
     // Update property panel for node information.
     void SendNodeProperty(const QString &);
     void HideOtherSearchBars();
+    void ApplyBinningFilter();
+    void ApplyFirstTileFilter();
+    void SelectCommand(const QModelIndex &);
 
 private:
     DiveTreeView *m_command_hierarchy_view;
@@ -65,7 +69,6 @@ private:
     SearchBar          *m_search_bar = nullptr;
 
     const Dive::CommandHierarchy &m_vulkan_command_hierarchy;
-    GfxrVulkanCommandFilterProxyModel        *m_proxy_Model;
-    GfxrVulkanCommandArgFilterProxyModel *m_arg_proxy_Model;
-    GfxrVulkanCommandModel      *m_command_hierarchy_model;
+    GfxrVulkanCommandFilterProxyModel        &m_proxy_Model;
+    GfxrVulkanCommandModel      &m_command_hierarchy_model;
 };

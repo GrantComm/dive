@@ -43,7 +43,7 @@ public:
 
     void SetTopologyToView(const Dive::Topology *topology_ptr);
 
-    void ResetModel(Dive::CommandHierarchy &command_hierarchy);
+    void ResetModel();
 
 public slots:
     void OnSelectionChanged(const QModelIndex &index);
@@ -51,6 +51,7 @@ public slots:
     void OnSearchBarVisibilityChange(bool isHidden);
     void ConnectSearchBar();
     void DisconnectSearchBar();
+    void OnCommandSelected(const QModelIndex &index);
 
 signals:
     // Update property panel for node information.

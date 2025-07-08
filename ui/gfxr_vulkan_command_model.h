@@ -32,17 +32,10 @@ class GfxrVulkanCommandModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    enum class ViewMode
-    {
-        kEngine,
-        kSubmit,
-        kEvent
-    };
-
     explicit GfxrVulkanCommandModel(const Dive::CommandHierarchy &command_hierarchy);
     ~GfxrVulkanCommandModel();
 
-    void Reset(Dive::CommandHierarchy &command_hierarchy);
+    void Reset();
     void BeginResetModel();
     void EndResetModel();
     void SetTopologyToView(const Dive::Topology *topology_ptr);
@@ -69,12 +62,6 @@ public:
     uint64_t getNumNodes() const;
 
 private:
-    enum class UIBarrierIdVariant
-    {
-        First,
-        Last,
-        Full
-    };
     bool     EventNodeHasMarker(uint64_t node_index) const;
     char     GetEventNodeStream(uint64_t node_index) const;
     uint32_t GetEventNodeIndexInStream(uint64_t node_index) const;

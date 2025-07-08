@@ -22,7 +22,6 @@ GfxrVulkanCommandFilterProxyModel::GfxrVulkanCommandFilterProxyModel(QObject *pa
 }
 
 bool GfxrVulkanCommandFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
-    std::cout << "GfxrVulkanCommandFilterProxyModel::filterAcceptsRow called" << std::endl;
     QModelIndex indexInSource = sourceModel()->index(sourceRow, 0, sourceParent);
 
     if (!indexInSource.isValid()) {
@@ -37,6 +36,22 @@ bool GfxrVulkanCommandFilterProxyModel::filterAcceptsRow(int sourceRow, const QM
 
     if (node_index >= sourceMyModel->getNumNodes()) {
         return false;
+    }
+
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanSubmitNode) {
+        return true;
+    }
+
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandBufferNode) {
+        return true;
+    }
+
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandNode) {
+        return true;
+    }
+
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanDrawCommandNode) {
+        return true;
     }
 
     if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandArgNode) {

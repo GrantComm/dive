@@ -69,11 +69,12 @@ CaptureData::LoadResult GfxrCaptureData::LoadCaptureFile(const char *file_name)
 
     m_gfxr_submits = dive_annotation_processor.getSubmits();
 
-    if (!m_gfxr_capture_block_data->FinalizeOriginalBlocksMapSizes())
+    /*if (!m_gfxr_capture_block_data->FinalizeOriginalBlocksMapSizes())
     {
+        std::cout << "HERE 3" << std::endl;
         std::cerr << "Error: cannot lock gfxrecon DiveBlockData" << std::endl;
         return LoadResult::kFileIoError;
-    }
+    }*/
 
     m_cur_capture_file = file_name;
 

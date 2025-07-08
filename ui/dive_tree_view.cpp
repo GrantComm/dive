@@ -468,6 +468,7 @@ void DiveTreeView::GotoEvent(bool is_above)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    std::cout << "DiveTreeView::currentChanged called" << std::endl;
     m_curr_node_selected = current;
     QModelIndex current_source_index = GetNodeSourceModelIndex(current);
     QModelIndex previous_source_index = GetNodeSourceModelIndex(previous);

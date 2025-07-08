@@ -55,12 +55,11 @@ uint64_t DiveCommandHierarchyCreator::AddNode(NodeType                  type,
 bool DiveCommandHierarchyCreator::CreateTrees(CommandHierarchy       &command_hierarchy_ptr,
                                           DiveCaptureData      &dive_capture_data,
                                           bool                    flatten_chain_nodes,
-                                          std::optional<uint64_t> reserve_size,
-                                          ILog                   *log_ptr)
+                                          std::optional<uint64_t> reserve_size)
 {
     std::cout << "DiveCommandHierarchyCreator::CreateTrees" << std::endl;
 
-    m_pm4_command_hierarchy_creator.CreateTrees(command_hierarchy_ptr, dive_capture_data.getPm4CaptureData(), flatten_chain_nodes, reserve_size);
+    m_pm4_command_hierarchy_creator.CreateTrees(dive_capture_data.getPm4CaptureData(), flatten_chain_nodes, reserve_size);
 
     m_gfxr_command_hierarchy_creator.CreateTrees();
 

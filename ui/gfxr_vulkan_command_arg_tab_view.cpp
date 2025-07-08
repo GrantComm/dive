@@ -81,9 +81,9 @@ void GfxrVulkanCommandArgsTabView::SetTopologyToView(const Dive::Topology *topol
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandArgsTabView::ResetModel(Dive::CommandHierarchy &command_hierarchy)
+void GfxrVulkanCommandArgsTabView::ResetModel()
 {
-    m_command_hierarchy_model->Reset(command_hierarchy);
+    m_command_hierarchy_model->Reset();
     // Reset search results
     m_command_hierarchy_view->reset();
     if (m_search_bar->isVisible())
@@ -100,8 +100,7 @@ void GfxrVulkanCommandArgsTabView::OnSelectionChanged(const QModelIndex &index)
         return;
     }
 
-    QModelIndex sourceIndex = m_proxy_Model->mapToSource(index);
-    m_arg_proxy_Model->setTargetParentSourceIndex(sourceIndex);
+    m_arg_proxy_Model->setTargetParentSourceIndex(index);
 
     // Resize columns to fit
     uint32_t column_count = (uint32_t)m_command_hierarchy_model->columnCount(QModelIndex());
@@ -192,4 +191,15 @@ void GfxrVulkanCommandArgsTabView::DisconnectSearchBar()
                         &DiveTreeView::updateSearch,
                         m_search_bar,
                         &SearchBar::updateSearchResults);
+}
+
+//--------------------------------------------------------------------------------------------------
+void GfxrVulkanCommandArgsTabView::OnCommandSelected(const QModelIndex &index)
+{
+    if (!index.isValid())
+    {
+        std::cout << "HERE, command selected is not valid" << std::endl;
+        return;
+    }
+    std::cout << "HERE, command selected" << std::endl;
 }

@@ -47,11 +47,11 @@ bool GfxrVulkanCommandHierarchyCreator::CreateTrees()
     if (!m_pm4_command_hierarchy_creator)
     {
         m_command_hierarchy = CommandHierarchy();
-    }
 
-    // Add a dummy root node for easier management
-    uint64_t root_node_index = AddNode(NodeType::kRootNode, "");
-    DIVE_VERIFY(root_node_index == Topology::kRootNodeIndex);
+        // Add a dummy root node for easier management
+        uint64_t root_node_index = AddNode(NodeType::kRootNode, "");
+        DIVE_VERIFY(root_node_index == Topology::kRootNodeIndex);
+    }
 
     if (!ProcessGfxrSubmits(m_gfxr_capture_data.GetGfxrSubmits()))
     {
@@ -250,6 +250,15 @@ DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
         AddChild(CommandHierarchy::TopologyType::kAllEventTopology,
                  m_cur_submit_node_index,
                  cmd_buffer_index);
+    }
+    else if (vk_cmd_info.GetVkCmdName().find("vkCmdDraw") != std::string::npos)
+    {
+        uint64_t vk_cmd_index = AddNode(NodeType::kGfxrVulkanDrawCommandNode,
+                                        vk_cmd_string_stream.str());
+        GetArgs(vk_cmd_info.GetArgs(), vk_cmd_index, "");
+        AddChild(CommandHierarchy::TopologyType::kAllEventTopology,
+                 m_cur_command_buffer_node_index,
+                 vk_cmd_index);
     }
     else
     {

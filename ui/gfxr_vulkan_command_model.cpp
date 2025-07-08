@@ -36,7 +36,7 @@ GfxrVulkanCommandModel::GfxrVulkanCommandModel(const Dive::CommandHierarchy &com
 GfxrVulkanCommandModel::~GfxrVulkanCommandModel() {}
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandModel::Reset(Dive::CommandHierarchy &command_hierarchy)
+void GfxrVulkanCommandModel::Reset()
 {
     emit beginResetModel();
     m_topology_ptr = nullptr;
@@ -155,8 +155,6 @@ int GfxrVulkanCommandModel::rowCount(const QModelIndex &parent) const
 //--------------------------------------------------------------------------------------------------
 int GfxrVulkanCommandModel::columnCount(const QModelIndex &parent) const
 {
-    if (m_topology_ptr == &m_command_hierarchy.GetAllEventHierarchyTopology())
-        return 2;
     return 1;
 }
 

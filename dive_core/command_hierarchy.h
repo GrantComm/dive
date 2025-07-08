@@ -66,6 +66,7 @@ enum class NodeType
     kGfxrVulkanSubmitNode,
     kGfxrVulkanCommandBufferNode,
     kGfxrVulkanCommandNode,
+    kGfxrVulkanDrawCommandNode,
     kGfxrVulkanCommandArgNode
 };
 

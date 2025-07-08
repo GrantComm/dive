@@ -96,6 +96,8 @@ signals:
 public slots:
     void OnCapture(bool is_capture_delayed = false, bool is_gfxr_capture = false);
     void OnSwitchToShaderTab();
+    void OnBinningFilterApplied();
+    void OnFirstTileFilterApplied();
 
 private slots:
     void OnCommandViewModeChange(const QString &string);

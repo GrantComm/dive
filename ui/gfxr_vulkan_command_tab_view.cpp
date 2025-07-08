@@ -22,6 +22,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <iostream>
+#include <QMenu>
 #include <string>
 #include "gfxr_vulkan_command_filter_proxy_model.h"
 #include "gfxr_vulkan_command_arg_filter_proxy_model.h"
@@ -33,15 +34,15 @@
 // =================================================================================================
 // GfxrVulkanCommandTabView
 // =================================================================================================
-GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent) :
+GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel &proxy_model, GfxrVulkanCommandModel &command_hierarchy_model, QWidget *parent) :
     m_vulkan_command_hierarchy(vulkan_command_hierarchy),
     m_proxy_Model(proxy_model),
     m_command_hierarchy_model(command_hierarchy_model)
 {
     m_command_hierarchy_view = new DiveTreeView(m_vulkan_command_hierarchy);
-    m_arg_proxy_Model = new GfxrVulkanCommandArgFilterProxyModel(m_command_hierarchy_view, &m_vulkan_command_hierarchy);
-    m_arg_proxy_Model->setSourceModel(m_command_hierarchy_model);
-    m_command_hierarchy_view->setModel(m_arg_proxy_Model);
+    m_command_hierarchy_view->setModel(&m_proxy_Model);
+    m_command_hierarchy_view->setContextMenuPolicy(Qt::CustomContextMenu);
+
 
     m_search_trigger_button = new QPushButton;
     m_search_trigger_button->setObjectName(kGfxrVulkanCommandSearchButtonName);
@@ -65,68 +66,32 @@ GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy 
     QObject::connect(m_search_trigger_button,
                      SIGNAL(clicked()),
                      this,
-                     SLOT(OnSearchCommandArgs()));
+                     SLOT(OnSearchCommands()));
 
     QObject::connect(m_search_bar,
                      SIGNAL(hide_search_bar(bool)),
                      this,
                      SLOT(OnSearchBarVisibilityChange(bool)));
+
+    connect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested, this, &GfxrVulkanCommandTabView::OnCorrelateCommand);
+
+    connect(m_command_hierarchy_view->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &GfxrVulkanCommandTabView::OnSelectionChanged);
 }
 
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandTabView::SetTopologyToView(const Dive::Topology *topology_ptr)
 {
-    m_command_hierarchy_model->SetTopologyToView(topology_ptr);
+    m_command_hierarchy_model.SetTopologyToView(topology_ptr);
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::ResetModel(Dive::CommandHierarchy &command_hierarchy)
+void GfxrVulkanCommandTabView::ResetModel()
 {
-    std::cout << "GfxrVulkanCommandTabView::ResetModel called." << std::endl;
-
-    m_command_hierarchy_model->Reset(command_hierarchy); // This should emit begin/endResetModel
-
-    // 1. Check if the proxy model itself is valid and has a source
-    if (m_proxy_Model == nullptr) {
-        std::cout << "ERROR: GfxrVulkanCommandTabView::m_proxy_Model is NULL!" << std::endl;
-        return;
-    }
-    if (m_command_hierarchy_model == nullptr) {
-        std::cout << "ERROR: GfxrVulkanCommandTabView::m_command_hierarchy_model is NULL!" << std::endl;
-        return;
-    }
-
-    // Verify source model
-    QAbstractItemModel *currentSource = m_proxy_Model->sourceModel();
-    if (currentSource != m_command_hierarchy_model) {
-        std::cout << "WARNING: Proxy's source model is NOT the expected m_command_hierarchy_model." << std::endl;
-        // Re-set it, just to be absolutely sure. This might be the fix.
-        m_proxy_Model->setSourceModel(m_command_hierarchy_model);
-        std::cout << "Re-set proxy's source model." << std::endl;
-    } else {
-        std::cout << "Proxy's source model is correctly set." << std::endl;
-    }
-
-    // 2. Check source model's row count
-    int sourceRowCount = m_command_hierarchy_model->rowCount();
-    std::cout << "Source Model (m_command_hierarchy_model) rowCount(): " << sourceRowCount << std::endl;
-    if (sourceRowCount == 0) {
-        std::cout << "WARNING: Source model has 0 rows. Proxy will have nothing to filter." << std::endl;
-    }
-
-    // 3. Trigger filter and check proxy's row count
-    m_proxy_Model->refreshFilter(); // Calls invalidateFilter()
-    std::cout << "Called m_proxy_Model->refreshFilter()." << std::endl;
-
-    // Ensure the view is set to the proxy (redundant, but for certainty)
-    m_command_hierarchy_view->setModel(m_proxy_Model);
-    m_command_hierarchy_view->reset(); // Force view refresh
-    std::cout << "Called m_command_hierarchy_view->setModel() and reset()." << std::endl;
-
-    int proxyRowCount = m_proxy_Model->rowCount();
-    std::cout << "GfxrVulkanCommandTabView::ResetModel() final m_proxy_Model->rowCount() = " << proxyRowCount << std::endl;
+    m_command_hierarchy_model.Reset();
 
     // Reset search results
+    m_command_hierarchy_view->reset();
     if (m_search_bar->isVisible())
     {
         m_search_bar->clearSearch();
@@ -136,16 +101,16 @@ void GfxrVulkanCommandTabView::ResetModel(Dive::CommandHierarchy &command_hierar
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
 {    
+    std::cout << "GfxrVulkanCommandTabView::OnSelectionChanged called" << std::endl;
     if (!index.isValid() || index.parent() == QModelIndex())
     {
         return;
     }
 
-    /*QModelIndex sourceIndex = m_proxy_Model->mapToSource(index);
-    m_arg_proxy_Model->setTargetParentSourceIndex(sourceIndex);*/
+    QModelIndex sourceIndex = m_proxy_Model.mapToSource(index);
 
     // Resize columns to fit
-    uint32_t column_count = (uint32_t)m_command_hierarchy_model->columnCount(QModelIndex());
+    uint32_t column_count = (uint32_t)m_command_hierarchy_model.columnCount(QModelIndex());
     for (uint32_t column = 0; column < column_count; ++column)
         m_command_hierarchy_view->resizeColumnToContents(column);
 
@@ -156,6 +121,8 @@ void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
         m_search_bar->clearSearch();
     }
     m_command_hierarchy_view->expandAll();
+
+    emit SelectCommand(sourceIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,4 +206,25 @@ void GfxrVulkanCommandTabView::DisconnectSearchBar()
 void GfxrVulkanCommandTabView::ExpandAll()
 {
     m_command_hierarchy_view->expandAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+void GfxrVulkanCommandTabView::OnCorrelateCommand(const QPoint &pos) {
+    QModelIndex proxy_model_index = m_command_hierarchy_view->indexAt(pos);
+    QModelIndex source_model_index = m_proxy_Model.mapToSource(proxy_model_index);
+    uint64_t node_index = (uint64_t)source_model_index.internalPointer();
+
+    if (proxy_model_index.isValid() && m_vulkan_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanDrawCommandNode) {
+        QMenu context_menu;
+        QAction *binning_action = context_menu.addAction("PM4 Events with BinningPassOnly Filter");
+        QAction *first_tile_action = context_menu.addAction("PM4 Events with FirstTilePassOnly Filter");
+
+        QAction *selectedAction = context_menu.exec(m_command_hierarchy_view->viewport()->mapToGlobal(pos));
+
+        if (selectedAction == binning_action) {
+            emit ApplyBinningFilter();
+        } else if (selectedAction == first_tile_action) {
+            emit ApplyFirstTileFilter();
+        }
+    }
 }

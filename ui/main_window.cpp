@@ -240,7 +240,7 @@ MainWindow::MainWindow()
         m_overview_tab_view = new OverviewTabView(m_data_core->GetCaptureMetadata(),
                                                   *m_event_selection);
         m_event_state_view = new EventStateView(*m_data_core);
-        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_filter_proxy_model, m_gfxr_vulkan_command_hierarchy_model);
+        m_gfxr_vulkan_command_tab_view = new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(), *m_gfxr_vulkan_commands_filter_proxy_model, *m_gfxr_vulkan_command_hierarchy_model, this);
         m_gfxr_vulkan_command_arguments_tab_view = new GfxrVulkanCommandArgsTabView(m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_args_filter_proxy_model, m_gfxr_vulkan_command_hierarchy_model);
     
         m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view, "Commands");
@@ -438,6 +438,7 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
         }
         else
         {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
             m_command_hierarchy_model->SetTopologyToView(&topology);
             m_command_tab_view->SetTopologyToView(&topology);
         }
@@ -451,6 +452,7 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
         }
         else
         {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
             m_command_hierarchy_model->SetTopologyToView(&topology);
             m_command_tab_view->SetTopologyToView(&topology);
         }
@@ -579,18 +581,12 @@ bool MainWindow::LoadDiveFile(const char *file_name, bool is_temp_file)
         return false;
     }
 
-    Dive::CommandHierarchy& newHierarchy = m_data_core->GetCommandHierarchy();
-
-    // 1. Reset the GFXR Vulkan command model (ModelA) directly in MainWindow
-    //    This ensures its internal 'm_command_hierarchy' is updated.
-    m_gfxr_vulkan_command_hierarchy_model->Reset(newHierarchy);
-
-    
+    m_gfxr_vulkan_command_hierarchy_model->Reset();
 
     // Reset models and views that display data from the capture
-    m_gfxr_vulkan_command_tab_view->ResetModel(m_data_core->GetCommandHierarchy());
-    m_gfxr_vulkan_command_arguments_tab_view->ResetModel(m_data_core->GetCommandHierarchy());
-    m_gfxr_vulkan_command_hierarchy_model->Reset(m_data_core->GetCommandHierarchy());
+    m_gfxr_vulkan_command_tab_view->ResetModel();
+    m_gfxr_vulkan_command_arguments_tab_view->ResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->Reset();
     m_command_tab_view->ResetModel();
     m_command_hierarchy_model->Reset();
     m_event_selection->Reset();
@@ -598,7 +594,10 @@ bool MainWindow::LoadDiveFile(const char *file_name, bool is_temp_file)
     m_text_file_view->Reset();
     m_prev_command_view_mode = QString();
 
+    m_gfxr_vulkan_commands_filter_proxy_model->setSourceModel(m_gfxr_vulkan_command_hierarchy_model);
+
     m_command_hierarchy_model->BeginResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->BeginResetModel();
 
     // Remove all the tabs.
     while (m_tab_widget->count() > 0) {
@@ -637,10 +636,6 @@ bool MainWindow::LoadDiveFile(const char *file_name, bool is_temp_file)
 
     m_command_hierarchy_model->EndResetModel();
     m_gfxr_vulkan_command_hierarchy_model->EndResetModel();
-
-    std::cout << "m_command_hierarchy_model row count: " <<  m_command_hierarchy_model->rowCount() << std::endl; // This is the left panel's model.
-    // Add one more print for the GFXR Vulkan model:
-    std::cout << "m_gfxr_vulkan_command_hierarchy_model row count (after all resets): " << m_gfxr_vulkan_command_hierarchy_model->rowCount() << std::endl;
     
     ExpandResizeHierarchyView();
     m_hover_help->SetCurItem(HoverHelp::Item::kNone);
@@ -801,8 +796,8 @@ bool MainWindow::LoadGfxrFile(const char *file_name, bool is_temp_file)
     }
 
     // Reset models and views that display data from the capture
-    m_gfxr_vulkan_command_tab_view->ResetModel(m_data_core->GetCommandHierarchy());
-    m_gfxr_vulkan_command_hierarchy_model->Reset(m_data_core->GetCommandHierarchy());
+    m_gfxr_vulkan_command_tab_view->ResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->Reset();
     m_prev_command_view_mode = QString();
     
     m_gfxr_vulkan_command_hierarchy_model->BeginResetModel();
@@ -1151,13 +1146,15 @@ void MainWindow::OnSearchTrigger()
 
     int        current_index = m_tab_widget->currentIndex();
     QWidget   *current_tab = m_tab_widget->widget(current_index);
-    SearchBar *tab_wiget_search_bar = current_tab->findChild<SearchBar *>(
-    kCommandBufferSearchBarName);
-    QPushButton *tab_wiget_search_button = current_tab->findChild<QPushButton *>(
-    kCommandBufferSearchButtonName);
+    SearchBar *tab_wiget_search_bar;
+    QPushButton *tab_wiget_search_button;
 
     if (current_index == m_command_view_tab_index)
     {
+        tab_wiget_search_bar = current_tab->findChild<SearchBar *>(
+    kCommandBufferSearchBarName);
+        tab_wiget_search_button = current_tab->findChild<QPushButton *>(
+    kCommandBufferSearchButtonName);
         if (!tab_wiget_search_bar->isHidden())
         {
             tab_wiget_search_bar->clearSearch();
@@ -1171,6 +1168,20 @@ void MainWindow::OnSearchTrigger()
             kGfxrVulkanCommandSearchBarName);
         tab_wiget_search_button = current_tab->findChild<QPushButton *>(
             kGfxrVulkanCommandSearchButtonName);
+
+        if (!tab_wiget_search_bar->isHidden())
+        {
+            tab_wiget_search_bar->clearSearch();
+            tab_wiget_search_bar->hide();
+        }
+        tab_wiget_search_button->show();
+    }
+    else if (current_index == m_gfxr_vulkan_command_arguments_view_tab_index)
+    {
+        tab_wiget_search_bar = current_tab->findChild<SearchBar *>(
+            kGfxrVulkanCommandArgumentsSearchBarName);
+        tab_wiget_search_button = current_tab->findChild<QPushButton *>(
+            kGfxrVulkanCommandArgumentsSearchButtonName);
 
         if (!tab_wiget_search_bar->isHidden())
         {
@@ -1536,10 +1547,21 @@ void MainWindow::OnTabViewChange()
             DisconnectSearchBar();
         }
     }
-    else if (currentIndex != m_command_view_tab_index && currentIndex != m_gfxr_vulkan_command_view_tab_index)
+    else if (currentIndex == m_gfxr_vulkan_command_arguments_view_tab_index && currentTab->findChild<SearchBar *>(kGfxrVulkanCommandArgumentsSearchBarName))
+    {
+        if (!currentTab->findChild<SearchBar *>(kGfxrVulkanCommandArgumentsSearchBarName)->isHidden())
+        {
+            m_event_search_bar->clearSearch();
+            m_event_search_bar->hide();
+            m_search_trigger_button->show();
+            DisconnectSearchBar();
+        }
+    }
+    else if (currentIndex != m_command_view_tab_index && currentIndex != m_gfxr_vulkan_command_view_tab_index && currentIndex != m_gfxr_vulkan_command_arguments_view_tab_index)
     {
         m_command_tab_view->OnSearchBarVisibilityChange(true);
         m_gfxr_vulkan_command_tab_view->OnSearchBarVisibilityChange(true);
+        m_gfxr_vulkan_command_arguments_tab_view->OnSearchBarVisibilityChange(true);
     }
 }
 
@@ -1661,6 +1683,19 @@ QObject::disconnect(this,
                          this,
                          SLOT(OnTabViewChange()));
 
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(ApplyBinningFilter()),
+                         this,
+                         SLOT(OnBinningFilterApplied()));
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(ApplyFirstTileFilter()),
+                         this,
+                         SLOT(OnFirstTileFilterApplied()));
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                     SIGNAL(SelectCommand(const QModelIndex &)),
+                     m_gfxr_vulkan_command_arguments_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+
     // Temporarily set the model to nullptr and clear selection/current index
     // before loading new data. This forces a clean break.
     m_command_hierarchy_view->setModel(nullptr);
@@ -1728,7 +1763,24 @@ QObject::disconnect(this,
                          SIGNAL(HideOtherSearchBars()),
                          this,
                          SLOT(OnTabViewChange()));
+    
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(ApplyBinningFilter()),
+                         this,
+                         SLOT(OnBinningFilterApplied()));
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                         SIGNAL(ApplyFirstTileFilter()),
+                         this,
+                         SLOT(OnFirstTileFilterApplied()));
+
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                     SIGNAL(SelectCommand(const QModelIndex &)),
+                     m_gfxr_vulkan_command_arguments_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+                     
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 void MainWindow::ConnectAdrenoRdFileTabs()
@@ -1786,11 +1838,24 @@ void MainWindow::ConnectGfxrFileTabs()
 
     QObject::connect(m_command_hierarchy_view->selectionModel(),
                          SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                         m_gfxr_vulkan_command_tab_view,
+                         m_gfxr_vulkan_command_arguments_tab_view,
                          SLOT(OnSelectionChanged(const QModelIndex &)));
 
-    QObject::connect(m_gfxr_vulkan_command_tab_view,
+    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view,
                          SIGNAL(HideOtherSearchBars()),
                          this,
                          SLOT(OnTabViewChange()));
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnBinningFilterApplied()
+{
+    m_filter_mode_combo_box->setCurrentIndex(1);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnFirstTileFilterApplied()
+{
+    m_filter_mode_combo_box->setCurrentIndex(2);
 }
