@@ -417,6 +417,11 @@ public:
                      bool                    flatten_chain_nodes,
                      std::optional<uint64_t> reserve_size);
 
+    bool CreateTrees(const Pm4CaptureData      &capture_data,
+                     bool                    flatten_chain_nodes,
+                     std::optional<uint64_t> reserve_size,
+                    bool createTopologies);
+
     // This is used to create a command-hierarchy out of a PM4 universal stream (ie: single IB)
     bool CreateTrees(EngineType        engine_type,
                      QueueType         queue_type,

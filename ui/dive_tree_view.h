@@ -21,7 +21,9 @@
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <cstdint>
 #include <qsortfilterproxymodel.h>
+#include <vector>
 
 // Forward declarations
 class CommandModel;
@@ -52,6 +54,8 @@ public:
 
     DiveFilterModel(const Dive::CommandHierarchy &command_hierarchy, QObject *parent = nullptr);
     void SetMode(FilterMode filter_mode);
+    std::vector<uint64_t> GetPm4SubmitIndices() { return pm4_submit_indices; }
+    std::vector<uint64_t> GetGfxrSubmitIndices() { return gfxr_submit_indices; }
 public slots:
     void applyNewFilterMode(FilterMode new_mode);
 
@@ -61,6 +65,8 @@ protected:
 private:
     const Dive::CommandHierarchy &m_command_hierarchy;
     FilterMode                    m_filter_mode = kNone;
+    mutable std::vector<uint64_t> pm4_submit_indices;
+    mutable std::vector<uint64_t> gfxr_submit_indices;
 };
 
 //--------------------------------------------------------------------------------------------------

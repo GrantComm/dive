@@ -59,7 +59,7 @@ bool DiveCommandHierarchyCreator::CreateTrees(CommandHierarchy       &command_hi
 {
     std::cout << "DiveCommandHierarchyCreator::CreateTrees" << std::endl;
 
-    m_pm4_command_hierarchy_creator.CreateTrees(dive_capture_data.getPm4CaptureData(), flatten_chain_nodes, reserve_size);
+    m_pm4_command_hierarchy_creator.CreateTrees(dive_capture_data.getPm4CaptureData(), flatten_chain_nodes, reserve_size, false);
 
     m_gfxr_command_hierarchy_creator.CreateTrees();
 

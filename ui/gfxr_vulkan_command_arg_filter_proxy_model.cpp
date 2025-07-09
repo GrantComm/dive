@@ -23,14 +23,10 @@ GfxrVulkanCommandArgFilterProxyModel::GfxrVulkanCommandArgFilterProxyModel(QObje
 
 void GfxrVulkanCommandArgFilterProxyModel::setTargetParentSourceIndex(const QModelIndex &sourceIndex)
 {
-    std::cout << "GfxrVulkanCommandArgFilterProxyModel::setTargetParentSourceIndex called" << std::endl;
     if (m_targetParentSourceIndex != sourceIndex) {
         beginResetModel();
         m_targetParentSourceIndex = sourceIndex;
         endResetModel();
-    }
-    else {
-    std::cout << "m_targetParentSourceIndex == sourceIndex" << std::endl;
     }
 }
 
@@ -85,10 +81,7 @@ QVariant GfxrVulkanCommandArgFilterProxyModel::data(const QModelIndex &index, in
 
 bool GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-        std::cout << "GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow called" << std::endl;
-
     if (!m_targetParentSourceIndex.isValid()) {
-        std::cout << "!m_targetParentSourceIndex.isValid()" << std::endl;
         return false;
     }
 
@@ -102,7 +95,6 @@ bool GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow(int source_row, cons
     QModelIndex ancestorOfTarget = m_targetParentSourceIndex.parent();
     while (ancestorOfTarget.isValid()) {
         if (ancestorOfTarget == currentSourceIndex) {
-            std::cout << "ancestorOfTarget == currentSourceIndex" << std::endl;
             return true;
         }
         ancestorOfTarget = ancestorOfTarget.parent();
@@ -111,24 +103,15 @@ bool GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow(int source_row, cons
     // Accept all descendants of the selected item. If it is an argument node,
     // accept the node.
     if (isDescendant(currentSourceIndex, m_targetParentSourceIndex)) {
-        std::cout << "isDescendant(currentSourceIndex, m_targetParentSourceIndex)" << std::endl;
         uint64_t current_node_index = currentSourceIndex.internalId();
 
         if (m_command_hierarchy) {
-            std::cout << "m_command_hierarchy is set" << std::endl;
             Dive::NodeType current_node_type = m_command_hierarchy->GetNodeType(current_node_index);
 
             if (current_node_type == Dive::NodeType::kGfxrVulkanCommandArgNode) {
                 return true;
             }
         }
-        else {
-                    std::cout << "m_command_hierarchy is not set" << std::endl;
-        }
-    }
-    else {
-                        std::cout << "!isDescendant(currentSourceIndex, m_targetParentSourceIndex)" << std::endl;
-
     }
 
     return false;

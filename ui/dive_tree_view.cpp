@@ -52,12 +52,26 @@ void DiveFilterModel::applyNewFilterMode(FilterMode new_mode)
     if (m_filter_mode == new_mode)
         return;
 
+        // Clear the submit indices list for the pm4 and gfxr lists.
+    pm4_submit_indices.clear();
+    gfxr_submit_indices.clear();
+
     beginResetModel();
     m_filter_mode = new_mode;
     // invalidateFilter() doesn't invalidate all nodes
     // begin/endResetModel() will cause a full re-evaluation and rebuild of the proxy's internal
     // mapping.
     endResetModel();
+    std::cout << "Pm4 submit size: " <<pm4_submit_indices.size() << std::endl;
+    std::cout << "Gfxr submit size: " << gfxr_submit_indices.size() << std::endl;
+    if (pm4_submit_indices.size() > 0)
+    {
+        std::cout << "Pm4 submit index(0): " << pm4_submit_indices.at(0) << std::endl;
+    }
+    if (gfxr_submit_indices.size() > 0)
+    {
+        std::cout << "Gfxr submit index(0): " << gfxr_submit_indices.at(0) << std::endl;
+    }
 }
 
 void DiveFilterModel::SetMode(FilterMode filter_mode)
@@ -74,16 +88,23 @@ bool DiveFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
     Dive::NodeType current_node_type = m_command_hierarchy.GetNodeType(node_index);
     
     if (current_node_type == Dive::NodeType::kGfxrVulkanSubmitNode) {
+        // Add the index to the list of vulkan submit nodes and pass that to the main window
+        gfxr_submit_indices.push_back(node_index);
         return false;
     }
+
+    if (current_node_type == Dive::NodeType::kSubmitNode)
+    {
+        pm4_submit_indices.push_back(node_index);
+    }
+
+    if (!index.isValid())
+        return false;
 
     if (m_filter_mode == kNone)
     {
         return true;
     }
-
-    if (!index.isValid())
-        return false;
 
     Dive::CommandHierarchy::FilterListType
     filter_list_type = Dive::CommandHierarchy::kFilterListTypeCount;
@@ -468,7 +489,7 @@ void DiveTreeView::GotoEvent(bool is_above)
 //--------------------------------------------------------------------------------------------------
 void DiveTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    std::cout << "DiveTreeView::currentChanged called" << std::endl;
+    std::cout << "DiveTreeView::currentChanged called" << this << std::endl;
     m_curr_node_selected = current;
     QModelIndex current_source_index = GetNodeSourceModelIndex(current);
     QModelIndex previous_source_index = GetNodeSourceModelIndex(previous);

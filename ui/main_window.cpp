@@ -1851,7 +1851,6 @@ void MainWindow::ConnectGfxrFileTabs()
 void MainWindow::OnBinningFilterApplied()
 {
     m_filter_mode_combo_box->setCurrentIndex(1);
-
 }
 
 //--------------------------------------------------------------------------------------------------
