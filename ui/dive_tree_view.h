@@ -22,6 +22,7 @@
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <cstdint>
+#include <qabstractitemmodel.h>
 #include <qsortfilterproxymodel.h>
 #include <vector>
 
@@ -53,7 +54,7 @@ public:
     };
 
     DiveFilterModel(const Dive::CommandHierarchy &command_hierarchy, QObject *parent = nullptr);
-    void SetMode(FilterMode filter_mode);
+    void                  SetMode(FilterMode filter_mode);
     std::vector<uint64_t> GetPm4SubmitIndices() { return pm4_submit_indices; }
     std::vector<uint64_t> GetGfxrSubmitIndices() { return gfxr_submit_indices; }
 public slots:
@@ -141,7 +142,7 @@ private:
     int  GetNearestSearchNode(uint64_t source_node_idx);
 
     QAbstractItemModel *GetCommandModel();
-    QModelIndex   GetNodeSourceModelIndex(const QModelIndex &proxy_model_index) const;
+    QModelIndex         GetNodeSourceModelIndex(const QModelIndex &proxy_model_index) const;
 
     QModelIndex                  m_curr_node_selected;
     QList<QModelIndex>           m_search_indexes;

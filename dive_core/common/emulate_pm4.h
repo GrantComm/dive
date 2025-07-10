@@ -98,9 +98,13 @@ static constexpr uint32_t kShaderEnableBitCount = 3;
 class IEmulateCallbacks
 {
 public:
-    bool ProcessDiveSubmits(const DiveVector<SubmitInfo> &submits, const IMemoryManager &mem_manager, const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_submits);
+    bool ProcessDiveSubmits(
+    const DiveVector<SubmitInfo>                                            &submits,
+    const IMemoryManager                                                    &mem_manager,
+    const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_submits);
 
-    bool ProcessPm4Submits(const DiveVector<SubmitInfo> &submits, const IMemoryManager &mem_manager);
+    bool ProcessPm4Submits(const DiveVector<SubmitInfo> &submits,
+                           const IMemoryManager         &mem_manager);
 
     bool ProcessGfxrSubmits(
     const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &submits);
@@ -243,8 +247,8 @@ public:
                        uint32_t                  num_ibs,
                        const IndirectBufferInfo *ib_ptr);
 
-    bool ExecuteGfxrSubmit(IEmulateCallbacks    &callbacks,
-                           uint32_t              submit_index,
+    bool ExecuteGfxrSubmit(IEmulateCallbacks &callbacks,
+                           uint32_t           submit_index,
                            const std::vector<DiveAnnotationProcessor::VulkanCommandInfo> &vkCmds);
 
 private:

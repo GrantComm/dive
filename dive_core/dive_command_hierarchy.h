@@ -27,36 +27,40 @@ namespace Dive
 class DiveCommandHierarchyCreator : public IEmulateCallbacks
 {
 public:
-    DiveCommandHierarchyCreator(CommandHierarchy &command_hierarchy, EmulateStateTracker &state_tracker, GfxrVulkanCommandHierarchyCreator &gfxr_command_hierarchy_creator, CommandHierarchyCreator &pm4_command_hierarchy_creator);
+    DiveCommandHierarchyCreator(CommandHierarchy                  &command_hierarchy,
+                                EmulateStateTracker               &state_tracker,
+                                GfxrVulkanCommandHierarchyCreator &gfxr_command_hierarchy_creator,
+                                CommandHierarchyCreator           &pm4_command_hierarchy_creator);
 
     uint64_t AddNode(NodeType type, std::string &&desc, CommandHierarchy::AuxInfo aux_info);
 
-        // If flatten_chain_nodes set to true, then chain nodes are children of the top-most
+    // If flatten_chain_nodes set to true, then chain nodes are children of the top-most
     // root ib or call ib node, and never a child of another chain node. This prevents a
     // deep tree of chain nodes when a capture chains together tons of IBs.
     // Optional: Passing a reserve_size will allow the creator to pre-reserve the memory needed and
     // potentially speed up the creation
     bool CreateTrees(CommandHierarchy       &command_hierarchy_ptr,
-                     DiveCaptureData      &dive_capture_data,
+                     DiveCaptureData        &dive_capture_data,
                      bool                    flatten_chain_nodes,
                      std::optional<uint64_t> reserve_size);
 
     void OnCommand(uint32_t submit_index, DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info);
 
-    void OnGfxrSubmit(uint32_t submit_index, const DiveAnnotationProcessor::SubmitInfo &submit_info);
-    
-    void     CreateTopologies();
+    void OnGfxrSubmit(uint32_t                                   submit_index,
+                      const DiveAnnotationProcessor::SubmitInfo &submit_info);
+
+    void CreateTopologies();
 
 private:
     friend class CommandHierarchyCreator;
     friend class GfxrVulkanCommandHierarchyCreator;
 
-    CommandHierarchy &m_command_hierarchy;
-    EmulateStateTracker &m_state_tracker;
-    const Pm4CaptureData *m_capture_data_ptr = nullptr;
-    const GfxrCaptureData *m_gfxr_capture_data_ptr = nullptr;
+    CommandHierarchy                  &m_command_hierarchy;
+    EmulateStateTracker               &m_state_tracker;
+    const Pm4CaptureData              *m_capture_data_ptr = nullptr;
+    const GfxrCaptureData             *m_gfxr_capture_data_ptr = nullptr;
     GfxrVulkanCommandHierarchyCreator &m_gfxr_command_hierarchy_creator;
-    CommandHierarchyCreator &m_pm4_command_hierarchy_creator;
+    CommandHierarchyCreator           &m_pm4_command_hierarchy_creator;
 
     DiveVector<uint64_t> m_node_start_shared_child[CommandHierarchy::kTopologyTypeCount];
     DiveVector<uint64_t> m_node_end_shared_child[CommandHierarchy::kTopologyTypeCount];

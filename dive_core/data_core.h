@@ -77,7 +77,7 @@ public:
 
     // Create meta data from the captured data
     bool CreateDiveMetaData();
-     bool CreatePm4MetaData();
+    bool CreatePm4MetaData();
 
     // Get the pm4 capture data (includes access to raw command buffers and memory blocks)
     const Pm4CaptureData &GetPm4CaptureData() const;

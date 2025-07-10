@@ -92,7 +92,9 @@ Qt::ItemFlags GfxrVulkanCommandModel::flags(const QModelIndex &index) const
 }
 
 //--------------------------------------------------------------------------------------------------
-QVariant GfxrVulkanCommandModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant GfxrVulkanCommandModel::headerData(int             section,
+                                            Qt::Orientation orientation,
+                                            int             role) const
 {
     return QVariant();
 }
@@ -170,8 +172,8 @@ QModelIndex GfxrVulkanCommandModel::findNode(uint64_t node_index) const
 
 //--------------------------------------------------------------------------------------------------
 QVariant GfxrVulkanCommandModel::GetNodeUIId(uint64_t                      node_index,
-                                   const Dive::CommandHierarchy &command_hierarchy,
-                                   const Dive::Topology         *topology_ptr)
+                                             const Dive::CommandHierarchy &command_hierarchy,
+                                             const Dive::Topology         *topology_ptr)
 {
     return QVariant();
 }
@@ -214,7 +216,8 @@ void GfxrVulkanCommandModel::BuildNodeLookup(const QModelIndex &parent) const
 }
 
 //--------------------------------------------------------------------------------------------------
-QList<QModelIndex> GfxrVulkanCommandModel::search(const QModelIndex &start, const QVariant &value) const
+QList<QModelIndex> GfxrVulkanCommandModel::search(const QModelIndex &start,
+                                                  const QVariant    &value) const
 {
     QList<QModelIndex>  result;
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;

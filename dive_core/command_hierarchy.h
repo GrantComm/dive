@@ -401,7 +401,7 @@ private:
 class CommandHierarchyCreator : public IEmulateCallbacks
 {
 public:
-     CommandHierarchyCreator(CommandHierarchy     &command_hierarchy,
+    CommandHierarchyCreator(CommandHierarchy     &command_hierarchy,
                             const Pm4CaptureData &capture_data,
                             EmulateStateTracker  &state_tracker);
     CommandHierarchyCreator();
@@ -410,23 +410,22 @@ public:
     // deep tree of chain nodes when a capture chains together tons of IBs.
     // Optional: Passing a reserve_size will allow the creator to pre-reserve the memory needed and
     // potentially speed up the creation
-    bool CreateTrees(bool                    flatten_chain_nodes,
-                     std::optional<uint64_t> reserve_size);
-    
-    bool CreateTrees(const Pm4CaptureData      &capture_data,
+    bool CreateTrees(bool flatten_chain_nodes, std::optional<uint64_t> reserve_size);
+
+    bool CreateTrees(const Pm4CaptureData   &capture_data,
                      bool                    flatten_chain_nodes,
                      std::optional<uint64_t> reserve_size);
 
-    bool CreateTrees(const Pm4CaptureData      &capture_data,
+    bool CreateTrees(const Pm4CaptureData   &capture_data,
                      bool                    flatten_chain_nodes,
                      std::optional<uint64_t> reserve_size,
-                    bool createTopologies);
+                     bool                    createTopologies);
 
     // This is used to create a command-hierarchy out of a PM4 universal stream (ie: single IB)
-    bool CreateTrees(EngineType        engine_type,
-                     QueueType         queue_type,
+    bool CreateTrees(EngineType             engine_type,
+                     QueueType              queue_type,
                      std::vector<uint32_t> &command_dwords,
-                     uint32_t          size_in_dwords);
+                     uint32_t               size_in_dwords);
 
     virtual bool OnIbStart(uint32_t                  submit_index,
                            uint32_t                  ib_index,
@@ -442,15 +441,14 @@ public:
                           uint32_t              ib_index,
                           uint64_t              va_addr,
                           Pm4Header             header) override;
-    
-    void  CreateTopologies();
 
-    CommandHierarchy &GetCommandHierarchy() {return m_command_hierarchy;}
+    void CreateTopologies();
 
-    DiveVector<DiveVector<uint64_t>> (*GetNodeChildren())[2] {return m_node_children;}
-    
-    DiveVector<uint64_t>* GetNodeRootNodeIndex() {return m_node_root_node_index;}
+    CommandHierarchy &GetCommandHierarchy() { return m_command_hierarchy; }
 
+    DiveVector<DiveVector<uint64_t>> (*GetNodeChildren())[2] { return m_node_children; }
+
+    DiveVector<uint64_t> *GetNodeRootNodeIndex() { return m_node_root_node_index; }
 
 private:
     union Type3Ordinal2

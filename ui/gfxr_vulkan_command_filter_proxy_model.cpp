@@ -16,45 +16,60 @@
 #include <iostream>
 #include <string>
 
-GfxrVulkanCommandFilterProxyModel::GfxrVulkanCommandFilterProxyModel(QObject *parent, const Dive::CommandHierarchy *command_hierarchy)
-    : QSortFilterProxyModel(parent), m_command_hierarchy(command_hierarchy)
+GfxrVulkanCommandFilterProxyModel::GfxrVulkanCommandFilterProxyModel(
+QObject                      *parent,
+const Dive::CommandHierarchy *command_hierarchy) :
+    QSortFilterProxyModel(parent),
+    m_command_hierarchy(command_hierarchy)
 {
 }
 
-bool GfxrVulkanCommandFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
+bool GfxrVulkanCommandFilterProxyModel::filterAcceptsRow(int                sourceRow,
+                                                         const QModelIndex &sourceParent) const
+{
     QModelIndex indexInSource = sourceModel()->index(sourceRow, 0, sourceParent);
 
-    if (!indexInSource.isValid()) {
+    if (!indexInSource.isValid())
+    {
         return true;
     }
 
-    uint64_t node_index = (uint64_t)indexInSource.internalPointer();
-    const GfxrVulkanCommandModel *sourceMyModel = qobject_cast<const GfxrVulkanCommandModel*>(sourceModel());
-    if (!sourceMyModel) {
+    uint64_t                      node_index = (uint64_t)indexInSource.internalPointer();
+    const GfxrVulkanCommandModel *sourceMyModel = qobject_cast<const GfxrVulkanCommandModel *>(
+    sourceModel());
+    if (!sourceMyModel)
+    {
         return false;
     }
 
-    if (node_index >= sourceMyModel->getNumNodes()) {
+    if (node_index >= sourceMyModel->getNumNodes())
+    {
         return false;
     }
 
-    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanSubmitNode) {
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanSubmitNode)
+    {
         return true;
     }
 
-    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandBufferNode) {
+    if (m_command_hierarchy->GetNodeType(node_index) ==
+        Dive::NodeType::kGfxrVulkanCommandBufferNode)
+    {
         return true;
     }
 
-    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandNode) {
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandNode)
+    {
         return true;
     }
 
-    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanDrawCommandNode) {
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanDrawCommandNode)
+    {
         return true;
     }
 
-    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandArgNode) {
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandArgNode)
+    {
         return false;
     }
 

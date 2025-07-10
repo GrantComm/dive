@@ -34,7 +34,11 @@
 // =================================================================================================
 // GfxrVulkanCommandTabView
 // =================================================================================================
-GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandFilterProxyModel &proxy_model, GfxrVulkanCommandModel &command_hierarchy_model, QWidget *parent) :
+GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(
+const Dive::CommandHierarchy      &vulkan_command_hierarchy,
+GfxrVulkanCommandFilterProxyModel &proxy_model,
+GfxrVulkanCommandModel            &command_hierarchy_model,
+QWidget                           *parent) :
     m_vulkan_command_hierarchy(vulkan_command_hierarchy),
     m_proxy_Model(proxy_model),
     m_command_hierarchy_model(command_hierarchy_model)
@@ -42,7 +46,6 @@ GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy 
     m_command_hierarchy_view = new DiveTreeView(m_vulkan_command_hierarchy);
     m_command_hierarchy_view->setModel(&m_proxy_Model);
     m_command_hierarchy_view->setContextMenuPolicy(Qt::CustomContextMenu);
-
 
     m_search_trigger_button = new QPushButton;
     m_search_trigger_button->setObjectName(kGfxrVulkanCommandSearchButtonName);
@@ -63,20 +66,22 @@ GfxrVulkanCommandTabView::GfxrVulkanCommandTabView(const Dive::CommandHierarchy 
     setLayout(main_layout);
     m_search_bar->setTreeView(m_command_hierarchy_view);
 
-    QObject::connect(m_search_trigger_button,
-                     SIGNAL(clicked()),
-                     this,
-                     SLOT(OnSearchCommands()));
+    QObject::connect(m_search_trigger_button, SIGNAL(clicked()), this, SLOT(OnSearchCommands()));
 
     QObject::connect(m_search_bar,
                      SIGNAL(hide_search_bar(bool)),
                      this,
                      SLOT(OnSearchBarVisibilityChange(bool)));
 
-    connect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested, this, &GfxrVulkanCommandTabView::OnCorrelateCommand);
+    connect(m_command_hierarchy_view,
+            &QTreeView::customContextMenuRequested,
+            this,
+            &GfxrVulkanCommandTabView::OnCorrelateCommand);
 
-    connect(m_command_hierarchy_view->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &GfxrVulkanCommandTabView::OnSelectionChanged);
+    connect(m_command_hierarchy_view->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            this,
+            &GfxrVulkanCommandTabView::OnSelectionChanged);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,8 +105,7 @@ void GfxrVulkanCommandTabView::ResetModel()
 
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
-{    
-    std::cout << "GfxrVulkanCommandTabView::OnSelectionChanged called" << std::endl;
+{
     if (!index.isValid() || index.parent() == QModelIndex())
     {
         return;
@@ -114,7 +118,7 @@ void GfxrVulkanCommandTabView::OnSelectionChanged(const QModelIndex &index)
     for (uint32_t column = 0; column < column_count; ++column)
         m_command_hierarchy_view->resizeColumnToContents(column);
 
-        // Reset search results
+    // Reset search results
     m_command_hierarchy_view->reset();
     if (m_search_bar->isVisible())
     {
@@ -209,22 +213,30 @@ void GfxrVulkanCommandTabView::ExpandAll()
 }
 
 //--------------------------------------------------------------------------------------------------
-void GfxrVulkanCommandTabView::OnCorrelateCommand(const QPoint &pos) {
+void GfxrVulkanCommandTabView::OnCorrelateCommand(const QPoint &pos)
+{
     QModelIndex proxy_model_index = m_command_hierarchy_view->indexAt(pos);
     QModelIndex source_model_index = m_proxy_Model.mapToSource(proxy_model_index);
-    uint64_t node_index = (uint64_t)source_model_index.internalPointer();
+    uint64_t    node_index = (uint64_t)source_model_index.internalPointer();
 
-    if (proxy_model_index.isValid() && m_vulkan_command_hierarchy.GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanDrawCommandNode) {
-        QMenu context_menu;
+    if (proxy_model_index.isValid() && m_vulkan_command_hierarchy.GetNodeType(node_index) ==
+                                       Dive::NodeType::kGfxrVulkanDrawCommandNode)
+    {
+        QMenu    context_menu;
         QAction *binning_action = context_menu.addAction("PM4 Events with BinningPassOnly Filter");
-        QAction *first_tile_action = context_menu.addAction("PM4 Events with FirstTilePassOnly Filter");
+        QAction *first_tile_action = context_menu.addAction(
+        "PM4 Events with FirstTilePassOnly Filter");
 
-        QAction *selectedAction = context_menu.exec(m_command_hierarchy_view->viewport()->mapToGlobal(pos));
+        QAction *selectedAction = context_menu.exec(
+        m_command_hierarchy_view->viewport()->mapToGlobal(pos));
 
-        if (selectedAction == binning_action) {
-            emit ApplyBinningFilter();
-        } else if (selectedAction == first_tile_action) {
-            emit ApplyFirstTileFilter();
+        if (selectedAction == binning_action)
+        {
+            emit ApplyBinningFilter(source_model_index);
+        }
+        else if (selectedAction == first_tile_action)
+        {
+            emit ApplyFirstTileFilter(source_model_index);
         }
     }
 }

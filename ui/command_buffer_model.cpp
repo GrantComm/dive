@@ -252,8 +252,8 @@ void CommandBufferModel::OnSelectionChanged(const QModelIndex &index)
     if (m_selected_node_index == selected_node_index)  // Selected same item
         return;
 
-    QAbstractItemModel* model = const_cast<QAbstractItemModel*>(index.model());
-    DiveFilterModel* dive_filter_model = dynamic_cast<DiveFilterModel *>(model);
+    QAbstractItemModel *model = const_cast<QAbstractItemModel *>(index.model());
+    DiveFilterModel    *dive_filter_model = dynamic_cast<DiveFilterModel *>(model);
 
     if (dive_filter_model)
     {

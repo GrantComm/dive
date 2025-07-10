@@ -16,35 +16,46 @@
 #include <iostream>
 #include <string>
 
-GfxrVulkanCommandArgFilterProxyModel::GfxrVulkanCommandArgFilterProxyModel(QObject *parent, const Dive::CommandHierarchy *command_hierarchy)
-    : QSortFilterProxyModel(parent), m_command_hierarchy(command_hierarchy)
+GfxrVulkanCommandArgFilterProxyModel::GfxrVulkanCommandArgFilterProxyModel(
+QObject                      *parent,
+const Dive::CommandHierarchy *command_hierarchy) :
+    QSortFilterProxyModel(parent),
+    m_command_hierarchy(command_hierarchy)
 {
 }
 
-void GfxrVulkanCommandArgFilterProxyModel::setTargetParentSourceIndex(const QModelIndex &sourceIndex)
+void GfxrVulkanCommandArgFilterProxyModel::setTargetParentSourceIndex(
+const QModelIndex &sourceIndex)
 {
-    if (m_targetParentSourceIndex != sourceIndex) {
+    if (m_targetParentSourceIndex != sourceIndex)
+    {
         beginResetModel();
         m_targetParentSourceIndex = sourceIndex;
         endResetModel();
     }
 }
 
-bool GfxrVulkanCommandArgFilterProxyModel::isDescendant(const QModelIndex& potentialDescendant, const QModelIndex& potentialAncestor) const
+bool GfxrVulkanCommandArgFilterProxyModel::isDescendant(const QModelIndex &potentialDescendant,
+                                                        const QModelIndex &potentialAncestor) const
 {
-    if (!potentialAncestor.isValid()) {
+    if (!potentialAncestor.isValid())
+    {
         return false;
     }
-    if (!potentialDescendant.isValid()) {
+    if (!potentialDescendant.isValid())
+    {
         return false;
     }
-    if (potentialDescendant == potentialAncestor) {
+    if (potentialDescendant == potentialAncestor)
+    {
         return true;
     }
 
     QModelIndex currentParent = potentialDescendant.parent();
-    while (currentParent.isValid()) {
-        if (currentParent == potentialAncestor) {
+    while (currentParent.isValid())
+    {
+        if (currentParent == potentialAncestor)
+        {
             return true;
         }
         currentParent = currentParent.parent();
@@ -60,7 +71,8 @@ QVariant GfxrVulkanCommandArgFilterProxyModel::data(const QModelIndex &index, in
     {
         QModelIndex sourceIndex = mapToSource(index);
 
-        if (!m_targetParentSourceIndex.isValid()) {
+        if (!m_targetParentSourceIndex.isValid())
+        {
             return QVariant(QColor(Qt::gray));
         }
 
@@ -77,24 +89,27 @@ QVariant GfxrVulkanCommandArgFilterProxyModel::data(const QModelIndex &index, in
     return value;
 }
 
-
-
-bool GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+bool GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow(int                source_row,
+                                                            const QModelIndex &source_parent) const
 {
-    if (!m_targetParentSourceIndex.isValid()) {
+    if (!m_targetParentSourceIndex.isValid())
+    {
         return false;
     }
 
     QModelIndex currentSourceIndex = sourceModel()->index(source_row, 0, source_parent);
 
-    if (currentSourceIndex == m_targetParentSourceIndex) {
+    if (currentSourceIndex == m_targetParentSourceIndex)
+    {
         return true;
     }
 
     // Accept all ancestors of the selected item.
     QModelIndex ancestorOfTarget = m_targetParentSourceIndex.parent();
-    while (ancestorOfTarget.isValid()) {
-        if (ancestorOfTarget == currentSourceIndex) {
+    while (ancestorOfTarget.isValid())
+    {
+        if (ancestorOfTarget == currentSourceIndex)
+        {
             return true;
         }
         ancestorOfTarget = ancestorOfTarget.parent();
@@ -102,13 +117,16 @@ bool GfxrVulkanCommandArgFilterProxyModel::filterAcceptsRow(int source_row, cons
 
     // Accept all descendants of the selected item. If it is an argument node,
     // accept the node.
-    if (isDescendant(currentSourceIndex, m_targetParentSourceIndex)) {
+    if (isDescendant(currentSourceIndex, m_targetParentSourceIndex))
+    {
         uint64_t current_node_index = currentSourceIndex.internalId();
 
-        if (m_command_hierarchy) {
+        if (m_command_hierarchy)
+        {
             Dive::NodeType current_node_type = m_command_hierarchy->GetNodeType(current_node_index);
 
-            if (current_node_type == Dive::NodeType::kGfxrVulkanCommandArgNode) {
+            if (current_node_type == Dive::NodeType::kGfxrVulkanCommandArgNode)
+            {
                 return true;
             }
         }

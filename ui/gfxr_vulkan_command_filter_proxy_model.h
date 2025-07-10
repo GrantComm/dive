@@ -25,20 +25,23 @@ class CommandHierarchy;
 class Topology;
 };  // namespace Dive
 
-class GfxrVulkanCommandFilterProxyModel : public QSortFilterProxyModel {
+class GfxrVulkanCommandFilterProxyModel : public QSortFilterProxyModel
+{
     Q_OBJECT
 
 public:
-    GfxrVulkanCommandFilterProxyModel(QObject *parent = nullptr, const Dive::CommandHierarchy *command_hierarchy = nullptr);
+    GfxrVulkanCommandFilterProxyModel(QObject                      *parent = nullptr,
+                                      const Dive::CommandHierarchy *command_hierarchy = nullptr);
 
-    void refreshFilter() {
-        if (sourceModel() == nullptr) {
-        std::cout << "ERROR: Proxy source model is null!" << std::endl;
-    }
-    
-        invalidateFilter(); // Call the protected method from within your class
-    }
+    void refreshFilter()
+    {
+        if (sourceModel() == nullptr)
+        {
+            std::cout << "ERROR: Proxy source model is null!" << std::endl;
+        }
 
+        invalidateFilter();  // Call the protected method from within your class
+    }
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -47,4 +50,4 @@ private:
     const Dive::CommandHierarchy *m_command_hierarchy;
 };
 
-#endif // GFXRVULKANCOMMANDFILTERPROXYMODEL_H
+#endif  // GFXRVULKANCOMMANDFILTERPROXYMODEL_H

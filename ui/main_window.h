@@ -20,6 +20,7 @@
 #include "dive_core/cross_ref.h"
 #include "progress_tracker_callback.h"
 #include "dive_core/log.h"
+#include <QModelIndex>
 
 // Forward declarations
 class BufferView;
@@ -96,8 +97,8 @@ signals:
 public slots:
     void OnCapture(bool is_capture_delayed = false, bool is_gfxr_capture = false);
     void OnSwitchToShaderTab();
-    void OnBinningFilterApplied();
-    void OnFirstTileFilterApplied();
+    void OnBinningFilterApplied(const QModelIndex &);
+    void OnFirstTileFilterApplied(const QModelIndex &);
 
 private slots:
     void OnCommandViewModeChange(const QString &string);
@@ -176,14 +177,14 @@ private:
     QStatusBar *m_status_bar;
 
     // Left pane
-    QString       m_prev_command_view_mode;
-    DiveTreeView *m_command_hierarchy_view;
-    CommandModel *m_command_hierarchy_model;
-    GfxrVulkanCommandModel *m_gfxr_vulkan_command_hierarchy_model;
-    GfxrVulkanCommandFilterProxyModel *m_gfxr_vulkan_commands_filter_proxy_model;
+    QString                               m_prev_command_view_mode;
+    DiveTreeView                         *m_command_hierarchy_view;
+    CommandModel                         *m_command_hierarchy_model;
+    GfxrVulkanCommandModel               *m_gfxr_vulkan_command_hierarchy_model;
+    GfxrVulkanCommandFilterProxyModel    *m_gfxr_vulkan_commands_filter_proxy_model;
     GfxrVulkanCommandArgFilterProxyModel *m_gfxr_vulkan_commands_args_filter_proxy_model;
-    QPushButton  *m_search_trigger_button;
-    SearchBar    *m_event_search_bar = nullptr;
+    QPushButton                          *m_search_trigger_button;
+    SearchBar                            *m_event_search_bar = nullptr;
 
     TreeViewComboBox    *m_view_mode_combo_box;
     TreeViewComboBox    *m_filter_mode_combo_box;
@@ -192,19 +193,19 @@ private:
     QList<QPushButton *> m_expand_to_lvl_buttons;
 
     // Right pane
-    QTabWidget      *m_tab_widget;
-    CommandTabView  *m_command_tab_view;
-    int              m_command_view_tab_index;
-    OverviewTabView *m_overview_tab_view;
-    int              m_overview_view_tab_index;
-    ShaderView      *m_shader_view;
-    int              m_shader_view_tab_index;
-    EventStateView  *m_event_state_view;
-    int              m_event_state_view_tab_index;
-    GfxrVulkanCommandTabView  *m_gfxr_vulkan_command_tab_view;
-    int              m_gfxr_vulkan_command_view_tab_index;
-    GfxrVulkanCommandArgsTabView  *m_gfxr_vulkan_command_arguments_tab_view;
-    int              m_gfxr_vulkan_command_arguments_view_tab_index;
+    QTabWidget                   *m_tab_widget;
+    CommandTabView               *m_command_tab_view;
+    int                           m_command_view_tab_index;
+    OverviewTabView              *m_overview_tab_view;
+    int                           m_overview_view_tab_index;
+    ShaderView                   *m_shader_view;
+    int                           m_shader_view_tab_index;
+    EventStateView               *m_event_state_view;
+    int                           m_event_state_view_tab_index;
+    GfxrVulkanCommandTabView     *m_gfxr_vulkan_command_tab_view;
+    int                           m_gfxr_vulkan_command_view_tab_index;
+    GfxrVulkanCommandArgsTabView *m_gfxr_vulkan_command_arguments_tab_view;
+    int                           m_gfxr_vulkan_command_arguments_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)
     BufferView *m_buffer_view;
 #endif
@@ -232,4 +233,7 @@ private:
     Overlay *m_overlay;
 
     std::unique_ptr<Dive::PluginLoader> m_plugin_manager;
+    QModelIndex                         findSourceIndexFromNode(QAbstractItemModel *model,
+                                                                uint64_t            target_node_index,
+                                                                const QModelIndex  &parent = QModelIndex());
 };

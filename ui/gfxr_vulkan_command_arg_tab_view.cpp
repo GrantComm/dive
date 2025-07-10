@@ -34,13 +34,18 @@
 // =================================================================================================
 // GfxrVulkanCommandArgsTabView
 // =================================================================================================
-GfxrVulkanCommandArgsTabView::GfxrVulkanCommandArgsTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandArgFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent) :
+GfxrVulkanCommandArgsTabView::GfxrVulkanCommandArgsTabView(
+const Dive::CommandHierarchy         &vulkan_command_hierarchy,
+GfxrVulkanCommandArgFilterProxyModel *proxy_model,
+GfxrVulkanCommandModel               *command_hierarchy_model,
+QWidget                              *parent) :
     m_vulkan_command_hierarchy(vulkan_command_hierarchy),
     m_arg_proxy_Model(proxy_model),
     m_command_hierarchy_model(command_hierarchy_model)
 {
     m_command_hierarchy_view = new DiveTreeView(m_vulkan_command_hierarchy);
-    m_arg_proxy_Model = new GfxrVulkanCommandArgFilterProxyModel(m_command_hierarchy_view, &m_vulkan_command_hierarchy);
+    m_arg_proxy_Model = new GfxrVulkanCommandArgFilterProxyModel(m_command_hierarchy_view,
+                                                                 &m_vulkan_command_hierarchy);
     m_arg_proxy_Model->setSourceModel(m_command_hierarchy_model);
     m_command_hierarchy_view->setModel(m_arg_proxy_Model);
 
@@ -63,10 +68,7 @@ GfxrVulkanCommandArgsTabView::GfxrVulkanCommandArgsTabView(const Dive::CommandHi
     setLayout(main_layout);
     m_search_bar->setTreeView(m_command_hierarchy_view);
 
-    QObject::connect(m_search_trigger_button,
-                     SIGNAL(clicked()),
-                     this,
-                     SLOT(OnSearchCommandArgs()));
+    QObject::connect(m_search_trigger_button, SIGNAL(clicked()), this, SLOT(OnSearchCommandArgs()));
 
     QObject::connect(m_search_bar,
                      SIGNAL(hide_search_bar(bool)),
@@ -94,7 +96,7 @@ void GfxrVulkanCommandArgsTabView::ResetModel()
 
 //--------------------------------------------------------------------------------------------------
 void GfxrVulkanCommandArgsTabView::OnSelectionChanged(const QModelIndex &index)
-{    
+{
     if (!index.isValid() || index.parent() == QModelIndex())
     {
         return;
@@ -107,7 +109,7 @@ void GfxrVulkanCommandArgsTabView::OnSelectionChanged(const QModelIndex &index)
     for (uint32_t column = 0; column < column_count; ++column)
         m_command_hierarchy_view->resizeColumnToContents(column);
 
-        // Reset search results
+    // Reset search results
     m_command_hierarchy_view->reset();
     if (m_search_bar->isVisible())
     {

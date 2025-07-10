@@ -18,7 +18,6 @@
 #include "dive_core/gfxr_capture_data.h"
 #include "dive_core/pm4_capture_data.h"
 
-
 namespace Dive
 {
 
@@ -34,14 +33,14 @@ public:
     DiveCaptureData &operator=(DiveCaptureData &&) = default;
 
     CaptureData::LoadResult LoadFile(const char *file_name);
-    const Pm4CaptureData& getPm4CaptureData() const;
-    const GfxrCaptureData& getGfxrCaptureData() const;
+    const Pm4CaptureData   &getPm4CaptureData() const;
+    const GfxrCaptureData  &getGfxrCaptureData() const;
 
 private:
-    ProgressTracker               *m_progress_tracker;
-    ILog                          *m_log_ptr;
-    Pm4CaptureData                m_pm4_capture_data;
-    GfxrCaptureData               m_gfxr_capture_data;
+    ProgressTracker *m_progress_tracker;
+    ILog            *m_log_ptr;
+    Pm4CaptureData   m_pm4_capture_data;
+    GfxrCaptureData  m_gfxr_capture_data;
 };
 
 }  // namespace Dive

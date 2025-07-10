@@ -71,13 +71,20 @@ bool DataCore::CreateDiveCommandHierarchy()
     uint64_t reserve_size = m_capture_metadata.m_num_pm4_packets * 10;
 
     // Command hierarchy tree creation
-    CommandHierarchyCreator pm4_cmd_hier_creator(m_capture_metadata.m_command_hierarchy, m_pm4_capture_data, *state_tracker);
-    GfxrVulkanCommandHierarchyCreator vk_cmd_creator(m_capture_metadata.m_command_hierarchy, pm4_cmd_hier_creator, m_gfxr_capture_data);
-    DiveCommandHierarchyCreator cmd_hier_creator(m_capture_metadata.m_command_hierarchy, *state_tracker, vk_cmd_creator, pm4_cmd_hier_creator);
+    CommandHierarchyCreator           pm4_cmd_hier_creator(m_capture_metadata.m_command_hierarchy,
+                                                 m_pm4_capture_data,
+                                                 *state_tracker);
+    GfxrVulkanCommandHierarchyCreator vk_cmd_creator(m_capture_metadata.m_command_hierarchy,
+                                                     pm4_cmd_hier_creator,
+                                                     m_gfxr_capture_data);
+    DiveCommandHierarchyCreator       cmd_hier_creator(m_capture_metadata.m_command_hierarchy,
+                                                 *state_tracker,
+                                                 vk_cmd_creator,
+                                                 pm4_cmd_hier_creator);
     if (!cmd_hier_creator.CreateTrees(m_capture_metadata.m_command_hierarchy,
-                                        m_dive_capture_data,
-                                        true,
-                                        reserve_size))
+                                      m_dive_capture_data,
+                                      true,
+                                      reserve_size))
     {
         return false;
     }
@@ -97,10 +104,10 @@ bool DataCore::CreatePm4CommandHierarchy()
     uint64_t reserve_size = m_capture_metadata.m_num_pm4_packets * 10;
 
     // Command hierarchy tree creation
-    CommandHierarchyCreator cmd_hier_creator(m_capture_metadata.m_command_hierarchy, m_pm4_capture_data, *state_tracker);
-    if (!cmd_hier_creator.CreateTrees(m_pm4_capture_data,
-                                        true,
-                                        reserve_size))
+    CommandHierarchyCreator cmd_hier_creator(m_capture_metadata.m_command_hierarchy,
+                                             m_pm4_capture_data,
+                                             *state_tracker);
+    if (!cmd_hier_creator.CreateTrees(m_pm4_capture_data, true, reserve_size))
     {
         return false;
     }
@@ -111,7 +118,7 @@ bool DataCore::CreatePm4CommandHierarchy()
 bool DataCore::CreateGfxrCommandHierarchy()
 {
     GfxrVulkanCommandHierarchyCreator vk_cmd_creator(m_capture_metadata.m_command_hierarchy,
-                                                         m_gfxr_capture_data);
+                                                     m_gfxr_capture_data);
     if (!vk_cmd_creator.CreateTrees())
     {
         return false;
@@ -123,9 +130,11 @@ bool DataCore::CreateGfxrCommandHierarchy()
 bool DataCore::CreateDiveMetaData()
 {
     std::unique_ptr<EmulateStateTracker> state_tracker(new EmulateStateTracker);
-        CaptureMetadataCreator               metadata_creator(m_capture_metadata, *state_tracker);
-    if (!metadata_creator.ProcessDiveSubmits(m_dive_capture_data.getPm4CaptureData().GetSubmits(),
-                                             m_dive_capture_data.getPm4CaptureData().GetMemoryManager(), m_dive_capture_data.getGfxrCaptureData().GetGfxrSubmits()))
+    CaptureMetadataCreator               metadata_creator(m_capture_metadata, *state_tracker);
+    if (!metadata_creator
+         .ProcessDiveSubmits(m_dive_capture_data.getPm4CaptureData().GetSubmits(),
+                             m_dive_capture_data.getPm4CaptureData().GetMemoryManager(),
+                             m_dive_capture_data.getGfxrCaptureData().GetGfxrSubmits()))
     {
         return false;
     }
@@ -136,9 +145,9 @@ bool DataCore::CreateDiveMetaData()
 bool DataCore::CreatePm4MetaData()
 {
     std::unique_ptr<EmulateStateTracker> state_tracker(new EmulateStateTracker);
-        CaptureMetadataCreator               metadata_creator(m_capture_metadata, *state_tracker);
+    CaptureMetadataCreator               metadata_creator(m_capture_metadata, *state_tracker);
     if (!metadata_creator.ProcessPm4Submits(m_pm4_capture_data.GetSubmits(),
-                                             m_pm4_capture_data.GetMemoryManager()))
+                                            m_pm4_capture_data.GetMemoryManager()))
     {
         return false;
     }

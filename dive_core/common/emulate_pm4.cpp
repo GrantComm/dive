@@ -897,11 +897,15 @@ uint32_t GetPacketSize(Pm4Header header)
 // IEmulateCallbacks
 // =================================================================================================
 
-bool IEmulateCallbacks::ProcessDiveSubmits(const DiveVector<SubmitInfo> &submits,
-                                       const IMemoryManager         &mem_manager, const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_submits)
+bool IEmulateCallbacks::ProcessDiveSubmits(
+const DiveVector<SubmitInfo>                                            &submits,
+const IMemoryManager                                                    &mem_manager,
+const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_submits)
 {
     EmulatePM4 emu;
 
+    std::cout << "IEmulateCallbacks::ProcessDiveSubmits, pm4 submits size: " << submits.size()
+              << std::endl;
     for (uint32_t submit_index = 0; submit_index < submits.size(); ++submit_index)
     {
         const Dive::SubmitInfo &submit_info = submits[submit_index];
@@ -931,15 +935,14 @@ bool IEmulateCallbacks::ProcessDiveSubmits(const DiveVector<SubmitInfo> &submits
         OnSubmitEnd(submit_index, submit_info);
     }
 
+    std::cout << "IEmulateCallbacks::ProcessDiveSubmits, gfxr submits size: " << gfxr_submits.size()
+              << std::endl;
     for (uint32_t submit_index = 0; submit_index < gfxr_submits.size(); ++submit_index)
     {
         const DiveAnnotationProcessor::SubmitInfo &submit_info = *gfxr_submits[submit_index];
 
         OnGfxrSubmit(submit_index, submit_info);
-
-        if (!emu.ExecuteGfxrSubmit(*this,
-                                   submit_index,
-                                   submit_info.GetVulkanCommands()))
+        if (!emu.ExecuteGfxrSubmit(*this, submit_index, submit_info.GetVulkanCommands()))
         {
             return false;
         }
@@ -949,8 +952,9 @@ bool IEmulateCallbacks::ProcessDiveSubmits(const DiveVector<SubmitInfo> &submits
 
 //--------------------------------------------------------------------------------------------------
 bool IEmulateCallbacks::ProcessPm4Submits(const DiveVector<SubmitInfo> &submits,
-                                       const IMemoryManager         &mem_manager)
+                                          const IMemoryManager         &mem_manager)
 {
+    std::cout << "Pm4 submits size: " << submits.size() << std::endl;
     for (uint32_t submit_index = 0; submit_index < submits.size(); ++submit_index)
     {
         const Dive::SubmitInfo &submit_info = submits[submit_index];
@@ -993,10 +997,8 @@ const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &submits
 
         OnGfxrSubmit(submit_index, submit_info);
 
-        EmulatePM4                                             emu;
-        if (!emu.ExecuteGfxrSubmit(*this,
-                                   submit_index,
-                                   submit_info.GetVulkanCommands()))
+        EmulatePM4 emu;
+        if (!emu.ExecuteGfxrSubmit(*this, submit_index, submit_info.GetVulkanCommands()))
         {
             return false;
         }

@@ -39,7 +39,10 @@ class GfxrVulkanCommandArgsTabView : public QFrame
     Q_OBJECT
 
 public:
-    GfxrVulkanCommandArgsTabView(const Dive::CommandHierarchy &vulkan_command_hierarchy, GfxrVulkanCommandArgFilterProxyModel *proxy_model, GfxrVulkanCommandModel* command_hierarchy_model, QWidget *parent = nullptr);
+    GfxrVulkanCommandArgsTabView(const Dive::CommandHierarchy         &vulkan_command_hierarchy,
+                                 GfxrVulkanCommandArgFilterProxyModel *proxy_model,
+                                 GfxrVulkanCommandModel               *command_hierarchy_model,
+                                 QWidget                              *parent = nullptr);
 
     void SetTopologyToView(const Dive::Topology *topology_ptr);
 
@@ -60,11 +63,11 @@ signals:
 
 private:
     DiveTreeView *m_command_hierarchy_view;
-    QPushButton        *m_search_trigger_button;
-    SearchBar          *m_search_bar = nullptr;
+    QPushButton  *m_search_trigger_button;
+    SearchBar    *m_search_bar = nullptr;
 
-    const Dive::CommandHierarchy &m_vulkan_command_hierarchy;
-    GfxrVulkanCommandFilterProxyModel        *m_proxy_Model;
+    const Dive::CommandHierarchy         &m_vulkan_command_hierarchy;
+    GfxrVulkanCommandFilterProxyModel    *m_proxy_Model;
     GfxrVulkanCommandArgFilterProxyModel *m_arg_proxy_Model;
-    GfxrVulkanCommandModel      *m_command_hierarchy_model;
+    GfxrVulkanCommandModel               *m_command_hierarchy_model;
 };

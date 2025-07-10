@@ -22,25 +22,23 @@ namespace Dive
 // =================================================================================================
 // DiveCaptureData
 // =================================================================================================
-DiveCaptureData::DiveCaptureData()
-    : m_pm4_capture_data(),
-      m_gfxr_capture_data()
+DiveCaptureData::DiveCaptureData() :
+    m_pm4_capture_data(),
+    m_gfxr_capture_data()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-DiveCaptureData::~DiveCaptureData()
-{
-}
+DiveCaptureData::~DiveCaptureData() {}
 
 //--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DiveCaptureData::LoadFile(const char *file_name)
+CaptureData::LoadResult DiveCaptureData::LoadFile(const char* file_name)
 {
     CaptureData::LoadResult result;
 
     m_gfxr_capture_data = GfxrCaptureData();
     result = m_gfxr_capture_data.LoadCaptureFile(file_name);
-    m_pm4_capture_data = Pm4CaptureData(m_progress_tracker);                              
+    m_pm4_capture_data = Pm4CaptureData(m_progress_tracker);
     /*m_capture_metadata = CaptureMetadata();
     result = m_pm4_capture_data.LoadFile(file_name);*/
     return result;

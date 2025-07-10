@@ -23,9 +23,9 @@ namespace Dive
 // GfxrVulkanCommandHierarchyCreator
 // =================================================================================================
 GfxrVulkanCommandHierarchyCreator::GfxrVulkanCommandHierarchyCreator(
-CommandHierarchy &command_hierarchy,
+CommandHierarchy        &command_hierarchy,
 CommandHierarchyCreator &pm4_command_hierarchy_creator,
-GfxrCaptureData      &capture_data) :
+GfxrCaptureData         &capture_data) :
     m_command_hierarchy(command_hierarchy),
     m_pm4_command_hierarchy_creator(pm4_command_hierarchy_creator),
     m_gfxr_capture_data(capture_data)
@@ -34,7 +34,7 @@ GfxrCaptureData      &capture_data) :
 
 GfxrVulkanCommandHierarchyCreator::GfxrVulkanCommandHierarchyCreator(
 CommandHierarchy &command_hierarchy,
-GfxrCaptureData      &capture_data) :
+GfxrCaptureData  &capture_data) :
     m_command_hierarchy(command_hierarchy),
     m_gfxr_capture_data(capture_data)
 {
@@ -72,17 +72,22 @@ uint64_t GfxrVulkanCommandHierarchyCreator::AddNode(NodeType type, std::string &
     uint64_t node_index;
     if (m_pm4_command_hierarchy_creator)
     {
-        node_index = m_pm4_command_hierarchy_creator->get().GetCommandHierarchy().AddGfxrNode(type, std::move(desc));
+        node_index = m_pm4_command_hierarchy_creator->get()
+                     .GetCommandHierarchy()
+                     .AddGfxrNode(type, std::move(desc));
 
         for (uint32_t i = 0; i < CommandHierarchy::kTopologyTypeCount; ++i)
         {
-            DIVE_ASSERT(m_pm4_command_hierarchy_creator->get().GetNodeChildren()[i][0].size() == node_index);
-            m_pm4_command_hierarchy_creator->get().GetNodeChildren()[i][0].resize( m_pm4_command_hierarchy_creator->get().GetNodeChildren()[i][0].size() + 1);
+            DIVE_ASSERT(m_pm4_command_hierarchy_creator->get().GetNodeChildren()[i][0].size() ==
+                        node_index);
+            m_pm4_command_hierarchy_creator->get().GetNodeChildren()[i][0].resize(
+            m_pm4_command_hierarchy_creator->get().GetNodeChildren()[i][0].size() + 1);
 
-            m_pm4_command_hierarchy_creator->get().GetNodeRootNodeIndex()[i].resize(m_pm4_command_hierarchy_creator->get().GetNodeRootNodeIndex()[i].size() + 1);
+            m_pm4_command_hierarchy_creator->get().GetNodeRootNodeIndex()[i].resize(
+            m_pm4_command_hierarchy_creator->get().GetNodeRootNodeIndex()[i].size() + 1);
         }
     }
-    else 
+    else
     {
         node_index = m_command_hierarchy.AddGfxrNode(type, std::move(desc));
 
@@ -105,8 +110,10 @@ void GfxrVulkanCommandHierarchyCreator::AddChild(CommandHierarchy::TopologyType 
 {
     if (m_pm4_command_hierarchy_creator)
     {
-        DIVE_ASSERT(node_index < m_pm4_command_hierarchy_creator->get().GetNodeChildren()[type][0].size());
-        m_pm4_command_hierarchy_creator->get().GetNodeChildren()[type][0][node_index].push_back(child_node_index);
+        DIVE_ASSERT(node_index <
+                    m_pm4_command_hierarchy_creator->get().GetNodeChildren()[type][0].size());
+        m_pm4_command_hierarchy_creator->get().GetNodeChildren()[type][0][node_index].push_back(
+        child_node_index);
     }
     else
     {
@@ -228,7 +235,9 @@ void GfxrVulkanCommandHierarchyCreator::GetArgs(const nlohmann::ordered_json &js
             vk_cmd_arg_string_stream << current_path << ":" << json_args;
             uint64_t vk_cmd_arg_index = AddNode(NodeType::kGfxrVulkanCommandArgNode,
                                                 vk_cmd_arg_string_stream.str());
-            AddChild(CommandHierarchy::TopologyType::kAllEventTopology, curr_index, vk_cmd_arg_index);
+            AddChild(CommandHierarchy::TopologyType::kAllEventTopology,
+                     curr_index,
+                     vk_cmd_arg_index);
         }
     }
 }
@@ -285,7 +294,7 @@ const DiveAnnotationProcessor::SubmitInfo &submit_info)
                                          submit_string_stream.str());
 
     // Add submit node to the other topologies as children to the root node
-    //AddChild(CommandHierarchy::kSubmitTopology, Topology::kRootNodeIndex, submit_node_index);
+    // AddChild(CommandHierarchy::kSubmitTopology, Topology::kRootNodeIndex, submit_node_index);
     AddChild(CommandHierarchy::kAllEventTopology, Topology::kRootNodeIndex, submit_node_index);
     m_cur_submit_node_index = submit_node_index;
 }

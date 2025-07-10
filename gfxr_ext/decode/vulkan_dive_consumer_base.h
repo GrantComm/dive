@@ -35,7 +35,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanExportDiveConsumerBase : public VulkanConsumer
 {
-  public:
+public:
     VulkanExportDiveConsumerBase() = default;
 
     virtual ~VulkanExportDiveConsumerBase() = default;
@@ -43,21 +43,23 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
     void Initialize(AnnotationHandler* writer);
 
     void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
-        const ApiCallInfo&                                                         call_info,
-        format::HandleId                                                           commandBuffer,
-        uint32_t                                                                   infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        PointerDecoder<VkDeviceAddress>*                                           pIndirectDeviceAddresses,
-        PointerDecoder<uint32_t>*                                                  pIndirectStrides,
-        PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts) override;
+    const ApiCallInfo&                                                         call_info,
+    format::HandleId                                                           commandBuffer,
+    uint32_t                                                                   infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    PointerDecoder<VkDeviceAddress>* pIndirectDeviceAddresses,
+    PointerDecoder<uint32_t>*        pIndirectStrides,
+    PointerDecoder<uint32_t*>*       ppMaxPrimitiveCounts) override;
 
     virtual void Process_vkCreateShaderModule(
-        const gfxrecon::decode::ApiCallInfo&                                                        call_info,
-        VkResult                                                                                    returnValue,
-        gfxrecon::format::HandleId                                                                  device,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
-        gfxrecon::decode::HandlePointerDecoder<VkShaderModule>* pShaderModule) override;
+    const gfxrecon::decode::ApiCallInfo& call_info,
+    VkResult                             returnValue,
+    gfxrecon::format::HandleId           device,
+    gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderModuleCreateInfo>*
+    pCreateInfo,
+    gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*
+                                                            pAllocator,
+    gfxrecon::decode::HandlePointerDecoder<VkShaderModule>* pShaderModule) override;
 
     virtual void Process_vkGetPipelineCacheData(const ApiCallInfo&       call_info,
                                                 VkResult                 returnValue,
@@ -66,12 +68,13 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
                                                 PointerDecoder<size_t>*  pDataSize,
                                                 PointerDecoder<uint8_t>* pData) override;
 
-    virtual void Process_vkCreatePipelineCache(const ApiCallInfo&                                       call_info,
-                                               VkResult                                                 returnValue,
-                                               format::HandleId                                         device,
-                                               StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
-                                               StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
-                                               HandlePointerDecoder<VkPipelineCache>* pPipelineCache) override;
+    virtual void Process_vkCreatePipelineCache(
+    const ApiCallInfo&                                       call_info,
+    VkResult                                                 returnValue,
+    format::HandleId                                         device,
+    StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
+    HandlePointerDecoder<VkPipelineCache>*                   pPipelineCache) override;
 
     virtual void Process_vkCmdPushConstants(const ApiCallInfo&       call_info,
                                             format::HandleId         commandBuffer,
@@ -81,48 +84,61 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
                                             uint32_t                 size,
                                             PointerDecoder<uint8_t>* pValues) override;
 
-    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                      format::HandleId                 device,
-                                                      format::HandleId                 descriptorSet,
-                                                      format::HandleId                 descriptorUpdateTemplate,
-                                                      DescriptorUpdateTemplateDecoder* pData) override
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(
+    const ApiCallInfo&               call_info,
+    format::HandleId                 device,
+    format::HandleId                 descriptorSet,
+    format::HandleId                 descriptorUpdateTemplate,
+    DescriptorUpdateTemplateDecoder* pData) override
     {
-        Process_vkUpdateDescriptorSetWithTemplate(
-            call_info, device, descriptorSet, descriptorUpdateTemplate, pData, true);
+        Process_vkUpdateDescriptorSetWithTemplate(call_info,
+                                                  device,
+                                                  descriptorSet,
+                                                  descriptorUpdateTemplate,
+                                                  pData,
+                                                  true);
     }
 
-    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                   format::HandleId                 device,
-                                                   format::HandleId                 descriptorSet,
-                                                   format::HandleId                 descriptorUpdateTemplate,
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                   format::HandleId   device,
+                                                   format::HandleId   descriptorSet,
+                                                   format::HandleId   descriptorUpdateTemplate,
                                                    DescriptorUpdateTemplateDecoder* pData) override
     {
-        Process_vkUpdateDescriptorSetWithTemplate(
-            call_info, device, descriptorSet, descriptorUpdateTemplate, pData, false);
+        Process_vkUpdateDescriptorSetWithTemplate(call_info,
+                                                  device,
+                                                  descriptorSet,
+                                                  descriptorUpdateTemplate,
+                                                  pData,
+                                                  false);
     }
 
-  protected:
-    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                   format::HandleId                 device,
-                                                   format::HandleId                 descriptorSet,
-                                                   format::HandleId                 descriptorUpdateTemplate,
+protected:
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                   format::HandleId   device,
+                                                   format::HandleId   descriptorSet,
+                                                   format::HandleId   descriptorUpdateTemplate,
                                                    DescriptorUpdateTemplateDecoder* pData,
                                                    bool                             use_KHR_suffix);
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer,
-                                                               format::HandleId   descriptorUpdateTemplate,
-                                                               format::HandleId   layout,
-                                                               uint32_t           set,
-                                                               DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    const ApiCallInfo&               call_info,
+    format::HandleId                 commandBuffer,
+    format::HandleId                 descriptorUpdateTemplate,
+    format::HandleId                 layout,
+    uint32_t                         set,
+    DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-        const ApiCallInfo&                                                 call_info,
-        format::HandleId                                                   commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
-                                      
-    void WriteBlockEnd(util::DiveFunctionData function_data) { writer_->WriteBlockEnd(function_data); }
+    const ApiCallInfo& call_info,
+    format::HandleId   commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>*
+    pPushDescriptorSetWithTemplateInfo) override;
 
+    void WriteBlockEnd(util::DiveFunctionData function_data)
+    {
+        writer_->WriteBlockEnd(function_data);
+    }
 
     /// A field not present in binary format which identifies the index of each
     /// command within its command buffer.
@@ -139,13 +155,17 @@ class VulkanExportDiveConsumerBase : public VulkanConsumer
         return index;
     }
 
-    void ResetCommandBufferRecordIndex(format::HandleId command_buffer) { rec_cmd_index_[command_buffer] = 0; }
-  private:
+    void ResetCommandBufferRecordIndex(format::HandleId command_buffer)
+    {
+        rec_cmd_index_[command_buffer] = 0;
+    }
+
+private:
     std::unordered_map<format::HandleId, uint32_t> rec_cmd_index_;
-    AnnotationHandler* writer_{ nullptr };
+    AnnotationHandler*                             writer_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_VULKAN_DIVE_CONSUMER_BASE_H
+#endif  // GFXRECON_DECODE_VULKAN_DIVE_CONSUMER_BASE_H

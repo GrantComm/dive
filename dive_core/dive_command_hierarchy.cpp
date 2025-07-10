@@ -22,16 +22,23 @@ namespace Dive
 // =================================================================================================
 // DiveCommandHierarchyCreator
 // =================================================================================================
-DiveCommandHierarchyCreator::DiveCommandHierarchyCreator(CommandHierarchy &command_hierarchy, EmulateStateTracker &state_tracker, GfxrVulkanCommandHierarchyCreator &gfxr_command_hierarchy_creator, CommandHierarchyCreator &pm4_command_hierarchy_creator) :
-m_command_hierarchy(command_hierarchy), m_state_tracker(state_tracker), m_gfxr_command_hierarchy_creator(gfxr_command_hierarchy_creator), m_pm4_command_hierarchy_creator(pm4_command_hierarchy_creator)
+DiveCommandHierarchyCreator::DiveCommandHierarchyCreator(
+CommandHierarchy                  &command_hierarchy,
+EmulateStateTracker               &state_tracker,
+GfxrVulkanCommandHierarchyCreator &gfxr_command_hierarchy_creator,
+CommandHierarchyCreator           &pm4_command_hierarchy_creator) :
+    m_command_hierarchy(command_hierarchy),
+    m_state_tracker(state_tracker),
+    m_gfxr_command_hierarchy_creator(gfxr_command_hierarchy_creator),
+    m_pm4_command_hierarchy_creator(pm4_command_hierarchy_creator)
 {
     m_state_tracker.Reset();
 }
 
 //--------------------------------------------------------------------------------------------------
 uint64_t DiveCommandHierarchyCreator::AddNode(NodeType                  type,
-                                          std::string             &&desc,
-                                          CommandHierarchy::AuxInfo aux_info)
+                                              std::string             &&desc,
+                                              CommandHierarchy::AuxInfo aux_info)
 {
     uint64_t node_index = m_command_hierarchy.AddNode(type, std::move(desc), aux_info);
     for (uint32_t i = 0; i < CommandHierarchy::kTopologyTypeCount; ++i)
@@ -53,17 +60,27 @@ uint64_t DiveCommandHierarchyCreator::AddNode(NodeType                  type,
 
 //--------------------------------------------------------------------------------------------------
 bool DiveCommandHierarchyCreator::CreateTrees(CommandHierarchy       &command_hierarchy_ptr,
-                                          DiveCaptureData      &dive_capture_data,
-                                          bool                    flatten_chain_nodes,
-                                          std::optional<uint64_t> reserve_size)
+                                              DiveCaptureData        &dive_capture_data,
+                                              bool                    flatten_chain_nodes,
+                                              std::optional<uint64_t> reserve_size)
 {
     std::cout << "DiveCommandHierarchyCreator::CreateTrees" << std::endl;
+    if (reserve_size.has_value() && reserve_size > 0)
+    {
+        std::cout << "DiveCommandHierarchyCreator::CreateTrees reserve size: "
+                  << reserve_size.value() << std::endl;
+    }
 
-    m_pm4_command_hierarchy_creator.CreateTrees(dive_capture_data.getPm4CaptureData(), flatten_chain_nodes, reserve_size, false);
+    m_pm4_command_hierarchy_creator.CreateTrees(dive_capture_data.getPm4CaptureData(),
+                                                flatten_chain_nodes,
+                                                reserve_size,
+                                                false);
 
     m_gfxr_command_hierarchy_creator.CreateTrees();
 
-    if (!ProcessDiveSubmits(dive_capture_data.getPm4CaptureData().GetSubmits(), dive_capture_data.getPm4CaptureData().GetMemoryManager(), dive_capture_data.getGfxrCaptureData().GetGfxrSubmits()))
+    if (!ProcessDiveSubmits(dive_capture_data.getPm4CaptureData().GetSubmits(),
+                            dive_capture_data.getPm4CaptureData().GetMemoryManager(),
+                            dive_capture_data.getGfxrCaptureData().GetGfxrSubmits()))
     {
         return false;
     }
@@ -74,9 +91,8 @@ bool DiveCommandHierarchyCreator::CreateTrees(CommandHierarchy       &command_hi
 }
 
 //--------------------------------------------------------------------------------------------------
-void DiveCommandHierarchyCreator::OnCommand(
-uint32_t                                   parent_index,
-DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
+void DiveCommandHierarchyCreator::OnCommand(uint32_t                                   parent_index,
+                                            DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
 {
     m_gfxr_command_hierarchy_creator.OnCommand(parent_index, vk_cmd_info);
 }
