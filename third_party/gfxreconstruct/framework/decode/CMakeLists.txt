@@ -28,13 +28,6 @@
 
 add_library(gfxrecon_decode STATIC "")
 
-# GOOGLE: Add folder organization for windows build in dive.
-if(MSVC)
-    target_compile_options(gfxrecon_decode PRIVATE /wd4996 /wd4267 /wd4244 /wd4018 /wd4101)
-    set_target_properties(gfxrecon_decode PROPERTIES FOLDER "gfxreconstruct")
-endif()
-
-# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
 target_sources(gfxrecon_decode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
@@ -301,13 +294,12 @@ if (TARGET ZLIB::ZLIB)
                                    GFXRECON_ENABLE_PNG_SCREENSHOT)
 endif()
 
-# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
 if (WIN32)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         target_include_directories(gfxrecon_decode
                                PUBLIC
                                    ${CMAKE_BINARY_DIR}
-                                   ${CMAKE_CURRENT_SOURCE_DIR}/..
+                                   ${CMAKE_SOURCE_DIR}/framework
                                    ${CMAKE_SOURCE_DIR}/external
                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win64/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
@@ -315,7 +307,7 @@ if (WIN32)
         target_include_directories(gfxrecon_decode
                                PUBLIC
                                    ${CMAKE_BINARY_DIR}
-                                   ${CMAKE_CURRENT_SOURCE_DIR}/..
+                                   ${CMAKE_SOURCE_DIR}/framework
                                    ${CMAKE_SOURCE_DIR}/external
                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win32/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
@@ -326,7 +318,7 @@ elseif(APPLE)
                                ${CMAKE_BINARY_DIR}
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_CURRENT_SOURCE_DIR}/..
+                               ${CMAKE_SOURCE_DIR}/framework
                                ${CMAKE_SOURCE_DIR}/external
                                ${CMAKE_SOURCE_DIR}/external/precompiled/macos/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
@@ -336,7 +328,7 @@ else()
                                ${CMAKE_BINARY_DIR}
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${CMAKE_CURRENT_SOURCE_DIR}/..
+                               ${CMAKE_SOURCE_DIR}/framework
                                ${CMAKE_SOURCE_DIR}/external
                                ${CMAKE_SOURCE_DIR}/external/precompiled/linux/include/
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
