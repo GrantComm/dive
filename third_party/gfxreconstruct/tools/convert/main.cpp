@@ -276,7 +276,6 @@ int main(int argc, const char** argv)
         {
             json_filename = output_filename;
         }
-
         if (output_to_stdout)
         {
             out_file_handle = stdout;
