@@ -35,8 +35,8 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 17)
 set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/cmake-modules")
-
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
 option(USE_STRICT_COMPILER_WARNINGS "Use a stricter compiler-warning level" OFF)
 
 if (USE_STRICT_COMPILER_WARNINGS)
@@ -108,8 +108,9 @@ if (GIT_SHA1)
     endif ()
 endif ()
 
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
 # Adds all the configure time information into project_version_temp.h.in
-configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
 
 # Generate a "project_version_$<CONFIG>.h" for the current config - necessary to determine the current build configuration
 file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
@@ -165,11 +166,11 @@ if (MSVC)
     if (GFXR_ARM_WINDOWS_BUILD)
         set(PRECOMPILED_ARCH "64-arm")
     endif ()
-
+    # GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
     set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
-            "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
-            "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+            "${CMAKE_CURRENT_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
 
     # Enable LARGEADDRESSAWARE to increase memory address space for 32-bit executables
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -183,8 +184,9 @@ if (MSVC)
     # Enable STL locks to work after building capture libs with certain versions of VS
     add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
+    # GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
     if (${D3D12_SUPPORT})
-        set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc")
+        set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/external/AgilitySDK/inc")
         add_definitions(-DD3D12_SUPPORT)
 
         # Check Windows SDK version and print warning if there is a mismatch.
@@ -243,20 +245,23 @@ else (MSVC)
     set(D3D12_SUPPORT OFF)
     set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+        # GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
         set(CMAKE_PREFIX_PATH
                 ${CMAKE_PREFIX_PATH}
-                "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
+                "${CMAKE_CURRENT_SOURCE_DIR}/external/precompiled/linux/lib/arm64-v8a")
     elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+        # GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
         set(CMAKE_PREFIX_PATH
                 ${CMAKE_PREFIX_PATH}
-                "${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/arm")
+                "${CMAKE_CURRENT_SOURCE_DIR}/external/precompiled/linux/lib/arm")
     endif ()
 endif (MSVC)
 
 if (APPLE)
     add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
+    # GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
     set(CMAKE_PREFIX_PATH
-            "${CMAKE_SOURCE_DIR}/external/precompiled/macos"
+            "${CMAKE_CURRENT_SOURCE_DIR}/external/precompiled/macos"
             ${CMAKE_PREFIX_PATH})
 endif ()
 
@@ -351,18 +356,21 @@ if (BUILD_WERROR)
 endif ()
 
 add_library(vulkan_registry INTERFACE)
-target_include_directories(vulkan_registry SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
+target_include_directories(vulkan_registry SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(spirv_registry INTERFACE)
-target_include_directories(spirv_registry SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
+target_include_directories(spirv_registry SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/SPIRV-Headers/include)
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wno-nullability-completeness>
 )
-target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
+target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
 
 # SPIRV-Reflect included as submodule -> libspirv-reflect-static.a
 set(SPIRV_REFLECT_EXAMPLES OFF)
