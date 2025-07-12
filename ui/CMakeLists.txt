@@ -1,5 +1,5 @@
 #
-# Copyright 2019 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #   set CMAKE_PREFIX_PATH=%QTDIR%;%CMAKE_PREFIX_PATH%
 #   set PATH=%QTDIR%\\bin;%PATH%                        # (Windows) To allow DLLS to be found
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(dive_ui)
 
@@ -62,7 +62,8 @@ add_executable(${PROJECT_NAME} WIN32 ${HDR_FILES} ${SRC_FILES} ${COMMON_HDR_FILE
 # Use the Widgets module from Qt 5
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 
-target_link_libraries(${PROJECT_NAME} dive_core device_mgr client)
+target_link_libraries(${PROJECT_NAME} network dive_core device_mgr dive_plugin_loader)
+
 # std::filesystem needs to link with libstdc++fs for g++ before 9.0
 if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
   target_link_libraries(${PROJECT_NAME}  stdc++fs)
@@ -86,6 +87,10 @@ if (MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /wd4099 /wd4100 /wd4201 /wd4127)
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-braces -Wno-inconsistent-missing-override)
+endif()
+
+if(MSVC)
+  set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
 
 # Collect 3rd party licenses

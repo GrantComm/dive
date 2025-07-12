@@ -1,5 +1,5 @@
 #
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(lrz_validator)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 
@@ -43,6 +42,7 @@ list(FILTER LIB_SRC_FILES EXCLUDE REGEX "main.cpp")
 
 add_executable(${PROJECT_NAME} ${HDR_FILES} "main.cpp")
 target_link_libraries(${PROJECT_NAME} PRIVATE dive_core)
+target_include_directories(${PROJECT_NAME} PRIVATE ${THIRDPARTY_DIRECTORY}/gfxreconstruct/framework)
 
 if (MSVC)
   # 4100: unreferenced formal parameter

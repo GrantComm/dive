@@ -30,6 +30,7 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "util/defines.h"
 #include "util/spirv_parsing_util.h"
@@ -218,7 +219,6 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 
 typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
-typedef VulkanObjectInfo<VkPipelineLayout>                     VulkanPipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
 typedef VulkanPoolInfo<VkCommandPool>                          VulkanCommandPoolInfo;
@@ -255,8 +255,7 @@ typedef VulkanObjectInfo<VkIndirectExecutionSetEXT>   VulkanIndirectExecutionSet
 
 struct VulkanInstanceInfo : public VulkanObjectInfo<VkInstance>
 {
-    uint32_t                             api_version{ VK_MAKE_VERSION(1, 0, 0) };
-    std::vector<std::string>             enabled_extensions;
+    graphics::VulkanInstanceUtilInfo     util_info{};
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // Capture and replay devices sorted in the order that they were originally retrieved from
@@ -269,9 +268,10 @@ struct VulkanInstanceInfo : public VulkanObjectInfo<VkInstance>
 
 struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
-    VkInstance                           parent{ VK_NULL_HANDLE };
-    uint32_t                             parent_api_version{ 0 };
-    std::vector<std::string>             parent_enabled_extensions;
+    VkInstance parent{ VK_NULL_HANDLE };
+
+    graphics::VulkanInstanceUtilInfo parent_info{};
+
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // Capture device properties.
@@ -400,6 +400,7 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     VkImageType           type{};
     VkFormat              format{};
     bool                  external_format{ false };
+    bool                  external_memory_android{ false };
     VkExtent3D            extent{ 0, 0, 0 };
     VkImageTiling         tiling{};
     VkSampleCountFlagBits sample_count{};
@@ -435,6 +436,27 @@ struct VulkanShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
 {
     // keep track of existing usage of buffer-references
     std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
+};
+
+struct DescriptorBindingLayout
+{
+    uint32_t           count;
+    VkDescriptorType   type;
+    VkShaderStageFlags stage_flags;
+};
+
+using DescriptorBindingLayoutMap = std::unordered_map<uint32_t, DescriptorBindingLayout>;
+
+struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>
+{
+    // One per descriptor binding
+    DescriptorBindingLayoutMap bindings_layout;
+};
+
+struct VulkanPipelineLayoutInfo : public VulkanObjectInfo<VkPipelineLayout>
+{
+    // One per descriptor set
+    std::vector<DescriptorBindingLayoutMap> desc_set_layouts;
 };
 
 struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
@@ -475,6 +497,12 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 
     // Is VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT enabled
     bool dynamic_vertex_binding_stride{ false };
+
+    // Grahpics pipeline library info
+    VkGraphicsPipelineLibraryFlagsEXT gpl_flags{ 0 };
+
+    // Pipeline layout info
+    std::vector<DescriptorBindingLayoutMap> desc_set_layouts;
 };
 
 struct VulkanDescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
@@ -639,18 +667,6 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
         std::vector<int32_t>  view_offsets;
         std::vector<uint32_t> correlation_masks;
     } multiview;
-};
-
-struct VulkanDescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>
-{
-    struct DescriptorBindingLayout
-    {
-        uint32_t           binding;
-        VkDescriptorType   type;
-        VkShaderStageFlags stage_flags;
-    };
-
-    std::vector<DescriptorBindingLayout> bindings_layout;
 };
 
 struct VulkanDescriptorTypeImageInfo

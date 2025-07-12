@@ -1,6 +1,5 @@
-
 /*
-Copyright 2023 Google Inc.
+Copyright 2025 Google Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,15 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "dive-wrap.h"
+#include "device_mgr.h"
 
-#include <unistd.h>
-#include <pthread.h>
+#include "absl/status/status.h"
+#include "gtest/gtest.h"
 
-
-#if defined(__ANDROID__)
-struct DiveWrapLoadLog
+namespace Dive
 {
-    DiveWrapLoadLog() { LOGI("Libwrap loaded in pid %d, thread id %ld...", getpid(),pthread_self()); }
-} load_log;
-#endif
+
+namespace
+{
+
+TEST(DeviceManagerTest, EmptySerialIsInvalidForSelectDevice)
+{
+    ASSERT_EQ(DeviceManager().SelectDevice("").status().code(), absl::StatusCode::kInvalidArgument);
+}
+
+}  // namespace
+
+}  // namespace Dive

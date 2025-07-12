@@ -24,26 +24,17 @@ namespace Dive
 // =================================================================================================
 // DataCore
 // =================================================================================================
-DataCore::DataCore(ILog *log_ptr) :
-    m_progress_tracker(NULL),
-    m_capture_data(log_ptr),
-    m_log_ptr(log_ptr)
-{
-}
 
 //--------------------------------------------------------------------------------------------------
-DataCore::DataCore(ProgressTracker *progress_tracker, ILog *log_ptr) :
-    m_progress_tracker(progress_tracker),
-    m_capture_data(log_ptr),
-    m_log_ptr(log_ptr)
+DataCore::DataCore(ProgressTracker *progress_tracker) :
+    m_progress_tracker(progress_tracker)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult DataCore::LoadCaptureData(const char *file_name)
 {
-    m_capture_data = CaptureData(m_progress_tracker,
-                                 m_log_ptr);  // Clear any previously loaded data
+    m_capture_data = CaptureData(m_progress_tracker);  // Clear any previously loaded data
     m_capture_metadata = CaptureMetadata();
     return m_capture_data.LoadFile(file_name);
 }
@@ -61,12 +52,10 @@ bool DataCore::CreateCommandHierarchy()
     uint64_t reserve_size = m_capture_metadata.m_num_pm4_packets * 10;
 
     // Command hierarchy tree creation
-    CommandHierarchyCreator cmd_hier_creator(*state_tracker);
-    if (!cmd_hier_creator.CreateTrees(&m_capture_metadata.m_command_hierarchy,
-                                      m_capture_data,
-                                      true,
-                                      reserve_size,
-                                      m_log_ptr))
+    CommandHierarchyCreator cmd_hier_creator(m_capture_metadata.m_command_hierarchy,
+                                             m_capture_data,
+                                             *state_tracker);
+    if (!cmd_hier_creator.CreateTrees(true, reserve_size))
     {
         return false;
     }
@@ -193,7 +182,7 @@ bool CaptureMetadataCreator::OnPacket(const IMemoryManager &mem_manager,
     if (type7_header->opcode == CP_SET_MARKER)
     {
         PM4_CP_SET_MARKER packet;
-        DIVE_VERIFY(mem_manager.CopyMemory(&packet, submit_index, va_addr, sizeof(packet)));
+        DIVE_VERIFY(mem_manager.RetrieveMemoryData(&packet, submit_index, va_addr, sizeof(packet)));
         // as mentioned in adreno_pm4.xml, only b0-b3 are considered when b8 is not set
         DIVE_ASSERT((packet.u32All0 & 0x100) == 0);
         a6xx_marker marker = static_cast<a6xx_marker>(packet.u32All0 & 0xf);
@@ -225,7 +214,9 @@ bool CaptureMetadataCreator::OnPacket(const IMemoryManager &mem_manager,
             m_current_render_mode = RenderModeType::kResolve;
             break;
             // This is emitted for each dispatch
-        case RM6_COMPUTE: m_current_render_mode = RenderModeType::kDispatch; break;
+        case RM6_COMPUTE:
+            m_current_render_mode = RenderModeType::kDispatch;
+            break;
         // This seems to be the end of Resolve Pass
         case RM6_YIELD:
             // should be paired with RM6_RESOLVE, end of resolve pass
@@ -234,19 +225,21 @@ bool CaptureMetadataCreator::OnPacket(const IMemoryManager &mem_manager,
         case RM6_BLIT2DSCALE:
         case RM6_IB1LIST_START:
         case RM6_IB1LIST_END:
-        default: m_current_render_mode = RenderModeType::kUnknown; break;
+        default:
+            m_current_render_mode = RenderModeType::kUnknown;
+            break;
         }
     }
 
-    if (IsDrawDispatchBlitSyncEvent(mem_manager, submit_index, va_addr, type7_header->opcode))
+    if (IsDrawDispatchResolveSyncEvent(mem_manager, submit_index, va_addr, type7_header->opcode))
     {
         // Add a new event to the EventInfo metadata array
         EventInfo event_info;
         event_info.m_submit_index = submit_index;
         if (IsDrawEventOpcode(type7_header->opcode))
             event_info.m_type = EventInfo::EventType::kDraw;
-        else if (IsBlitEvent(mem_manager, submit_index, va_addr, type7_header->opcode))
-            event_info.m_type = EventInfo::EventType::kBlit;
+        else if (IsResolveEvent(mem_manager, submit_index, va_addr, type7_header->opcode))
+            event_info.m_type = EventInfo::EventType::kResolve;
         else if (IsDispatchEventOpcode(type7_header->opcode))
             event_info.m_type = EventInfo::EventType::kDispatch;
         else
@@ -510,10 +503,17 @@ void CaptureMetadataCreator::FillRasterizerState(EventStateInfo::Iterator event_
         pc_polygon_mode.u32All = m_state_tracker.GetRegValue(pc_polygon_mode_reg_offset);
         switch (pc_polygon_mode.bitfields.MODE)
         {
-        case POLYMODE6_TRIANGLES: event_state_it->SetPolygonMode(VK_POLYGON_MODE_FILL); break;
-        case POLYMODE6_LINES: event_state_it->SetPolygonMode(VK_POLYGON_MODE_LINE); break;
-        case POLYMODE6_POINTS: event_state_it->SetPolygonMode(VK_POLYGON_MODE_POINT); break;
-        default: DIVE_ASSERT(false);
+        case POLYMODE6_TRIANGLES:
+            event_state_it->SetPolygonMode(VK_POLYGON_MODE_FILL);
+            break;
+        case POLYMODE6_LINES:
+            event_state_it->SetPolygonMode(VK_POLYGON_MODE_LINE);
+            break;
+        case POLYMODE6_POINTS:
+            event_state_it->SetPolygonMode(VK_POLYGON_MODE_POINT);
+            break;
+        default:
+            DIVE_ASSERT(false);
         };
     }
 

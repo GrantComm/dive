@@ -11,17 +11,25 @@ git submodule update --init --recursive
 
 ### Prerequisite
 
- - The QT framework, can be installed from [QT online installer](https://download.qt.io/archive/online_installers/4.6/). We are currently using QT 5.11.2
+ - CMake
+ - Ninja
+ - The QT framework, can be installed from [QT online installer](https://download.qt.io/archive/online_installers/4.6/). We are currently using QT 5.15.2. Note that to install QT 5.15.2 from the online installer, you have to enable (turn on) the `archived` versions and then click on `filter`.
  - gRPC [dependencies](https://github.com/grpc/grpc/blob/master/BUILDING.md#pre-requisites)
  - Android NDK (currently we are using 25.2.9519653). Set the `ANDROID_NDK_HOME` environment variable.
   ```
     export ANDROID_NDK_HOME=~/android_sdk/ndk/25.2.9519653
   ``` 
+ - Python is installed with `python` in your PATH. It is recommended to use a virtual environment such as virtualenv or pipenv. Alternatively, on Debian, you can `sudo apt install python-is-python3`.
  - Mako Templates for Python: can be installed with following commandline
   ```
     pip install Mako
   ```
- - gfxreconstruct [dependencies](https://github.com/LunarG/gfxreconstruct/blob/dev/BUILD.md#android-development-requirements), if targetting Android
+ - gfxreconstruct [dependencies](https://github.com/LunarG/gfxreconstruct/blob/dev/BUILD.md#android-development-requirements), if targetting Android. Specifically:
+   - Android Studio. Make sure to install an SDK and accept the licenses.
+   - Java 17. Because it uses an older version of Gradle. Set the `JAVA_HOME` environment variable before building:
+     ```
+     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+     ```
 
 ### Building Dive host tool on Linux
 ```
@@ -149,7 +157,7 @@ Examples:
 
  - Install the dependencies on device and start the package
  ```
- ./dive_client_cli --device 9A221FFAZ004TL --command run --package com.google.bigwheels.project_04_cube_xr.debug --type openxr --download_path "/path/to/save/captures"
+ ./dive_client_cli --device 9A221FFAZ004TL --command run --package com.google.bigwheels.project_cube_xr.debug --type openxr --download_path "/path/to/save/captures"
  ```
 Then you can follow the hint output to trigger a capture by press key `t` and `enter` or exit by press key `enter` only.
 
@@ -165,12 +173,20 @@ To begin a GFXR capture with the cli, first ensure you know the correct architec
 Examples:
  - Install the dependencies on device, start the package, and initiate a GFXR capture.
  ```
- ./dive_client_cli --device 9A221FFAZ004TL --command gfxr_capture --package com.google.bigwheels.project_04_cube_xr.debug --type vulkan --device_architecture arm64-v8a --gfxr_capture_file_dir gfxr_bigwheels_capture --download_path "/path/to/save/captures"
+ ./dive_client_cli --device 9A221FFAZ004TL --command gfxr_capture --package com.google.bigwheels.project_cube_xr.debug --type vulkan --device_architecture arm64-v8a --gfxr_capture_file_dir gfxr_bigwheels_capture --download_path "/path/to/save/captures"
  ```
 
 Then you can follow the hint output to trigger a capture by pressing key `g` and `enter`, stopping it with the same key combination, or exiting by pressing key `enter`.
 
 The capture file directory will be saved at the path specified with the `--download_path` option or the current directory if this option not specified. 
+
+#### Modifying GFXR File
+Modifications to the GFXR file can be made using the Dive Host Tool `host_cli`
+
+Example:
+ ```
+ ./host_cli --input_file_path original/file.gfxr --output_gfxr_path new/file.gfxr
+ ```
 
 #### GFXR Replay
 
@@ -183,6 +199,13 @@ Using the `gfxr-replay` command will install the `gfxr-replay.apk` found in the 
 Example:
 ```
 ./dive_client_cli --device 9A221FFAZ004TL --command gfxr_replay --gfxr_replay_file_path /storage/emulated/0/Download/gfxrFileName.gfxr
+```
+
+For a capture that is a single frame, it can be replayed in a loop. Omit the `--loop-single-frame-count` flag for infinite looping.
+
+Example:
+```
+./dive_client_cli --device 9A221FFAZ004TL  --command gfxr_replay --gfxr_replay_file_path /storage/emulated/0/Download/gfxrFileName.gfxr --gfxr_replay_flags "--loop-single-frame --loop-single-frame-count 300"
 ```
 
 #### Cleanup

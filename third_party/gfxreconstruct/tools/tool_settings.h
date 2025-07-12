@@ -64,6 +64,7 @@ const char kLogLevelArgument[]                   = "--log-level";
 const char kLogFileArgument[]                    = "--log-file";
 const char kLogDebugView[]                       = "--log-debugview";
 const char kNoDebugPopup[]                       = "--no-debug-popup";
+const char kCpuMaskArgument[]                    = "--cpu-mask";
 const char kOverrideGpuArgument[]                = "--gpu";
 const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
@@ -118,6 +119,7 @@ const char kFormatArgument[]                      = "--format";
 const char kIncludeBinariesOption[]               = "--include-binaries";
 const char kExpandFlagsOption[]                   = "--expand-flags";
 const char kFilePerFrameOption[]                  = "--file-per-frame";
+const char kFrameRange[]                          = "--frame-range";
 const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
 const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 const char kWaitBeforePresent[]                   = "--wait-before-present";
@@ -149,6 +151,10 @@ const char kDumpResourcesDumpImmutableResources[] = "--dump-resources-dump-immut
 const char kDumpResourcesDumpImageSubresources[]  = "--dump-resources-dump-all-image-subresources";
 const char kDumpResourcesDumpRawImages[]          = "--dump-resources-dump-raw-images";
 const char kDumpResourcesDumpSeparateAlpha[]      = "--dump-resources-dump-separate-alpha";
+
+// GOOGLE: [single-frame-looping]
+const char kLoopSingleFrame[]       = "--loop-single-frame";
+const char kLoopSingleFrameCount[]  = "--loop-single-frame-count";
 
 enum class WsiPlatform
 {
@@ -887,6 +893,27 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
     return msgs;
 }
 
+// GOOGLE: [single-frame-looping] Parse value for flag "--loop-single-frame-count"
+static uint32_t GetLoopSingleFrameCount(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kLoopSingleFrameCount);
+
+    uint32_t n = 0;
+
+    if (!value.empty())
+    {
+        try
+        {
+            n = std::stoi(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid '%s' value: %s", kLoopSingleFrameCount, value.c_str());
+        }
+    }
+    return n;
+}
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
@@ -955,6 +982,20 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (arg_parser.IsArgumentSet(kNumPipelineCreationJobs))
     {
         options.num_pipeline_creation_jobs = std::stoi(arg_parser.GetArgumentValue(kNumPipelineCreationJobs));
+    }
+
+    options.cpu_mask = arg_parser.GetArgumentValue(kCpuMaskArgument);
+    if (!options.cpu_mask.empty())
+    {
+        if (gfxrecon::util::platform::SetCpuAffinity(options.cpu_mask))
+        {
+            GFXRECON_LOG_INFO("CPU mask successfully set: %s", gfxrecon::util::platform::GetCpuAffinity().c_str());
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to set CPU mask: %s", options.cpu_mask.c_str());
+            GFXRECON_LOG_ERROR("Resuming with CPU mask: %s", gfxrecon::util::platform::GetCpuAffinity().c_str());
+        }
     }
 
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
@@ -1163,6 +1204,26 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
     replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
     replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
+
+    // GOOGLE: [single-frame-looping] Parse additional parameters
+    if (arg_parser.IsOptionSet(kLoopSingleFrame))
+    {
+        replay_options.loop_single_frame = true;
+    }
+
+    if ((replay_options.preload_measurement_range) && (replay_options.loop_single_frame))
+    {
+        GFXRECON_LOG_FATAL("Flag '%s' cannot be used with '%s'. Closing the program.", kPreloadMeasurementRangeOption, kLoopSingleFrame);
+        abort();
+    }
+
+    replay_options.loop_single_frame_count = GetLoopSingleFrameCount(arg_parser);
+    
+    if ((replay_options.loop_single_frame_count > 0) && (!replay_options.loop_single_frame))
+    {
+        GFXRECON_LOG_FATAL("Flag '%s' must be used with '%s'. Closing the program.", kLoopSingleFrameCount, kLoopSingleFrame);
+        abort();
+    }
 
     return replay_options;
 }

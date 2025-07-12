@@ -28,6 +28,13 @@
 
 add_executable(gfxrecon-replay "")
 
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
+if(MSVC)
+    target_compile_options(gfxrecon-replay PRIVATE /wd4244 /wd4018)
+    target_link_libraries(gfxrecon-replay psapi.lib)
+endif()
+
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
 target_sources(gfxrecon-replay
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
@@ -36,7 +43,7 @@ target_sources(gfxrecon-replay
                     ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                    $<$<BOOL:WIN32>:${CMAKE_SOURCE_DIR}/version.rc>
+                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_SOURCE_DIR}/../../version.rc>
 )
 
 target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
@@ -62,6 +69,8 @@ if (MSVC)
     else()
       target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
     endif()
+    # GOOGLE: Add folder organization for windows build in dive.
+    set_target_properties(gfxrecon-replay PROPERTIES FOLDER "gfxreconstruct") 
 endif()
 
 # A multithreaded Vulkan driver loaded through dlopen() mechanism
@@ -72,8 +81,8 @@ find_package(Threads REQUIRED)
 target_link_libraries(gfxrecon-replay Threads::Threads)
 
 common_build_directives(gfxrecon-replay)
-
-include(${CMAKE_SOURCE_DIR}/cmake/AgilitySDK.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/InstallDXC.cmake)
+# GOOGLE: Change CMAKE_SOURCE_DIR to CMAKE_CURRENT_SOURCE_DIR so that gfxr compiles in dive.
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/AgilitySDK.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/InstallDXC.cmake)
 
 install(TARGETS gfxrecon-replay RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

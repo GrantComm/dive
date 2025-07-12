@@ -14,42 +14,52 @@
  limitations under the License.
 */
 
+#pragma once
+#include <memory>
 #include <QMainWindow>
 #include "dive_core/cross_ref.h"
-#include "dive_core/data_core.h"
-#include "event_selection_model.h"
-#include "overlay.h"
 #include "progress_tracker_callback.h"
-
-#pragma once
+#include "dive_core/log.h"
 
 // Forward declarations
-class DiveTreeView;
-class QCheckBox;
-class QComboBox;
-class QProgressBar;
-class QLabel;
-class QTabWidget;
-class ShaderView;
-class TextFileView;
-class EventStateView;
 class BufferView;
-class OverviewTabView;
-class PerfCounterView;
-class SqttView;
+class CaptureSettingView;
+class CommandModel;
+class CommandTabView;
+class DiveFilterModel;
+class DiveTreeView;
+class EventSelection;
+class EventStateView;
 #ifndef NDEBUG
 class EventTimingView;
 #endif
-class CommandTabView;
-class CommandModel;
-class PropertyPanel;
 class HoverHelp;
+class Overlay;
+class OverlayWidget;
+class OverviewTabView;
+class PerfCounterView;
+class PropertyPanel;
+class QCheckBox;
+class QComboBox;
 class QItemSelection;
-class TreeViewComboBox;
+class QLabel;
+class QProgressBar;
+class QPushButton;
+class QTabWidget;
 class SearchBar;
-class CaptureSettingView;
+class ShaderView;
+class SqttView;
+class TextFileView;
 class TraceDialog;
+class TreeViewComboBox;
+
 enum class EventMode;
+
+namespace Dive
+{
+class DataCore;
+class PluginLoader;
+}  // namespace Dive
 
 #define MESSAGE_TIMEOUT 2500
 
@@ -58,7 +68,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     MainWindow();
+    ~MainWindow();
     bool LoadFile(const char *file_name, bool is_temp_file = false);
+
+    bool InitializePlugins();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
@@ -78,6 +91,7 @@ private slots:
     void OnCommandViewModeChange(const QString &string);
     void OnCommandViewModeComboBoxHover(const QString &);
     void OnSelectionChanged(const QModelIndex &index);
+    void OnFilterModeChange(const QString &string);
     void OnOpenFile();
     void OnGFXRCapture();
     void OnNormalCapture();
@@ -87,7 +101,6 @@ private slots:
     void OnShortcuts();
     void OnSaveCapture();
     void OnSearchTrigger();
-    void OnCheckboxStateChanged(int state);
     void OpenRecentFile();
     void UpdateOverlay(const QString &);
     void OnCrossReference(Dive::CrossRef);
@@ -106,7 +119,6 @@ private:
     void    CreateStatusBar();
     void    ShowTempStatus(const QString &status_message);
     void    ExpandResizeHierarchyView();
-    void    ShowEventView(const Dive::CommandHierarchy &command_hierarchy, EventMode event_mode);
     void    SetCurrentFile(const QString &fileName, bool is_temp_file = false);
     void    UpdateRecentFileActions(QStringList recent_files);
     QString StrippedName(const QString &fullFileName);
@@ -137,13 +149,13 @@ private:
     };
     QAction *m_recent_file_actions[MaxRecentFiles];
 
-    ProgressTrackerCallback m_progress_tracker;
-    Dive::DataCore         *m_data_core;
-    QString                 m_capture_file;
-    QString                 m_last_file_path;
-    Dive::LogRecord         m_log_record;
-    Dive::LogConsole        m_log_console;
-    Dive::LogCompound       m_log_compound;
+    ProgressTrackerCallback         m_progress_tracker;
+    std::unique_ptr<Dive::DataCore> m_data_core;
+    QString                         m_capture_file;
+    QString                         m_last_file_path;
+    Dive::LogRecord                 m_log_record;
+    Dive::LogConsole                m_log_console;
+    Dive::LogCompound               m_log_compound;
 
     QStatusBar *m_status_bar;
 
@@ -155,13 +167,10 @@ private:
     SearchBar    *m_event_search_bar = nullptr;
 
     TreeViewComboBox    *m_view_mode_combo_box;
+    TreeViewComboBox    *m_filter_mode_combo_box;
     QPushButton         *m_prev_event_button;
     QPushButton         *m_next_event_button;
     QList<QPushButton *> m_expand_to_lvl_buttons;
-
-#ifndef NDEBUG
-    QCheckBox *m_show_marker_checkbox;
-#endif
 
     // Right pane
     QTabWidget      *m_tab_widget;
@@ -183,6 +192,8 @@ private:
     TextFileView *m_text_file_view;
     int           m_text_file_view_tab_index = -1;
 
+    DiveFilterModel *m_filter_model;
+
     // Side pane
     PropertyPanel *m_property_panel;
     HoverHelp     *m_hover_help;
@@ -195,4 +206,6 @@ private:
 
     // Overlay to be displayed while capture
     Overlay *m_overlay;
+
+    std::unique_ptr<Dive::PluginLoader> m_plugin_manager;
 };

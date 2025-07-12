@@ -26,11 +26,13 @@ limitations under the License.
 #include "absl/flags/internal/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
+#include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
 #include "android_application.h"
-#include "client.h"
+#include "command_utils.h"
 #include "constants.h"
 #include "device_mgr.h"
+#include "network/tcp_client.h"
 
 using namespace std::chrono_literals;
 
@@ -96,16 +98,25 @@ std::string AbslUnparseFlag(Command command)
 {
     switch (command)
     {
-    case Command::kNone: return "";
-    case Command::kListDevice: return "list_device";
-    case Command::kGfxrCapture: return "gfxr_capture";
-    case Command::kGfxrReplay: return "gfxr_replay";
-    case Command::kListPackage: return "list_package";
-    case Command::kRunPackage: return "run";
-    case Command::kRunAndCapture: return "capture";
-    case Command::kCleanup: return "cleanup";
+    case Command::kNone:
+        return "";
+    case Command::kListDevice:
+        return "list_device";
+    case Command::kGfxrCapture:
+        return "gfxr_capture";
+    case Command::kGfxrReplay:
+        return "gfxr_replay";
+    case Command::kListPackage:
+        return "list_package";
+    case Command::kRunPackage:
+        return "run";
+    case Command::kRunAndCapture:
+        return "capture";
+    case Command::kCleanup:
+        return "cleanup";
 
-    default: return absl::StrCat(command);
+    default:
+        return absl::StrCat(command);
     }
 }
 
@@ -114,7 +125,11 @@ ABSL_FLAG(Command,
           Command::kNone,
           "list of actions: \n\tlist_device \n\tgfxr_capture \n\tgfxr_replay \n\tlist_package "
           "\n\trun \n\tcapture \n\tcleanup");
-ABSL_FLAG(std::string, device, "", "Device serial");
+ABSL_FLAG(
+std::string,
+device,
+"",
+"Device serial. If not specified and only one device is plugged in then that device is used.");
 ABSL_FLAG(std::string, package, "", "Package on the device");
 ABSL_FLAG(std::string, vulkan_command, "", "the command for vulkan cli application to run");
 ABSL_FLAG(std::string, vulkan_command_args, "", "the arguments for vulkan cli application to run");
@@ -126,15 +141,15 @@ ABSL_FLAG(std::string,
           "\n\t`vulkan_cli` for command line Vulkan application.");
 ABSL_FLAG(
 std::string,
-download_path,
+download_dir,
 ".",
-"specify the full path to download the capture on the host, default to current directory.");
+"specify the directory path on the host to download the capture, default to current directory.");
 
 ABSL_FLAG(std::string,
           device_architecture,
-          "x86",
+          "",
           "specify the device architecture to capture with gfxr (arm64-v8, armeabi-v7a, x86, or "
-          "x86_64). If not specified, the default is x86.");
+          "x86_64). If not specified, the default is the architecture of --device.");
 ABSL_FLAG(std::string,
           gfxr_capture_file_dir,
           "gfxr_capture",
@@ -152,6 +167,8 @@ ABSL_FLAG(std::string,
           "",
           "specify the on-device path of the gfxr capture to replay.");
 ABSL_FLAG(std::string, gfxr_replay_flags, "", "specify flags to pass to gfxr replay.");
+
+ABSL_FLAG(bool, dump_pm4, false, "dump pm4 for gfxr replay");
 
 void print_usage()
 {
@@ -210,6 +227,7 @@ bool list_package(Dive::DeviceManager& mgr, const std::string& device_serial)
 }
 
 bool run_package(Dive::DeviceManager& mgr,
+                 const std::string&   serial,
                  const std::string&   app_type,
                  const std::string&   package,
                  const std::string&   command,
@@ -218,10 +236,9 @@ bool run_package(Dive::DeviceManager& mgr,
                  const std::string&   gfxr_capture_directory,
                  bool                 is_gfxr_capture)
 {
-    std::string serial = absl::GetFlag(FLAGS_device);
-
     if (serial.empty() || (package.empty() && command.empty()))
     {
+        std::cout << "Missing required options." << std::endl;
         print_usage();
         return false;
     }
@@ -245,7 +262,7 @@ bool run_package(Dive::DeviceManager& mgr,
     {
         ret = dev->SetupApp(package,
                             Dive::ApplicationType::OPENXR_APK,
-                            "",
+                            command_args,
                             device_architecture,
                             gfxr_capture_directory);
     }
@@ -253,7 +270,7 @@ bool run_package(Dive::DeviceManager& mgr,
     {
         ret = dev->SetupApp(package,
                             Dive::ApplicationType::VULKAN_APK,
-                            "",
+                            command_args,
                             device_architecture,
                             gfxr_capture_directory);
     }
@@ -283,49 +300,54 @@ bool run_package(Dive::DeviceManager& mgr,
 
 bool trigger_capture(Dive::DeviceManager& mgr)
 {
-    std::string target_str = absl::StrFormat("localhost:%d", mgr.GetDevice()->Port());
-    std::string download_path = absl::GetFlag(FLAGS_download_path);
-    std::string input;
-
-    Dive::DiveClient client(grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
-    absl::StatusOr<std::string> reply = client.TestConnection();
-    if (reply.ok())
-        std::cout << *reply << std::endl;
-    else
-        std::cout << "TestConnection failed with " << reply.status() << std::endl;
-
-    absl::StatusOr<std::string> trace_file_path = client.RequestStartTrace();
-    if (trace_file_path.ok())
-        std::cout << "Trigger capture: " << *trace_file_path << std::endl;
-    else
-        std::cout << "Failed to trigger capture: " << trace_file_path.status() << std::endl;
-
-    std::filesystem::path p(*trace_file_path);
-    std::filesystem::path target_download_path(download_path);
-    if (!std::filesystem::exists(target_download_path))
+    if (mgr.GetDevice() == nullptr)
     {
-        std::error_code ec;
-        if (!std::filesystem::create_directories(target_download_path, ec))
-        {
-            std::cout << "error create directory: " << ec << std::endl;
-        }
+        std::cout << "No device selected, can't capture. Did you provide --device serial?"
+                  << std::endl;
+        return false;
     }
-    target_download_path /= p.filename();
-    auto ret = mgr.GetDevice()->RetrieveTrace(*trace_file_path,
-                                              target_download_path.generic_string());
-    if (ret.ok())
-        std::cout << "Capture saved at " << target_download_path << std::endl;
-    else
-        std::cout << "Failed to retrieve capture file" << std::endl;
 
-    return ret.ok();
+    std::string        download_dir = absl::GetFlag(FLAGS_download_dir);
+    Network::TcpClient client;
+    const std::string  host = "127.0.0.1";
+    int                port = mgr.GetDevice()->Port();
+    absl::Status       status = client.Connect(host, port);
+    if (!status.ok())
+    {
+        std::cout << "Connection failed: " << status.message() << std::endl;
+        return false;
+    }
+    absl::StatusOr<std::string> capture_file_path = client.StartPm4Capture();
+    if (!capture_file_path.ok())
+    {
+        std::cout << capture_file_path.status().message() << std::endl;
+        return false;
+    }
+
+    std::filesystem::path target_download_dir(download_dir);
+    if (!std::filesystem::is_directory(target_download_dir))
+    {
+        std::cout << "Invalid download directory: " << target_download_dir << std::endl;
+        return false;
+    }
+    std::filesystem::path p(*capture_file_path);
+    std::string           download_file_path = (target_download_dir / p.filename()).string();
+    status = client.DownloadFileFromServer(*capture_file_path, download_file_path);
+    if (!status.ok())
+    {
+        std::cout << status.message() << std::endl;
+        return false;
+    }
+    std::cout << "Capture saved at " << download_file_path << std::endl;
+    return true;
 }
 
 absl::Status is_capture_directory_busy(Dive::DeviceManager& mgr,
                                        const std::string&   gfxr_capture_directory)
 {
-    std::string on_device_capture_directory = Dive::kDeviceCaptureDirectory +
-                                              gfxr_capture_directory;
+    std::string                 on_device_capture_directory = absl::StrCat(Dive::kDeviceCapturePath,
+                                                           "/",
+                                                           gfxr_capture_directory);
     std::string                 command = "shell lsof " + on_device_capture_directory;
     absl::StatusOr<std::string> output = mgr.GetDevice()->Adb().RunAndGetResult(command);
 
@@ -348,18 +370,20 @@ absl::Status is_capture_directory_busy(Dive::DeviceManager& mgr,
 
 bool retrieve_gfxr_capture(Dive::DeviceManager& mgr, const std::string& gfxr_capture_directory)
 {
-    std::filesystem::path download_path = absl::GetFlag(FLAGS_download_path);
-    std::filesystem::path target_download_path(download_path / gfxr_capture_directory);
-    std::filesystem::path on_device_capture_directory = Dive::kDeviceCaptureDirectory +
-                                                        gfxr_capture_directory;
+    std::filesystem::path download_dir = absl::GetFlag(FLAGS_download_dir);
+    std::filesystem::path target_download_dir(
+    absl::StrCat(download_dir.string(), "/", gfxr_capture_directory));
+    std::filesystem::path on_device_capture_directory = absl::StrCat(Dive::kDeviceCapturePath,
+                                                                     "/",
+                                                                     gfxr_capture_directory);
 
     std::cout << "Retrieving capture..." << std::endl;
     // Check if the target directory already exists on the local machine.
-    if (!std::filesystem::exists(target_download_path))
+    if (!std::filesystem::exists(target_download_dir))
     {
 
         std::error_code ec;
-        if (!std::filesystem::create_directories(target_download_path, ec))
+        if (!std::filesystem::create_directories(target_download_dir, ec))
         {
             std::cout << "Error creating directory: " << ec << std::endl;
             return false;
@@ -373,7 +397,7 @@ bool retrieve_gfxr_capture(Dive::DeviceManager& mgr, const std::string& gfxr_cap
         std::filesystem::path newDirPath;
         while (true)
         {
-            newDirPath = std::filesystem::path(target_download_path.generic_string() + "_" +
+            newDirPath = std::filesystem::path(target_download_dir.generic_string() + "_" +
                                                std::to_string(counter));
             if (!std::filesystem::exists(newDirPath))
             {
@@ -384,7 +408,7 @@ bool retrieve_gfxr_capture(Dive::DeviceManager& mgr, const std::string& gfxr_cap
                     std::cout << "Error creating directory: " << ec << std::endl;
                     return false;
                 }
-                target_download_path = newDirPath;
+                target_download_dir = newDirPath;
                 break;
             }
             counter++;
@@ -404,10 +428,20 @@ bool retrieve_gfxr_capture(Dive::DeviceManager& mgr, const std::string& gfxr_cap
     std::vector<std::string> file_list = absl::StrSplit(std::string(output->data()), '\n');
 
     // Retrieve each file in the capture directory (capture file and asset file).
-    for (const auto& file : file_list)
+    for (const auto& file_with_trailing : file_list)
     {
-        std::string target_file = (target_download_path / file.data()).string();
-        std::string source_file = (on_device_capture_directory / file.data()).string();
+        std::string file = file_with_trailing;
+        // Windows-style line endings use \r\n. When absl::StrSplit splits by \n, the \r remains at
+        // the end of each line if the input string originated from a Windows-style line ending.
+        if (!file.empty() && file.back() == '\r')
+        {
+            file.pop_back();
+        }
+
+        std::string target_file = absl::StrCat(target_download_dir.string(), "/", file.data());
+        std::string source_file = absl::StrCat(on_device_capture_directory.string(),
+                                               "/",
+                                               file.data());
         auto        ret = mgr.GetDevice()->RetrieveTrace(source_file, target_file);
 
         if (!ret.ok())
@@ -417,7 +451,7 @@ bool retrieve_gfxr_capture(Dive::DeviceManager& mgr, const std::string& gfxr_cap
         }
     }
 
-    std::cout << "Capture sucessfully saved at " << target_download_path << std::endl;
+    std::cout << "Capture sucessfully saved at " << target_download_dir << std::endl;
     return true;
 }
 
@@ -516,13 +550,15 @@ void trigger_gfxr_capture(Dive::DeviceManager& mgr,
     }
 
     // Only delete the on device capture directory when the application is closed.
-    std::string on_device_capture_directory = Dive::kDeviceCaptureDirectory +
-                                              gfxr_capture_directory;
+    std::string on_device_capture_directory = absl::StrCat(Dive::kDeviceCapturePath,
+                                                           "/",
+                                                           gfxr_capture_directory);
     ret = mgr.GetDevice()->Adb().Run(
     absl::StrFormat("shell rm -rf %s", on_device_capture_directory));
 }
 
 bool run_and_capture(Dive::DeviceManager& mgr,
+                     const std::string&   serial,
                      const std::string&   app_type,
                      const std::string&   package,
                      const std::string&   command,
@@ -531,15 +567,18 @@ bool run_and_capture(Dive::DeviceManager& mgr,
                      const std::string&   gfxr_capture_directory,
                      const bool           is_gfxr_capture)
 {
-
-    run_package(mgr,
-                app_type,
-                package,
-                command,
-                command_args,
-                device_architecture,
-                gfxr_capture_directory,
-                is_gfxr_capture);
+    if (!run_package(mgr,
+                     serial,
+                     app_type,
+                     package,
+                     command,
+                     command_args,
+                     device_architecture,
+                     gfxr_capture_directory,
+                     is_gfxr_capture))
+    {
+        return false;
+    }
 
     if (is_gfxr_capture)
     {
@@ -564,10 +603,10 @@ bool run_and_capture(Dive::DeviceManager& mgr,
     return true;
 }
 
-bool clean_up_app_and_device(Dive::DeviceManager& mgr, const std::string& package)
+bool clean_up_app_and_device(Dive::DeviceManager& mgr,
+                             const std::string&   serial,
+                             const std::string&   package)
 {
-    std::string serial = absl::GetFlag(FLAGS_device);
-
     if (serial.empty())
     {
         std::cout << "Please run with `--device [serial]` and `--package [package]` options."
@@ -580,6 +619,15 @@ bool clean_up_app_and_device(Dive::DeviceManager& mgr, const std::string& packag
     {
         std::cout << "Package not provided. You run run with `--package [package]` options to "
                      "clean up package specific settings.";
+    }
+
+    if (mgr.GetDevice() == nullptr)
+    {
+        if (absl::StatusOr<Dive::AndroidDevice*> device = mgr.SelectDevice(serial); !device.ok())
+        {
+            std::cout << "Failed to select device: " << device.status() << std::endl;
+            return false;
+        }
     }
 
     return mgr.Cleanup(serial, package).ok();
@@ -612,14 +660,36 @@ bool deploy_and_run_gfxr_replay(Dive::DeviceManager& mgr,
                                 const std::string    gfxr_replay_capture,
                                 const std::string    gfxr_replay_flags)
 {
+    bool dump_pm4 = absl::GetFlag(FLAGS_dump_pm4);
+    auto dev_ret = mgr.SelectDevice(device_serial);
+
+    if (!dev_ret.ok())
+    {
+        std::cout << "Failed to select device " << dev_ret.status().message() << std::endl;
+        return false;
+    }
+
+    auto dev = *dev_ret;
+    auto ret = dev->SetupDevice();
+    if (!ret.ok())
+    {
+        std::cout << "Failed to setup device, error: " << ret.message() << std::endl;
+        return false;
+    }
     // Deploying install/gfxr-replay.apk
-    absl::Status ret = mgr.DeployReplayApk(device_serial);
+    ret = mgr.DeployReplayApk(device_serial);
     if (!ret.ok())
     {
         return false;
     }
+
+    std::string pm4_capture_download_dir = absl::GetFlag(FLAGS_download_dir);
+
     // Running replay for on-device capture
-    ret = mgr.RunReplayApk(gfxr_replay_capture, gfxr_replay_flags);
+    ret = mgr.RunReplayApk(gfxr_replay_capture,
+                           gfxr_replay_flags,
+                           dump_pm4,
+                           pm4_capture_download_dir);
     return ret.ok();
 }
 
@@ -646,6 +716,12 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    if (serial.empty() && list.size() == 1)
+    {
+        serial = list.front().m_serial;
+        std::cout << "--device unspecified, using " << serial << '\n';
+    }
+
     bool res = false;
 
     switch (cmd)
@@ -653,6 +729,7 @@ int main(int argc, char** argv)
     case Command::kGfxrCapture:
     {
         run_and_capture(mgr,
+                        serial,
                         app_type,
                         package,
                         vulkan_command,
@@ -685,7 +762,15 @@ int main(int argc, char** argv)
 
     case Command::kRunPackage:
     {
-        if (run_package(mgr, app_type, package, vulkan_command, vulkan_command_args, "", "", false))
+        if (run_package(mgr,
+                        serial,
+                        app_type,
+                        package,
+                        vulkan_command,
+                        vulkan_command_args,
+                        "",
+                        "",
+                        false))
         {
             res = process_input(mgr);
         }
@@ -696,6 +781,7 @@ int main(int argc, char** argv)
     case Command::kRunAndCapture:
     {
         res = run_and_capture(mgr,
+                              serial,
                               app_type,
                               package,
                               vulkan_command,
@@ -707,7 +793,7 @@ int main(int argc, char** argv)
     }
     case Command::kCleanup:
     {
-        res = clean_up_app_and_device(mgr, package);
+        res = clean_up_app_and_device(mgr, serial, package);
         break;
     }
     case Command::kNone:

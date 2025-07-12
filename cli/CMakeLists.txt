@@ -1,5 +1,5 @@
 #
-# Copyright 2021 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(divecli)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 
@@ -74,7 +73,6 @@ endif()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 add_executable(capture_fuzzer fuzz_main.cpp)
 target_compile_definitions(capture_fuzzer PUBLIC -DDIVE_GUI_TOOL)
-
 target_compile_options(capture_fuzzer
             PRIVATE $<$<C_COMPILER_ID:Clang>:-g -O1 -fno-omit-frame-pointer -fsanitize=fuzzer,address>
             )

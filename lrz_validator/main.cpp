@@ -80,15 +80,33 @@ bool ValidataLRZ(const Dive::CaptureMetadata &meta_data, const std::string &outp
             std::string zfunc_str = "Invalid";
             switch (zfunc)
             {
-            case VK_COMPARE_OP_NEVER: zfunc_str = "Never"; break;
-            case VK_COMPARE_OP_LESS: zfunc_str = "Less"; break;
-            case VK_COMPARE_OP_EQUAL: zfunc_str = "Equal"; break;
-            case VK_COMPARE_OP_LESS_OR_EQUAL: zfunc_str = "Less or Equal"; break;
-            case VK_COMPARE_OP_GREATER: zfunc_str = "Greater"; break;
-            case VK_COMPARE_OP_NOT_EQUAL: zfunc_str = "Not Equal"; break;
-            case VK_COMPARE_OP_GREATER_OR_EQUAL: zfunc_str = "Greater or Equal"; break;
-            case VK_COMPARE_OP_ALWAYS: zfunc_str = "Always"; break;
-            default: DIVE_ASSERT(false); break;
+            case VK_COMPARE_OP_NEVER:
+                zfunc_str = "Never";
+                break;
+            case VK_COMPARE_OP_LESS:
+                zfunc_str = "Less";
+                break;
+            case VK_COMPARE_OP_EQUAL:
+                zfunc_str = "Equal";
+                break;
+            case VK_COMPARE_OP_LESS_OR_EQUAL:
+                zfunc_str = "Less or Equal";
+                break;
+            case VK_COMPARE_OP_GREATER:
+                zfunc_str = "Greater";
+                break;
+            case VK_COMPARE_OP_NOT_EQUAL:
+                zfunc_str = "Not Equal";
+                break;
+            case VK_COMPARE_OP_GREATER_OR_EQUAL:
+                zfunc_str = "Greater or Equal";
+                break;
+            case VK_COMPARE_OP_ALWAYS:
+                zfunc_str = "Always";
+                break;
+            default:
+                DIVE_ASSERT(false);
+                break;
             }
             const uint32_t desired_zfunc_str_len = 16;
             AppendSpace(zfunc_str, desired_zfunc_str_len);
@@ -142,8 +160,7 @@ int main(int argc, char **argv)
     }
 
     // Load capture
-    Dive::LogCompound               log_compound;
-    std::unique_ptr<Dive::DataCore> data_core = std::make_unique<Dive::DataCore>(&log_compound);
+    std::unique_ptr<Dive::DataCore> data_core = std::make_unique<Dive::DataCore>();
     Dive::CaptureData::LoadResult   load_res = data_core->LoadCaptureData(input_file_name);
     if (load_res != Dive::CaptureData::LoadResult::kSuccess)
     {

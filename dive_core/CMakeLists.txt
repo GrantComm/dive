@@ -1,5 +1,5 @@
 #
-# Copyright 2019 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(dive_core)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 if(MSVC)
@@ -203,6 +202,14 @@ target_compile_options(freedreno_ir3 PRIVATE -fPIC)
 add_dependencies(${PROJECT_NAME} freedreno_ir3)
 target_link_libraries(${PROJECT_NAME} PRIVATE freedreno_ir3)
 
+# This is linked privately because gfxr contains X11 headers that contain preprocessor macros which cause collisions
+# gfxr_decode_ext_lib itself can't link gfxrecon_decode privately because it's a dependency of a target (gfxrecon-replay) that doesn't specify PRIVATE/PUBLIC 
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    gfxr_decode_ext_lib
+)
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/gfxreconstruct/framework
+)
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   target_link_libraries(${PROJECT_NAME} PRIVATE dl)

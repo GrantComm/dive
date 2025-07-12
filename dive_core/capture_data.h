@@ -19,13 +19,14 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "archive.h"
+#include "third_party/libarchive/libarchive/archive.h"
 #include "common.h"
 #include "dive_core/common/dive_capture_format.h"
 #include "dive_core/common/emulate_pm4.h"
 #include "dive_core/common/memory_manager_base.h"
 #include "log.h"
 #include "progress_tracker.h"
+#include "gfxr_ext/decode/dive_block_data.h"
 
 // Forward declarations
 struct SqttFileChunkAsicInfo;
@@ -98,18 +99,18 @@ public:
                               DiveVector<MemoryAllocationData> &&allocations);
 
     // Finalize load. After this, no memory block should be added!
-    // same_submit_copy_only - If set, then CopyMemory() will only copy from memory blocks used in
-    // the same submit. If not set, then allowed to use any allocations from any submit, with the
-    // assumption that there is no overlap in captured memory
+    // same_submit_copy_only - If set, then RetrieveMemoryData() will only copy from memory blocks
+    // used in the same submit. If not set, then allowed to use any allocations from any submit,
+    // with the assumption that there is no overlap in captured memory
     void Finalize(bool same_submit_copy_only, bool duplicate_ib_capture);
 
     const MemoryAllocationInfo &GetMemoryAllocationInfo() const;
 
     // Load the given va/size from the memory blocks
-    virtual bool CopyMemory(void    *buffer_ptr,
-                            uint32_t submit_index,
-                            uint64_t va_addr,
-                            uint64_t size) const override;
+    virtual bool RetrieveMemoryData(void    *buffer_ptr,
+                                    uint32_t submit_index,
+                                    uint64_t va_addr,
+                                    uint64_t size) const override;
 
     // Keep grabbing contiguous memory blocks until the callback returns false
     virtual bool GetMemoryOfUnknownSizeViaCallback(uint32_t     submit_index,
@@ -222,7 +223,7 @@ public:
              uint64_t  fence_signaled_addr,
              uint64_t  fence_emitted_addr);
 
-    RingInfo(){};
+    RingInfo() {};
 
     QueueType GetQueueType() const;
     uint32_t  GetQueueIndex() const;
@@ -291,7 +292,7 @@ class WaveInfo
 {
 public:
     explicit WaveInfo(DiveVector<WaveStateInfo> &&waves);
-    WaveInfo(){};
+    WaveInfo() {};
 
     const DiveVector<WaveStateInfo> &GetWaves() const;
 
@@ -304,7 +305,7 @@ class RegisterInfo
 {
 public:
     explicit RegisterInfo(std::map<std::string, uint32_t> &&regs);
-    RegisterInfo(){};
+    RegisterInfo() {};
 
     const std::map<std::string, uint32_t> &GetRegisters() const;
 
@@ -338,8 +339,7 @@ public:
         kVersionError
     };
     CaptureData();
-    CaptureData(ILog *log_ptr);
-    CaptureData(ProgressTracker *progress_tracker, ILog *log_ptr);
+    CaptureData(ProgressTracker *progress_tracker);
     virtual ~CaptureData() = default;
 
     LoadResult LoadFile(const char *file_name);
@@ -356,7 +356,6 @@ public:
     const RegisterInfo                     &GetRegisterInfo() const;
     inline uint32_t                         GetNumText() const { return (uint32_t)m_text.size(); }
     inline const TextInfo                  &GetText(uint32_t index) const { return m_text[index]; }
-    inline ILog                            &GetLog() const { return *m_log_ptr; }
     inline const VulkanMetadataBlockHeader &GetVulkanMetadataVersion() const
     {
         return m_vulkan_metadata_header;
@@ -370,12 +369,22 @@ public:
 #if defined(DIVE_ENABLE_PERFETTO)
     LoadResult LoadPerfettoFile(const char *file_name);
 #endif
+    // Sets m_cur_capture_file and m_gfxr_capture_block_data with info from the original GFXR file
+    LoadResult LoadGfxrFile(const char *file_name);
 
-    bool HasPm4Data() const
-    {
-        return m_submits.size() > 0;
-    }
+    bool        HasPm4Data() const { return m_submits.size() > 0; }
     std::string GetFileFormatVersion() const;
+
+    // Get the gfxr data
+    bool IsDiveBlockDataInitialized() const { return m_gfxr_capture_block_data != nullptr; }
+    std::shared_ptr<gfxrecon::decode::DiveBlockData> GetMutableGfxrData()
+    {
+        return m_gfxr_capture_block_data;
+    }
+
+    // Writes a new GFXR file based on the original file m_cur_capture_file and modifications
+    // recorded in m_gfxr_capture_block_data
+    bool WriteModifiedGfxrFile(const char *new_file_name);
 
 private:
     LoadResult LoadCaptureFile(const char *file_name);
@@ -413,9 +422,11 @@ private:
     VulkanMetadataBlockHeader      m_vulkan_metadata_header;
     MemoryManager                  m_memory;
     ProgressTracker               *m_progress_tracker;
-    ILog                          *m_log_ptr;
     std::string                    m_cur_capture_file;
     CaptureDataHeader              m_data_header;
+
+    // Metadata for the original GFXR file m_cur_capture_file, as well as modifications
+    std::shared_ptr<gfxrecon::decode::DiveBlockData> m_gfxr_capture_block_data = nullptr;
 };
 
 }  // namespace Dive

@@ -62,6 +62,7 @@ CommandTabView::CommandTabView(const Dive::CommandHierarchy &command_hierarchy, 
     main_layout->addWidget(m_search_bar);
     main_layout->addWidget(m_command_buffer_view);
     setLayout(main_layout);
+    m_search_bar->setTreeView(m_command_buffer_view);
 
     QObject::connect(m_search_trigger_button,
                      SIGNAL(clicked()),
@@ -81,6 +82,16 @@ void CommandTabView::SetTopologyToView(const Dive::Topology *topology_ptr)
 }
 
 //--------------------------------------------------------------------------------------------------
+void CommandTabView::clearSearchBar()
+{
+    m_search_bar->clearSearch();
+    m_search_bar->hide();
+    m_search_trigger_button->show();
+
+    DisconnectSearchBar();
+}
+
+//--------------------------------------------------------------------------------------------------
 void CommandTabView::ResetModel()
 {
     m_command_buffer_model->Reset();
@@ -96,6 +107,9 @@ void CommandTabView::ResetModel()
 //--------------------------------------------------------------------------------------------------
 void CommandTabView::OnSelectionChanged(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     m_command_buffer_model->OnSelectionChanged(index);
 
     // After m_command_buffer_view is filled out in CommandBufferModel::OnSelectionChanged(), do NOT
@@ -116,7 +130,7 @@ void CommandTabView::OnSelectionChanged(const QModelIndex &index)
     m_command_buffer_view->Reset();
     if (m_search_bar->isVisible())
     {
-        m_search_bar->clearSearch();
+        clearSearchBar();
     }
 }
 
@@ -125,11 +139,7 @@ void CommandTabView::OnSearchCommandBuffer()
 {
     if (m_search_bar->isVisible())
     {
-        m_search_bar->clearSearch();
-        m_search_bar->hide();
-        m_search_trigger_button->show();
-
-        DisconnectSearchBar();
+        clearSearchBar();
     }
     else
     {

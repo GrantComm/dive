@@ -24,7 +24,8 @@ limitations under the License.
 #include "absl/strings/string_view.h"
 #include "constants.h"
 #include "device_mgr.h"
-#include "log.h"
+#include "common/log.h"
+#include "common/macros.h"
 
 namespace Dive
 {
@@ -127,8 +128,7 @@ AndroidApplication::AndroidApplication(AndroidDevice  &dev,
 absl::Status AndroidApplication::ParsePackage()
 {
     std::string output;
-    ASSIGN_OR_RETURN(output,
-                     m_dev.Adb().RunAndGetResult("shell dumpsys package " + m_package, true));
+    ASSIGN_OR_RETURN(output, m_dev.Adb().RunAndGetResult("shell dumpsys package " + m_package));
 
     m_main_activity = ParsePackageForActivity(output, m_package);
     m_is_debuggable = absl::StrContains(output, "DEBUGGABLE");
@@ -138,11 +138,10 @@ absl::Status AndroidApplication::ParsePackage()
 absl::Status AndroidApplication::Start()
 {
     RETURN_IF_ERROR(m_dev.Adb().Run("shell input keyevent KEYCODE_WAKEUP"));
-    RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell am start -S -W %s %s/%s ",
+    RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell am start -S -W %s -n %s/%s",
                                                     m_command_args,
                                                     m_package,
-                                                    m_main_activity),
-                                    false));
+                                                    m_main_activity)));
     m_started = IsRunning();
     return absl::OkStatus();
 }
@@ -156,18 +155,7 @@ absl::Status AndroidApplication::Stop()
 
 bool AndroidApplication::IsRunning() const
 {
-    return IsProcessRunning(m_package);
-}
-
-bool AndroidApplication::IsProcessRunning(absl::string_view process_name) const
-{
-    auto res = m_dev.Adb().RunAndGetResult(absl::StrCat("shell pidof ", process_name), false);
-    if (!res.ok())
-        return false;
-    std::string pid = *res;
-    if (pid.empty())
-        return false;
-    return true;
+    return m_dev.IsProcessRunning(m_package);
 }
 
 VulkanApplication::~VulkanApplication()
@@ -183,8 +171,6 @@ absl::Status VulkanApplication::Setup()
 {
     LOGD("Setup Vulkan application: %s\n", m_package.c_str());
     RETURN_IF_ERROR(GrantAllFilesAccess());
-    RETURN_IF_ERROR(m_dev.Adb().Run("root"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("wait-for-device"));
     Stop().IgnoreError();
     if (m_gfxr_enabled)
     {
@@ -213,9 +199,7 @@ absl::Status VulkanApplication::Setup()
 
 absl::Status VulkanApplication::Cleanup()
 {
-    LOGD("Cleanup Vulkan application %s", m_package.c_str());
-    RETURN_IF_ERROR(m_dev.Adb().Run("root"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("wait-for-device"));
+    LOGD("Cleanup Vulkan application %s\n", m_package.c_str());
     if (m_gfxr_enabled)
     {
         RETURN_IF_ERROR(m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_file \\\"\\\""));
@@ -224,23 +208,22 @@ absl::Status VulkanApplication::Cleanup()
         RETURN_IF_ERROR(
         m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_use_asset_file false"));
         RETURN_IF_ERROR(
-        m_dev.Adb().Run(absl::StrFormat("shell run-as %s rm %s", m_package, kVkGfxrLayerLibName),
-                        true));
+        m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_android_trigger \\\"\\\""));
+        RETURN_IF_ERROR(
+        m_dev.Adb().Run(absl::StrFormat("shell run-as %s rm %s", m_package, kVkGfxrLayerLibName)));
     }
     else
     {
         RETURN_IF_ERROR(
-        m_dev.Adb().Run(absl::StrFormat("shell run-as %s rm %s", m_package, kVkLayerLibName),
-                        true));
+        m_dev.Adb().Run(absl::StrFormat("shell run-as %s rm %s", m_package, kVkLayerLibName)));
         RETURN_IF_ERROR(
         m_dev.Adb().Run(absl::StrFormat("shell setprop wrap.%s \\\"\\\"", m_package)));
     }
-    RETURN_IF_ERROR(m_dev.Adb().Run("shell settings delete global enable_gpu_debug_layers"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("shell settings delete global gpu_debug_app"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("shell settings delete global gpu_debug_layers"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("shell settings delete global gpu_debug_layer_app"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("shell settings delete global gpu_debug_layers_gles"));
-    LOGD("Cleanup Vulkan application %s done", m_package.c_str());
+
+    // Cleanup of Vulkan layers and corresponding settings is automatically handled in
+    // AndroidDevice::CleanupDevice.
+
+    LOGD("Cleanup Vulkan application %s done\n", m_package.c_str());
     return absl::OkStatus();
 }
 
@@ -282,10 +265,14 @@ absl::Status AndroidApplication::GfxrSetup()
     RETURN_IF_ERROR(m_dev.Adb().Run(
     absl::StrFormat("shell settings put global gpu_debug_layer_app %s", m_package)));
 
-    std::string capture_file_location = kDeviceCaptureDirectory + m_gfxr_capture_file_directory +
-                                        "/" + m_package + ".gfxr";
+    std::string gfxr_capture_directory = absl::StrCat(kDeviceCapturePath,
+                                                      "/",
+                                                      m_gfxr_capture_file_directory);
 
-    std::string gfxr_capture_directory = kDeviceCaptureDirectory + m_gfxr_capture_file_directory;
+    std::string capture_file_location = absl::StrCat(gfxr_capture_directory,
+                                                     "/",
+                                                     m_package,
+                                                     ".gfxr");
     RETURN_IF_ERROR(CreateGfxrDirectory(gfxr_capture_directory));
 
     RETURN_IF_ERROR(
@@ -294,6 +281,9 @@ absl::Status AndroidApplication::GfxrSetup()
     RETURN_IF_ERROR(m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_trigger_frames 1"));
 
     RETURN_IF_ERROR(m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_use_asset_file true"));
+
+    // capture_android_trigger must be set in order for GFXR to listen for triggers.
+    RETURN_IF_ERROR(m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_android_trigger false"));
 
     LOGD("GFXR capture setup for %s done\n", m_package.c_str());
     return absl::OkStatus();
@@ -328,15 +318,13 @@ absl::Status OpenXRApplication::Setup()
 {
     LOGD("OpenXRApplication %s Setup\n", m_package.c_str());
     RETURN_IF_ERROR(GrantAllFilesAccess());
-    RETURN_IF_ERROR(m_dev.Adb().Run("root"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("wait-for-device"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("remount"));
     if (m_gfxr_enabled)
     {
         RETURN_IF_ERROR(GfxrSetup());
     }
     else
     {
+        RETURN_IF_ERROR(m_dev.Adb().Run("remount"));
         RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell mkdir -p %s", kManifestFilePath)));
         RETURN_IF_ERROR(m_dev.Adb().Run(
         absl::StrFormat("push %s %s",
@@ -355,9 +343,6 @@ absl::Status OpenXRApplication::Setup()
 absl::Status OpenXRApplication::Cleanup()
 {
     LOGD("OpenXRApplication %s cleanup.\n", m_package.c_str());
-    RETURN_IF_ERROR(m_dev.Adb().Run("root"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("wait-for-device"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("remount"));
     if (m_gfxr_enabled)
     {
         RETURN_IF_ERROR(m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_file \\\"\\\""));
@@ -366,16 +351,19 @@ absl::Status OpenXRApplication::Cleanup()
         RETURN_IF_ERROR(
         m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_use_asset_file false"));
         RETURN_IF_ERROR(
-        m_dev.Adb().Run(absl::StrFormat("shell run-as %s rm %s", m_package, kVkGfxrLayerLibName),
-                        true));
+        m_dev.Adb().Run("shell setprop debug.gfxrecon.capture_android_trigger \\\"\\\""));
+        RETURN_IF_ERROR(m_dev.Adb().Run("shell setprop openxr.enable_frame_delimiter false"));
+        RETURN_IF_ERROR(
+        m_dev.Adb().Run(absl::StrFormat("shell run-as %s rm %s", m_package, kVkGfxrLayerLibName)));
     }
     else
     {
+        RETURN_IF_ERROR(m_dev.Adb().Run("remount"));
         RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell rm -r %s", kManifestFilePath)));
         RETURN_IF_ERROR(
         m_dev.Adb().Run(absl::StrFormat("shell setprop wrap.%s \\\"\\\"", m_package)));
     }
-    LOGD("OpenXRApplication %s cleanup done.", m_package.c_str());
+    LOGD("OpenXRApplication %s cleanup done.\n", m_package.c_str());
     return absl::OkStatus();
 }
 
@@ -404,15 +392,13 @@ VulkanCliApplication::~VulkanCliApplication()
 absl::Status VulkanCliApplication::Setup()
 {
     RETURN_IF_ERROR(GrantAllFilesAccess());
-    RETURN_IF_ERROR(m_dev.Adb().Run("root"));
-    RETURN_IF_ERROR(m_dev.Adb().Run("wait-for-device"));
     RETURN_IF_ERROR(m_dev.Adb().Run(absl::StrFormat("shell mkdir -p %s", kVulkanGlobalPath)));
     RETURN_IF_ERROR(
     m_dev.Adb().Run(absl::StrFormat("push %s %s",
                                     ResolveAndroidLibPath(kVkLayerLibName, "").generic_string(),
                                     kVulkanGlobalPath)));
     RETURN_IF_ERROR(
-    m_dev.Adb().Run(absl::StrFormat("shell setprop debug.vulkan.layers %s", kVkLayerName), false));
+    m_dev.Adb().Run(absl::StrFormat("shell setprop debug.vulkan.layers %s", kVkLayerName)));
 
     return absl::OkStatus();
 }
@@ -434,7 +420,7 @@ absl::Status VulkanCliApplication::Start()
                                             m_command_args);
 
     RETURN_IF_ERROR(m_dev.Adb().RunCommandBackground(cmd));
-    ASSIGN_OR_RETURN(m_pid, m_dev.Adb().RunAndGetResult("shell pidof " + m_command, false));
+    ASSIGN_OR_RETURN(m_pid, m_dev.Adb().RunAndGetResult("shell pidof " + m_command));
     m_started = true;
     return absl::OkStatus();
 }
@@ -447,7 +433,7 @@ absl::Status VulkanCliApplication::Stop()
 }
 bool VulkanCliApplication::IsRunning() const
 {
-    return IsProcessRunning(m_command);
+    return m_dev.IsProcessRunning(m_command);
 }
 
 }  // namespace Dive

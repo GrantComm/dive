@@ -1,5 +1,5 @@
 #
-# Copyright 2023 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(dive)
+
+# Global properties
+set_property(GLOBAL PROPERTY USE_FOLDERS ON) # Defaults to ON with cmake 3.26+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -47,8 +50,9 @@ endif()
 if(BUILD_GRPC)
     set(GRPC_AS_SUBMODULE "ON")
 else()
-    if(MSVC AND EXISTS "${CMAKE_SOURCE_DIR}/prebuild/grpc/lib/grpc.tar.gz")
+    if(MSVC)
         # Unzip certain large debug gRPC libraries
+        # If changed, please update .gitignore!
         execute_process(
         COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/prebuild/grpc/lib/grpcd.tar.gz
         COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/prebuild/grpc/lib/grpc.tar.gz
@@ -90,30 +94,42 @@ endif()
 option(DIVE_ENABLE_PERFETTO, "Enable functionality to get perfetto trace." OFF)
 include(perfetto.cmake)
 
+if (NOT ANDROID)
+    # Ask gtest to use /MD or /MDd since it matches the CMake defaults that we use.
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(third_party/googletest)
+endif()
+
+add_subdirectory(network)
 add_subdirectory(capture_service)
 add_subdirectory(layer)
 add_subdirectory(runtime_layer)
+
+# For generated headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/dive_core)
 
 if(NOT ANDROID)
+    SET(D3D12_SUPPORT OFF CACHE BOOL "")
+    add_subdirectory(third_party/gfxreconstruct)
     include(libarchive.cmake)
+    add_subdirectory(gfxr_ext/decode)
     add_subdirectory(dive_core)
-    if (EXISTS "${CMAKE_SOURCE_DIR}/cli/CMakeLists.txt")
-        add_subdirectory(cli)
-    endif()
+    add_subdirectory(cli)
+    add_subdirectory(host_cli)
+    add_subdirectory(lrz_validator)
 
-    if (EXISTS "${CMAKE_SOURCE_DIR}/lrz_validator/CMakeLists.txt")
-        add_subdirectory(lrz_validator)
-    endif()
-
-    if (EXISTS "${CMAKE_SOURCE_DIR}/ui/CMakeLists.txt" AND NOT DIVE_NO_DISASSEMBLY)
+    if (NOT DIVE_NO_DISASSEMBLY)
         add_subdirectory(ui)
     endif()
+
+    add_subdirectory(gfxr_dump_resources)
+
+    add_subdirectory(plugins)
 else()
     if(NOT CMAKE_HOST_WIN32)
         message(CHECK_START "Build gfxr for android")
         execute_process(
-            COMMAND ./gradlew assemble${CMAKE_BUILD_TYPE} --console=verbose
+            COMMAND ./gradlew assemble${CMAKE_BUILD_TYPE} --console=verbose -P${ANDROID_ABI}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party/gfxreconstruct/android
             COMMAND_ERROR_IS_FATAL ANY
         )
@@ -150,3 +166,6 @@ add_test(NAME TestLoadingUncompressedTrace
          COMMAND ${CMAKE_BINARY_DIR}/bin/divecli extract -o . ${CMAKE_SOURCE_DIR}/tests/traces/bloom-frame-0052.rd)
 add_test(NAME TestLoadingCompressedTrace
          COMMAND ${CMAKE_BINARY_DIR}/bin/divecli extract -o . ${CMAKE_SOURCE_DIR}/tests/traces/bloom-frame-0080-compressed.rd)
+#TODO: Improve test to check result
+add_test(NAME TestModifyGfxrNoop
+         COMMAND ${CMAKE_BINARY_DIR}/bin/host_cli --input_file_path ${CMAKE_SOURCE_DIR}/tests/gfxr_traces/vs_triangle_300_20221211T232110.gfxr --output_gfxr_path ${CMAKE_SOURCE_DIR}/tests/gfxr_traces/vs_triangle_300_20221211T232110_noop.gfxr)

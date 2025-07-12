@@ -20,6 +20,7 @@ limitations under the License.
 #include "absl/status/statusor.h"
 #include "android_application.h"
 #include "command_utils.h"
+#include "constants.h"
 
 #include <cassert>
 #include <filesystem>
@@ -53,6 +54,8 @@ inline bool operator!=(const DeviceInfo &lhs, const DeviceInfo &rhs)
 struct DeviceState
 {
     std::string m_enforce;
+    bool        m_root_access_requested = false;
+    bool        m_is_root_shell = false;
 };
 
 class AndroidDevice
@@ -66,9 +69,16 @@ public:
 
     absl::Status Init();
     absl::Status ForwardFirstAvailablePort();
+
+    // Only legacy PM4 capture should request root access. Anything related to GFXR doesn't require
+    // root access thus should not request it. Will remove the requirement of need root access once
+    // we fully transit to using GFXR replay.
+    absl::Status RequestRootAccess();
     absl::Status SetupDevice();
     absl::Status CleanupDevice();
+    absl::Status CleanupPackage(const std::string &package);
     void         EnableGfxr(bool enable_gfxr);
+    bool         IsProcessRunning(absl::string_view process_name) const;
 
     enum class PackageListOptions
     {
@@ -105,8 +115,8 @@ private:
     AdbSession                          m_adb;
     DeviceState                         m_original_state;
     std::unique_ptr<AndroidApplication> m_app;
-    bool                                m_gfxr_enabled;
-    int                                 m_port;
+    bool                                m_gfxr_enabled = false;
+    int                                 m_port = kFirstPort;
 };
 
 class DeviceManager
@@ -123,7 +133,10 @@ public:
     absl::Status                    Cleanup(const std::string &serial, const std::string &package);
 
     absl::Status DeployReplayApk(const std::string &serial);
-    absl::Status RunReplayApk(const std::string &capture_path, const std::string &replay_args);
+    absl::Status RunReplayApk(const std::string &capture_path,
+                              const std::string &replay_args,
+                              bool               dump_pm4,
+                              const std::string &pm4_capture_download_path);
 
 private:
     std::unique_ptr<AndroidDevice> m_device{ nullptr };

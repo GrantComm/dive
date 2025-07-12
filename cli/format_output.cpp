@@ -53,8 +53,10 @@ const char *CaptureTypeToString(Dive::CaptureDataHeader::CaptureType type)
 {
     switch (type)
     {
-    case Dive::CaptureDataHeader::CaptureType::kSingleFrame: return "Single Frame";
-    case Dive::CaptureDataHeader::CaptureType::kBeginEndRange: return "Begin End Range";
+    case Dive::CaptureDataHeader::CaptureType::kSingleFrame:
+        return "Single Frame";
+    case Dive::CaptureDataHeader::CaptureType::kBeginEndRange:
+        return "Begin End Range";
     }
 
     DIVE_ASSERT(false);
@@ -168,18 +170,30 @@ bool IsPossibleBlock(const BlockInfo &info)
 {
     switch (info.m_block_type)
     {
-    case BlockType::kCapture: return true;
-    case BlockType::kMemoryAlloc: return true;
-    case BlockType::kSubmit: return true;
-    case BlockType::kMemoryRaw: return true;
-    case BlockType::kRgp: return true;
-    case BlockType::kPresent: return true;
-    case BlockType::kRing: return true;
-    case BlockType::kText: return true;
-    case BlockType::kRegisters: return true;
-    case BlockType::kWaveState: return true;
-    case BlockType::kVulkanMetadata: return true;
-    default: break;
+    case BlockType::kCapture:
+        return true;
+    case BlockType::kMemoryAlloc:
+        return true;
+    case BlockType::kSubmit:
+        return true;
+    case BlockType::kMemoryRaw:
+        return true;
+    case BlockType::kRgp:
+        return true;
+    case BlockType::kPresent:
+        return true;
+    case BlockType::kRing:
+        return true;
+    case BlockType::kText:
+        return true;
+    case BlockType::kRegisters:
+        return true;
+    case BlockType::kWaveState:
+        return true;
+    case BlockType::kVulkanMetadata:
+        return true;
+    default:
+        break;
     }
     return false;
 }
@@ -352,7 +366,8 @@ LoadResult PrintBlock(std::ostream      &out,
     }
     break;
 
-    default: break;
+    default:
+        break;
     }
 
     out << std::endl;
@@ -506,10 +521,6 @@ void ExtractAssets(const char                   *dir,
 
     if (command_hierarchy)
     {
-
-        ExtractTopology(dir_path / "engines.txt",
-                        command_hierarchy,
-                        &command_hierarchy->GetEngineHierarchyTopology());
         ExtractTopology(dir_path / "submits.txt",
                         command_hierarchy,
                         &command_hierarchy->GetSubmitHierarchyTopology());
@@ -524,9 +535,8 @@ bool ParseCapture(const char                              *filename,
                   std::unique_ptr<Dive::CaptureData>      *out_capture_data,
                   std::unique_ptr<Dive::CommandHierarchy> *out_command_hierarchy)
 {
-    Dive::LogConsole                    log;
     std::unique_ptr<Dive::CaptureData> &capture_data = *out_capture_data;
-    capture_data = std::make_unique<Dive::CaptureData>(&log);
+    capture_data = std::make_unique<Dive::CaptureData>();
     if (capture_data->LoadFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
     {
         capture_data.reset();
@@ -537,8 +547,8 @@ bool ParseCapture(const char                              *filename,
     std::unique_ptr<Dive::CommandHierarchy> &command_hierarchy = *out_command_hierarchy;
     command_hierarchy = std::make_unique<Dive::CommandHierarchy>();
     std::unique_ptr<EmulateStateTracker> state_tracker(new EmulateStateTracker);
-    Dive::CommandHierarchyCreator        creator(*state_tracker);
-    if (!creator.CreateTrees(command_hierarchy.get(), *capture_data, true, std::nullopt, &log))
+    Dive::CommandHierarchyCreator        creator(*command_hierarchy, *capture_data, *state_tracker);
+    if (!creator.CreateTrees(true, std::nullopt))
     {
         command_hierarchy.reset();
         std::cerr << "Error parsing capture!" << std::endl;
@@ -551,8 +561,7 @@ bool ParseCapture(const char                              *filename,
 //--------------------------------------------------------------------------------------------------
 int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 {
-    Dive::LogConsole   log;
-    Dive::CaptureData *capture_data_ptr = new Dive::CaptureData(&log);
+    std::unique_ptr<Dive::CaptureData> capture_data_ptr = std::make_unique<Dive::CaptureData>();
     if (capture_data_ptr->LoadFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Not able to open: " << filename << std::endl;
@@ -561,9 +570,10 @@ int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 
     std::unique_ptr<Dive::CommandHierarchy>    command_hierarchy_ptr(new Dive::CommandHierarchy());
     std::unique_ptr<Dive::EmulateStateTracker> state_tracker(new EmulateStateTracker);
-    Dive::CommandHierarchyCreator              creator(*state_tracker);
-    if (!creator
-         .CreateTrees(command_hierarchy_ptr.get(), *capture_data_ptr, true, std::nullopt, &log))
+    Dive::CommandHierarchyCreator              creator(*command_hierarchy_ptr,
+                                          *capture_data_ptr,
+                                          *state_tracker);
+    if (!creator.CreateTrees(true, std::nullopt))
     {
         std::cerr << "Error parsing capture!" << std::endl;
         return EXIT_FAILURE;
@@ -572,16 +582,14 @@ int PrintTopology(const char *filename, TopologyName topology, bool verbose)
     const Dive::Topology *topology_ptr = nullptr;
     switch (topology)
     {
-    case TopologyName::kTopologyEngine:
-        topology_ptr = &command_hierarchy_ptr->GetEngineHierarchyTopology();
-        break;
     case TopologyName::kTopologySubmit:
         topology_ptr = &command_hierarchy_ptr->GetSubmitHierarchyTopology();
         break;
     case TopologyName::kTopologyEvent:
         topology_ptr = &command_hierarchy_ptr->GetAllEventHierarchyTopology();
         break;
-    default: abort();  // This should be checked during args parsing.
+    default:
+        abort();  // This should be checked during args parsing.
     }
 
     uint64_t root_num_children = topology_ptr->GetNumChildren(Dive::Topology::kRootNodeIndex);
@@ -602,8 +610,7 @@ int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 //--------------------------------------------------------------------------------------------------
 int ExtractCapture(const char *filename, const char *extract_assets)
 {
-    Dive::LogConsole                log;
-    std::unique_ptr<Dive::DataCore> data = std::make_unique<Dive::DataCore>(&log);
+    std::unique_ptr<Dive::DataCore> data = std::make_unique<Dive::DataCore>();
     if (data->LoadCaptureData(filename) != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Load capture failed." << std::endl;

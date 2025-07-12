@@ -23,6 +23,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "capture_data.h"
@@ -113,7 +114,25 @@ private:
     };
 
     // List of all children for all nodes
+
+    // m_children_list contains the node_indexes of all the "normal" children throughout the entire
+    // command hierarchy for a specific TopologyType (e.g., kSubmitTopology or kAllEventTopology).
+    // It's a concatenated list of all direct children, ordered by the parent node they belong to.
+    // For example,
+    //  if node A has children(C1, C2) and node B has children(C3),
+    //  then m_children_list might look like[C1_index, C2_index, C3_index, ...]
+    //
+    // The m_node_children vector then contains ChildrenInfo structs for each parent node. Each
+    // ChildrenInfo struct has a m_start_index and m_num_children. These values tell you where in
+    // m_children_list to find the children for a specific parent node.
     DiveVector<uint64_t> m_children_list;
+
+    // m_shared_children_list contains the node_indexes of all the "shared" children throughout the
+    // entire command hierarchy for a specific TopologyType. Similar to m_children_list, it's a
+    // flat, concatenated list of all nodes that are designated as "shared children". These are
+    // typically kPacketNodes that can logically appear under multiple different parent nodes or
+    // contexts. The m_node_shared_children vector, similarly points into m_shared_children_list to
+    // define the range of shared children belonging to a particular node.
     DiveVector<uint64_t> m_shared_children_list;
 
     // This is a per-node pointer to m_children_list
@@ -212,22 +231,15 @@ public:
     // The topologies are layed out such that the "normal" children contain non-packet nodes
     // and the "shared children" contain packet nodes. The difference lies in what is in
     // the "normal" children arrays:
-    //  The Engine hierarchy contains kRootNode -> kEngineNodes -> kSubmitNodes -> kIbNodes
     //  The Submit hierarchy contains kRootNode -> kSubmitNodes -> kIbNodes
     //  The Event hierarchy contains kRootNode -> kSubmitNodes/kPresentNodes -> (EventNodes)
     //      Where (EventNodes) == kMarkerNode/kDrawDispatchDmaNode/kSyncNode/kPostambleStateNode
     //  Note that all except kRootNode & kPresentNodes can have kPacketNodes as shared children
-    const Topology &GetEngineHierarchyTopology() const;
     const Topology &GetSubmitHierarchyTopology() const;
-    const Topology &GetVulkanDrawEventHierarchyTopology() const;
-    const Topology &GetVulkanEventHierarchyTopology() const;
     const Topology &GetAllEventHierarchyTopology() const;
-    const Topology &GetRgpHierarchyTopology() const;
 
     NodeType    GetNodeType(uint64_t node_index) const;
     const char *GetNodeDesc(uint64_t node_index) const;
-
-    const DiveVector<uint8_t> &GetMetadata(uint64_t node_index) const;
 
     Dive::EngineType GetSubmitNodeEngineType(uint64_t node_index) const;
     uint32_t         GetSubmitNodeIndex(uint64_t node_index) const;
@@ -244,22 +256,41 @@ public:
     bool             GetRegFieldNodeIsCe(uint64_t node_index) const;
     SyncType         GetSyncNodeSyncType(uint64_t node_index) const;
     SyncInfo         GetSyncNodeSyncInfo(uint64_t node_index) const;
-    bool             HasVulkanMarkers() const { return m_has_vulkan_marker; }
 
     // GetEventIndex returns sequence number for Event/Sync Nodes, 0 if not exist.
     size_t GetEventIndex(uint64_t node_index) const;
+
+    // For kBinningPassOnly
+    // - Keep Binning Pass
+    // - Exclude all Tile&Resolve Passes (0 - N)
+    // For kFirstTilePassOnly
+    // - Keep Tile Pass 0 (1st Tile&Resolve Pass after the Binning Pass)
+    // - Exclude all nodes in Binning Pass
+    // - Exclude Tile Pass 1 to N
+    // For kBinningAndFirstTilePass
+    // - Keep Binning Pass
+    // - Keep Tile Pass 0 (1st Tile&Resolve Pass after the Binning Pass)
+    // - Exclude Tile Pass 1 to N
+    enum FilterListType : uint32_t
+    {
+        kBinningPassOnly,
+        kFirstTilePassOnly,
+        kBinningAndFirstTilePass,
+        kFilterListTypeCount
+    };
+
+    const std::unordered_set<uint64_t> &GetFilterExcludeIndices(FilterListType filter_type) const
+    {
+        return m_filter_exclude_indices_list[filter_type];
+    }
 
 private:
     friend class CommandHierarchyCreator;
 
     enum TopologyType
     {
-        kEngineTopology,
         kSubmitTopology,
-        kVulkanEventTopology,
-        kVulkanCallTopology,
         kAllEventTopology,
-        kRgpTopology,
         kTopologyTypeCount
     };
 
@@ -339,51 +370,40 @@ private:
         DiveVector<AuxInfo>     m_aux_info;
         DiveVector<uint64_t>    m_event_node_indices;
 
-        // Used mostly to cache Vulkan argument metadata for Vulkan marker nodes
-        DiveVector<DiveVector<uint8_t>> m_metadata;
-
-        uint64_t AddNode(NodeType      type,
-                         std::string &&desc,
-                         AuxInfo       aux_info,
-                         char         *metadata_ptr,
-                         uint32_t      metadata_size);
+        uint64_t AddNode(NodeType type, std::string &&desc, AuxInfo aux_info);
     };
 
     // Add a node and returns index of the added node
-    uint64_t AddNode(NodeType      type,
-                     std::string &&desc,
-                     AuxInfo       aux_info,
-                     char         *metadata_ptr,
-                     uint32_t      metadata_size);
+    uint64_t AddNode(NodeType type, std::string &&desc, AuxInfo aux_info);
+    void     AddToFilterExcludeIndexList(uint64_t index, FilterListType filter_mode)
+    {
+        m_filter_exclude_indices_list[filter_mode].insert(index);
+    }
 
-    Nodes    m_nodes;
-    Topology m_topology[kTopologyTypeCount];
-    bool     m_has_vulkan_marker = false;
+    Nodes                        m_nodes;
+    std::unordered_set<uint64_t> m_filter_exclude_indices_list[kFilterListTypeCount];
+    Topology                     m_topology[kTopologyTypeCount];
 };
 
 //--------------------------------------------------------------------------------------------------
 class CommandHierarchyCreator : public IEmulateCallbacks
 {
 public:
-    CommandHierarchyCreator(EmulateStateTracker &state_tracker);
+    CommandHierarchyCreator(CommandHierarchy    &command_hierarchy,
+                            const CaptureData   &capture_data,
+                            EmulateStateTracker &state_tracker);
     // If flatten_chain_nodes set to true, then chain nodes are children of the top-most
     // root ib or call ib node, and never a child of another chain node. This prevents a
     // deep tree of chain nodes when a capture chains together tons of IBs.
     // Optional: Passing a reserve_size will allow the creator to pre-reserve the memory needed and
     // potentially speed up the creation
-    bool CreateTrees(CommandHierarchy       *command_hierarchy_ptr,
-                     const CaptureData      &capture_data,
-                     bool                    flatten_chain_nodes,
-                     std::optional<uint64_t> reserve_size,
-                     ILog                   *log_ptr);
+    bool CreateTrees(bool flatten_chain_nodes, std::optional<uint64_t> reserve_size);
 
     // This is used to create a command-hierarchy out of a PM4 universal stream (ie: single IB)
-    bool CreateTrees(CommandHierarchy *command_hierarchy_ptr,
-                     EngineType        engine_type,
-                     QueueType         queue_type,
-                     uint32_t         *command_dwords,
-                     uint32_t          size_in_dwords,
-                     ILog             *log_ptr);
+    bool CreateTrees(EngineType             engine_type,
+                     QueueType              queue_type,
+                     std::vector<uint32_t> &command_dwords,
+                     uint32_t               size_in_dwords);
 
     virtual bool OnIbStart(uint32_t                  submit_index,
                            uint32_t                  ib_index,
@@ -420,15 +440,6 @@ private:
                                bool                  is_ce_packet,
                                Pm4Header             header);
     uint64_t     AddRegisterNode(uint32_t reg, uint64_t reg_value, const RegInfo *reg_info_ptr);
-    uint64_t     AddSyncEventNode(const IMemoryManager &mem_manager,
-                                  uint32_t              submit_index,
-                                  uint64_t              va_addr,
-                                  SyncType              sync_event);
-
-    void ParseVulkanCallMarker(char    *marker_ptr,
-                               uint32_t marker_size,
-                               uint64_t submit_node_index,
-                               uint64_t packet_node_index);
 
     bool IsBeginDebugMarkerNode(uint64_t node_index);
 
@@ -495,11 +506,7 @@ private:
                                         uint64_t              va_addr,
                                         uint64_t              set_draw_state_node_index,
                                         Pm4Header             header);
-    uint64_t AddNode(NodeType                  type,
-                     std::string             &&desc,
-                     CommandHierarchy::AuxInfo aux_info = 0,
-                     char                     *metadata_ptr = nullptr,
-                     uint32_t                  metadata_size = 0);
+    uint64_t AddNode(NodeType type, std::string &&desc, CommandHierarchy::AuxInfo aux_info = 0);
 
     void AppendEventNodeIndex(uint64_t node_index);
 
@@ -524,12 +531,8 @@ private:
                                uint64_t                       child_index) const;
     uint64_t GetChildCount(CommandHierarchy::TopologyType type, uint64_t node_index) const;
     void     CreateTopologies();
-    bool     IsVulkanEventNode(uint64_t node_index) const;
-    bool     IsVulkanNonEventNode(uint64_t node_index) const;
 
     bool EventNodeHelper(uint64_t node_index, std::function<bool(uint32_t)> callback) const;
-    bool IsVulkanEvent(uint32_t cmd_id) const;
-    bool IsNonVulkanEvent(uint32_t cmd_id) const { return !IsVulkanEvent(cmd_id); }
 
     template<typename T>
     void AddConstantsToPacketNode(const IMemoryManager &mem_manager,
@@ -545,8 +548,8 @@ private:
         uint64_t m_group_addr;
     };
 
-    CommandHierarchy  *m_command_hierarchy_ptr = nullptr;  // Pointer to class being created
-    const CaptureData *m_capture_data_ptr = nullptr;
+    CommandHierarchy  &m_command_hierarchy;  // Reference to class being created
+    const CaptureData &m_capture_data;
 
     // Parsing State
     DiveVector<uint64_t>
@@ -557,9 +560,8 @@ private:
     uint64_t m_render_marker_index = kInvalidRenderMarkerIndex;  // Current render marker index,
                                                                  // there is no nested render
                                                                  // marker, so no need to use stack
-    uint64_t             m_last_user_push_parent_node = UINT64_MAX;
-    DiveVector<uint64_t> m_vulkan_cmd_stack;  // Command buffer levels, first level is primary and
-                                              // second level secondary command buffer
+    uint64_t m_last_user_push_parent_node = UINT64_MAX;
+    // second level secondary command buffer
     std::unordered_map<int, std::unordered_map<uint64_t, uint64_t>>
     m_node_parent_info;  // Node parent index table, used to find which events need to be moved for
                          // VkBeginCommandBuffer.
@@ -581,7 +583,7 @@ private:
 
     bool m_new_event_start = true;
     bool m_new_ib_start = true;
-    bool m_new_pass_start = false;
+    bool m_tracking_first_tile_pass_start = false;
 
     // Stack of shared child node that begins the current ibs/pass/events
     // Need a stack because IBs and pass/events can be stacked
@@ -609,8 +611,6 @@ private:
     // There are 2 sets of children per node, per topology. The second set of children nodes can
     // have more than 1 parent each
     DiveVector<DiveVector<uint64_t>> m_node_children[CommandHierarchy::kTopologyTypeCount][2];
-
-    ILog *m_log_ptr = nullptr;
 
     EmulateStateTracker &m_state_tracker;
 };

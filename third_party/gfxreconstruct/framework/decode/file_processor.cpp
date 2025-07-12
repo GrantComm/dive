@@ -190,6 +190,12 @@ bool FileProcessor::ContinueDecoding()
     }
     else
     {
+        // GOOGLE: If marked as run_without_decoders_, proceed without checking them
+        if (run_without_decoders_)
+        {
+            return true;
+        }
+
         int completed_decoders = 0;
 
         for (auto& decoder : decoders_)
@@ -480,6 +486,9 @@ bool FileProcessor::ProcessBlocks()
 bool FileProcessor::ReadBlockHeader(format::BlockHeader* block_header)
 {
     assert(block_header != nullptr);
+
+    // GOOGLE: Store info about block offset before any bytes are read
+    StoreBlockInfo();
 
     bool success = false;
 
@@ -1098,6 +1107,79 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
                         decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                     0u,
+                                                                     header.memory_id,
+                                                                     header.buffer_id,
+                                                                     header.format,
+                                                                     header.width,
+                                                                     header.height,
+                                                                     header.stride,
+                                                                     header.usage,
+                                                                     header.layers,
+                                                                     entries);
+                    }
+                }
+            }
+            else
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read create hardware buffer meta-data block");
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockData,
+                                         "Failed to read create hardware buffer meta-data block");
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read create hardware buffer meta-data block header");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kCreateHardwareBufferCommand_deprecated2)
+    {
+        format::CreateHardwareBufferCommandHeader_deprecated2 header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
+        success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
+        success = success && ReadBytes(&header.format, sizeof(header.format));
+        success = success && ReadBytes(&header.width, sizeof(header.width));
+        success = success && ReadBytes(&header.height, sizeof(header.height));
+        success = success && ReadBytes(&header.stride, sizeof(header.stride));
+        success = success && ReadBytes(&header.usage, sizeof(header.usage));
+        success = success && ReadBytes(&header.layers, sizeof(header.layers));
+        success = success && ReadBytes(&header.planes, sizeof(header.planes));
+
+        if (success)
+        {
+            std::vector<format::HardwareBufferPlaneInfo> entries;
+
+            for (uint64_t i = 0; i < header.planes; ++i)
+            {
+                format::HardwareBufferPlaneInfo entry;
+
+                if (!ReadBytes(&entry, sizeof(entry)))
+                {
+                    success = false;
+                    break;
+                }
+
+                entries.emplace_back(std::move(entry));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                     0u,
                                                                      header.memory_id,
                                                                      header.buffer_id,
                                                                      header.format,
@@ -1135,6 +1217,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         format::CreateHardwareBufferCommandHeader header;
 
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
         success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
         success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
         success = success && ReadBytes(&header.format, sizeof(header.format));
@@ -1169,6 +1252,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                     if (decoder->SupportsMetaDataId(meta_data_id))
                     {
                         decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                     header.device_id,
                                                                      header.memory_id,
                                                                      header.buffer_id,
                                                                      header.format,
@@ -2281,6 +2365,15 @@ void FileProcessor::PrintBlockInfo() const
         GFXRECON_LOG_INFO(
             "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
     }
+}
+
+// GOOGLE: [single-frame-looping] Active file tell utility
+int64_t FileProcessor::TellActiveFile()
+{
+    auto file_entry = active_files_.find(file_stack_.back().filename);
+    assert(file_entry != active_files_.end());
+
+    return util::platform::FileTell(file_entry->second.fd);
 }
 
 GFXRECON_END_NAMESPACE(decode)

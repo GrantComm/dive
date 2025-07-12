@@ -22,10 +22,10 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 
-#include "capture_service/log.h"
+#include "common/log.h"
 #include "capture_service/trace_mgr.h"
 #include "layer_common.h"
-#include "loader_interfaces.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "xr_generated_dispatch_table.h"
 
 #if defined(__GNUC__) && __GNUC__ >= 4
@@ -174,7 +174,7 @@ ApiDiveLayerXrCreateApiLayerInstance(const XrInstanceCreateInfo        *info,
         LOGD("key is %lu , instance is %p \n", key, returned_instance);
         g_xr_instance_data[key] = std::move(id);
     }
-
+    SetLayerStatusLoaded();
     return result;
 }
 

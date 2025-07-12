@@ -28,7 +28,7 @@ limitations under the License.
 #include <unordered_map>
 #include <vector>
 
-#include "capture_service/log.h"
+#include "common/log.h"
 #include "capture_service/server.h"
 #include "layer_common.h"
 #include "vk_dispatch.h"
@@ -200,6 +200,7 @@ VkResult DiveInterceptCreateInstance(const VkInstanceCreateInfo  *pCreateInfo,
         auto                        key = (uintptr_t)(*(void **)(*pInstance));
         g_instance_data[key] = std::move(id);
     }
+    SetLayerStatusLoaded();
 
     return result;
 }

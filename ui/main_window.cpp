@@ -14,8 +14,10 @@
  limitations under the License.
 */
 #include "main_window.h"
+#include "adreno.h"
 #include <QAction>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QFile>
 #include <QFileDialog>
 #include <QHeaderView>
@@ -48,9 +50,13 @@
 #    include "event_timing/event_timing_view.h"
 #endif
 #include "command_tab_view.h"
+#include "dive_core/data_core.h"
+#include "event_selection_model.h"
 #include "event_state_view.h"
 #include "hover_help_model.h"
+#include "overlay.h"
 #include "overview_tab_view.h"
+#include "plugins/plugin_loader.h"
 #include "property_panel.h"
 #include "search_bar.h"
 #include "shader_view.h"
@@ -58,14 +64,17 @@
 #include "shortcuts_window.h"
 #include "text_file_view.h"
 #include "tree_view_combo_box.h"
+#include "ui/dive_tree_view.h"
 
-static const int   kViewModeStringCount = 3;
-static const int   kEventViewModeStringCount = 3;
-static const char *kViewModeStrings[kViewModeStringCount] = { "Engine", "Submit", "Events" };
-static const char *kEventViewModeStrings[kEventViewModeStringCount] = {
-    "Vulkan Events",
-    "All Vulkan Calls",
-    "All Vulkan Calls + GPU Events"
+static constexpr int         kViewModeStringCount = 2;
+static constexpr int         kEventViewModeStringCount = 1;
+static constexpr const char *kViewModeStrings[kViewModeStringCount] = { "Submit", "Events" };
+static constexpr const char *kEventViewModeStrings[kEventViewModeStringCount] = { "GPU Events" };
+static constexpr const char *kFilterStrings[DiveFilterModel::kFilterModeCount] = {
+    "None",
+    "BinningPassOnly",
+    "FirstTilePassOnly",
+    "BinningAndFirstTilePass"
 };
 
 void SetTabAvailable(QTabWidget *widget, int index, bool available)
@@ -82,9 +91,7 @@ void SetTabAvailable(QTabWidget *widget, int index, bool available)
 
 enum class EventMode
 {
-    VulkanDrawEvent = 0,
-    AllVulkanEvent,
-    AllEvent,
+    AllEvent = 0
 };
 
 // =================================================================================================
@@ -96,7 +103,7 @@ MainWindow::MainWindow()
     m_log_compound.AddLog(&m_log_record);
     m_log_compound.AddLog(&m_log_console);
 
-    m_data_core = new Dive::DataCore(&m_progress_tracker, &m_log_compound);
+    m_data_core = std::make_unique<Dive::DataCore>(&m_progress_tracker);
 
     m_event_selection = new EventSelection(m_data_core->GetCommandHierarchy());
 
@@ -104,6 +111,8 @@ MainWindow::MainWindow()
     QFrame *left_frame = new QFrame();
     m_view_mode_combo_box = new TreeViewComboBox();
     m_view_mode_combo_box->setMinimumWidth(150);
+    constexpr DiveFilterModel::FilterMode
+    kDefaultFilterMode = DiveFilterModel::kBinningAndFirstTilePass;
     {
         QVBoxLayout *left_vertical_layout = new QVBoxLayout();
 
@@ -121,7 +130,7 @@ MainWindow::MainWindow()
                 combo_box_model->appendRow(item);
             }
 
-            QModelIndex    event_item_index = combo_box_model->index(2, 0, QModelIndex());
+            QModelIndex    event_item_index = combo_box_model->index(1, 0, QModelIndex());
             QStandardItem *event_item = combo_box_model->itemFromIndex(event_item_index);
             event_item->setSelectable(false);
             for (int i = 0; i < kEventViewModeStringCount; i++)
@@ -135,14 +144,25 @@ MainWindow::MainWindow()
             m_view_mode_combo_box->setRootModelIndex(vulkan_event_item_index.parent());
             m_view_mode_combo_box->setCurrentIndex(vulkan_event_item_index.row());
 
-#ifndef NDEBUG
-            m_show_marker_checkbox = new QCheckBox("Show RGP Markers");
-#endif
             text_combo_box_layout->addWidget(combo_box_label);
             text_combo_box_layout->addWidget(m_view_mode_combo_box, 1);
-#ifndef NDEBUG
-            text_combo_box_layout->addWidget(m_show_marker_checkbox);
-#endif
+
+            QLabel *filter_combo_box_label = new QLabel(tr("Filter:"));
+            m_filter_mode_combo_box = new TreeViewComboBox();
+            m_filter_mode_combo_box->setMinimumWidth(150);
+
+            QStandardItemModel *filter_combo_box_model = new QStandardItemModel();
+            for (uint32_t i = 0; i < DiveFilterModel::kFilterModeCount; i++)
+            {
+                QStandardItem *item = new QStandardItem(kFilterStrings[i]);
+                filter_combo_box_model->appendRow(item);
+            }
+            m_filter_mode_combo_box->setModel(filter_combo_box_model);
+            m_filter_mode_combo_box->setCurrentIndex(kDefaultFilterMode);
+
+            text_combo_box_layout->addWidget(filter_combo_box_label);
+            text_combo_box_layout->addWidget(m_filter_mode_combo_box, 1);
+
             m_search_trigger_button = new QPushButton;
             m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
             text_combo_box_layout->addWidget(m_search_trigger_button);
@@ -160,8 +180,14 @@ MainWindow::MainWindow()
 
         m_command_hierarchy_model = new CommandModel(m_data_core->GetCommandHierarchy());
         m_command_hierarchy_view = new DiveTreeView(m_data_core->GetCommandHierarchy());
-        m_command_hierarchy_view->setModel(m_command_hierarchy_model);
-        m_command_hierarchy_view->SetDataCore(m_data_core);
+        m_command_hierarchy_view->SetDataCore(m_data_core.get());
+        m_event_search_bar->setTreeView(m_command_hierarchy_view);
+
+        m_filter_model = new DiveFilterModel(m_data_core->GetCommandHierarchy(), this);
+        m_filter_model->setSourceModel(m_command_hierarchy_model);
+        // Set the proxy model as the view's model
+        m_command_hierarchy_view->setModel(m_filter_model);
+        m_filter_model->SetMode(kDefaultFilterMode);
 
         QLabel *goto_draw_call_label = new QLabel(tr("Go To:"));
         m_prev_event_button = new QPushButton("Prev Event");
@@ -248,14 +274,8 @@ MainWindow::MainWindow()
                      SIGNAL(textHighlighted(const QString &)),
                      this,
                      SLOT(OnCommandViewModeComboBoxHover(const QString &)));
-#ifndef NDEBUG
-    QObject::connect(m_show_marker_checkbox,
-                     SIGNAL(stateChanged(int)),
-                     this,
-                     SLOT(OnCheckboxStateChanged(int)));
-#endif
-    QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+    QObject::connect(m_command_hierarchy_view,
+                     SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
                      m_command_tab_view,
                      SLOT(OnSelectionChanged(const QModelIndex &)));
     QObject::connect(m_command_hierarchy_view->selectionModel(),
@@ -322,6 +342,11 @@ MainWindow::MainWindow()
                      this,
                      &MainWindow::OnTraceAvailable);
 
+    QObject::connect(m_filter_mode_combo_box,
+                     SIGNAL(currentTextChanged(const QString &)),
+                     this,
+                     SLOT(OnFilterModeChange(const QString &)));
+
     QObject::connect(this, &MainWindow::FileLoaded, m_text_file_view, &TextFileView::OnFileLoaded);
     QObject::connect(this, &MainWindow::FileLoaded, this, &MainWindow::OnFileLoaded);
     foreach (auto expand_to_lvl_button, m_expand_to_lvl_buttons)
@@ -361,10 +386,37 @@ MainWindow::MainWindow()
     // Set default view mode
     OnCommandViewModeChange(tr(kEventViewModeStrings[0]));
     m_hover_help->SetCurItem(HoverHelp::Item::kNone);
-    m_hover_help->SetDataCore(m_data_core);
+    m_hover_help->SetDataCore(m_data_core.get());
     setAccessibleName("DiveMainWindow");
+
+    m_plugin_manager = std::unique_ptr<Dive::PluginLoader>(new Dive::PluginLoader(*this));
 }
 
+//--------------------------------------------------------------------------------------------------
+MainWindow::~MainWindow() {}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::InitializePlugins()
+{
+    // This assumes plugins are in a 'plugins' subdirectory relative to the executable's directory.
+    std::string plugin_path = QCoreApplication::applicationDirPath().toStdString() + "/plugins";
+
+    std::filesystem::path plugins_dir_path(plugin_path);
+
+    if (absl::Status load_status = m_plugin_manager->LoadPlugins(plugins_dir_path);
+        !load_status.ok())
+    {
+        QMessageBox::warning(this,
+                             tr("Plugin Loading Failed"),
+                             tr("Failed to load plugins from '%1'. \nError: %2")
+                             .arg(QString::fromStdString(plugin_path))
+                             .arg(QString::fromStdString(std::string(load_status.message()))));
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::OnTraceAvailable(const QString &path)
 {
     qDebug() << "Trace is at " << path;
@@ -379,75 +431,21 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 }
 
 //--------------------------------------------------------------------------------------------------
-void MainWindow::ShowEventView(const Dive::CommandHierarchy &command_hierarchy,
-                               EventMode                     event_mode)
-{
-#ifndef NDEBUG
-    m_show_marker_checkbox->show();
-    if (m_show_marker_checkbox->isChecked())
-    {
-        const Dive::Topology &topology = command_hierarchy.GetRgpHierarchyTopology();
-        m_command_hierarchy_model->SetTopologyToView(&topology);
-        m_command_tab_view->SetTopologyToView(&topology);
-    }
-    else
-#endif
-    {
-        switch (event_mode)
-        {
-        case EventMode::VulkanDrawEvent:
-        {
-            const Dive::Topology &topology = command_hierarchy
-                                             .GetVulkanDrawEventHierarchyTopology();
-            m_command_hierarchy_model->SetTopologyToView(&topology);
-            m_command_tab_view->SetTopologyToView(&topology);
-            break;
-        }
-        case EventMode::AllVulkanEvent:
-        {
-            const Dive::Topology &topology = command_hierarchy.GetVulkanEventHierarchyTopology();
-            m_command_hierarchy_model->SetTopologyToView(&topology);
-            m_command_tab_view->SetTopologyToView(&topology);
-            break;
-        }
-
-        case EventMode::AllEvent:
-        {
-            const Dive::Topology &topology = command_hierarchy.GetAllEventHierarchyTopology();
-            m_command_hierarchy_model->SetTopologyToView(&topology);
-            m_command_tab_view->SetTopologyToView(&topology);
-            break;
-        }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 void MainWindow::OnCommandViewModeChange(const QString &view_mode)
 {
     m_command_hierarchy_view->header()->reset();
     const Dive::CommandHierarchy &command_hierarchy = m_data_core->GetCommandHierarchy();
-    if (view_mode == tr(kViewModeStrings[0]))  // Engine
-    {
-        const Dive::Topology &topology = command_hierarchy.GetEngineHierarchyTopology();
-        m_command_hierarchy_model->SetTopologyToView(&topology);
-        m_command_tab_view->SetTopologyToView(&topology);
-#ifndef NDEBUG
-        m_show_marker_checkbox->hide();
-#endif
-    }
-    else if (view_mode == tr(kViewModeStrings[1]))  // Submit
+    if (view_mode == tr(kViewModeStrings[0]))  // Submit
     {
         const Dive::Topology &topology = command_hierarchy.GetSubmitHierarchyTopology();
         m_command_hierarchy_model->SetTopologyToView(&topology);
         m_command_tab_view->SetTopologyToView(&topology);
-#ifndef NDEBUG
-        m_show_marker_checkbox->hide();
-#endif
     }
-    else if (view_mode == tr(kEventViewModeStrings[0]))  // Vulkan Events
+    else  // All Vulkan Calls + GPU Events
     {
-        ShowEventView(command_hierarchy, EventMode::VulkanDrawEvent);
+        const Dive::Topology &topology = command_hierarchy.GetAllEventHierarchyTopology();
+        m_command_hierarchy_model->SetTopologyToView(&topology);
+        m_command_tab_view->SetTopologyToView(&topology);
 
         // Put EventID column to the left of the tree. This forces the expand/collapse icon to be
         // part of the 2nd column (originally 1st)
@@ -456,30 +454,9 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
             m_prev_command_view_mode == tr(kViewModeStrings[1]))
             m_command_hierarchy_view->header()->moveSection(1, 0);
     }
-    else if (view_mode == tr(kEventViewModeStrings[1]))  // All Vulkan Calls
-    {
-        ShowEventView(command_hierarchy, EventMode::AllVulkanEvent);
-        if (m_prev_command_view_mode.isEmpty() ||
-            m_prev_command_view_mode == tr(kViewModeStrings[0]) ||
-            m_prev_command_view_mode == tr(kViewModeStrings[1]))
-            m_command_hierarchy_view->header()->moveSection(1, 0);
-    }
-    else if (view_mode == tr(kEventViewModeStrings[2]))  // All Vulkan Calls + GPU Events
-    {
-        ShowEventView(command_hierarchy, EventMode::AllEvent);
-        if (m_prev_command_view_mode.isEmpty() ||
-            m_prev_command_view_mode == tr(kViewModeStrings[0]) ||
-            m_prev_command_view_mode == tr(kViewModeStrings[1]))
-            m_command_hierarchy_view->header()->moveSection(1, 0);
-    }
-    else
-        DIVE_ASSERT(false);  // Sanity check
 
     m_prev_command_view_mode = view_mode;
     ExpandResizeHierarchyView();
-
-    // Retain node selection
-    m_command_hierarchy_view->RetainCurrentNode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,20 +466,17 @@ void MainWindow::OnCommandViewModeComboBoxHover(const QString &view_mode)
         m_hover_help->SetCurItem(HoverHelp::Item::kEngineView);
     else if (view_mode == tr(kViewModeStrings[1]))  // Submit
         m_hover_help->SetCurItem(HoverHelp::Item::kSubmitView);
-    else if (view_mode == tr(kEventViewModeStrings[0]))  // Vulkan Events
-        m_hover_help->SetCurItem(HoverHelp::Item::kVulkanEventsView);
-    else if (view_mode == tr(kEventViewModeStrings[1]))  // All Vulkan Calls
-        m_hover_help->SetCurItem(HoverHelp::Item::kAllVulkanCallsView);
-    else if (view_mode == tr(kEventViewModeStrings[2]))  // All Vulkan Calls + GPU Events
+    else if (view_mode == tr(kEventViewModeStrings[0]))  // GPU Events
         m_hover_help->SetCurItem(HoverHelp::Item::kAllVulkanCallsGpuEventsView);
 }
 
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnSelectionChanged(const QModelIndex &index)
 {
+    QModelIndex source_model_index = m_filter_model->mapToSource(index);
     // Determine which node it is, and emit this signal
     const Dive::CommandHierarchy &command_hierarchy = m_data_core->GetCommandHierarchy();
-    uint64_t                      selected_item_node_index = (uint64_t)(index.internalPointer());
+    uint64_t       selected_item_node_index = (uint64_t)(source_model_index.internalPointer());
     Dive::NodeType node_type = command_hierarchy.GetNodeType(selected_item_node_index);
     if (node_type == Dive::NodeType::kDrawDispatchBlitNode ||
         node_type == Dive::NodeType::kMarkerNode)
@@ -516,11 +490,41 @@ void MainWindow::OnSelectionChanged(const QModelIndex &index)
 }
 
 //--------------------------------------------------------------------------------------------------
-void MainWindow::OnCheckboxStateChanged(int state)
+void MainWindow::OnFilterModeChange(const QString &filter_mode)
 {
-    m_command_hierarchy_view->header()->reset();
-    const Dive::CommandHierarchy &command_hierarchy = m_data_core->GetCommandHierarchy();
-    ShowEventView(command_hierarchy, EventMode::VulkanDrawEvent);
+    DiveFilterModel::FilterMode new_mode;
+
+    if (filter_mode == kFilterStrings[DiveFilterModel::kNone])
+    {
+        new_mode = DiveFilterModel::kNone;
+    }
+    else if (filter_mode == kFilterStrings[DiveFilterModel::kBinningPassOnly])
+    {
+        new_mode = DiveFilterModel::kBinningPassOnly;
+    }
+    else if (filter_mode == kFilterStrings[DiveFilterModel::kFirstTilePassOnly])
+    {
+        new_mode = DiveFilterModel::kFirstTilePassOnly;
+    }
+    else if (filter_mode == kFilterStrings[DiveFilterModel::kBinningAndFirstTilePass])
+    {
+        new_mode = DiveFilterModel::kBinningAndFirstTilePass;
+    }
+    else
+    {
+        new_mode = DiveFilterModel::kNone;
+    }
+
+    if (m_filter_model)
+    {
+        m_filter_model->SetMode(new_mode);
+    }
+
+    if (m_command_hierarchy_view)
+    {
+        m_command_hierarchy_view->scrollToTop();
+    }
+
     ExpandResizeHierarchyView();
 }
 
@@ -528,7 +532,6 @@ void MainWindow::OnCheckboxStateChanged(int state)
 bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
 {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    m_log_record.Reset();
 
     // Reset before loading, since the overlay may cause the UI to update with outdated data
     m_command_tab_view->ResetModel();
@@ -548,10 +551,7 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
             error_msg = QString("File corrupt!");
         else if (load_res == Dive::CaptureData::LoadResult::kVersionError)
             error_msg = QString("Incompatible version!");
-        QMessageBox::critical(this,
-                              (QString("Unable to open file: ") + file_name),
-                              error_msg,
-                              QMessageBox::Ok);
+        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
         return false;
     }
 
@@ -561,31 +561,20 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
         HideOverlay();
         QMessageBox::critical(this,
                               QString("Error parsing file"),
-                              (QString("Unable to parse file: ") + file_name),
-                              QMessageBox::Ok);
+                              (QString("Unable to parse file: ") + file_name));
         return false;
     }
 
-    if (!m_data_core->GetCommandHierarchy().HasVulkanMarkers())
     {
-        // Switch to All Vulkan Calls + GPU Events view
-        QModelIndex event_item_index = m_view_mode_combo_box->model()->index(2, 0, QModelIndex());
-        QModelIndex all_vulkan_calls_item_index = m_view_mode_combo_box->model()
-                                                  ->index(2, 0, event_item_index);
-        m_view_mode_combo_box->setRootModelIndex(all_vulkan_calls_item_index.parent());
-        m_view_mode_combo_box->setCurrentIndex(all_vulkan_calls_item_index.row());
-        OnCommandViewModeChange(tr(kEventViewModeStrings[2]));
-        // TODO (b/185579518): disable the dropdown list for vulkan events.
-    }
-    else
-    {
-        // Switch to Vulkan Events view
-        QModelIndex event_item_index = m_view_mode_combo_box->model()->index(2, 0, QModelIndex());
-        QModelIndex vulkan_event_item_index = m_view_mode_combo_box->model()
-                                              ->index(0, 0, event_item_index);
-        m_view_mode_combo_box->setRootModelIndex(vulkan_event_item_index.parent());
-        m_view_mode_combo_box->setCurrentIndex(vulkan_event_item_index.row());
+        // Switch to GPU Events view
+        QModelIndex event_item_index = m_view_mode_combo_box->model()->index(1, 0, QModelIndex());
+        QModelIndex gpu_events_item_index = m_view_mode_combo_box->model()->index(0,
+                                                                                  0,
+                                                                                  event_item_index);
+        m_view_mode_combo_box->setRootModelIndex(gpu_events_item_index.parent());
+        m_view_mode_combo_box->setCurrentIndex(gpu_events_item_index.row());
         OnCommandViewModeChange(tr(kEventViewModeStrings[0]));
+        // TODO (b/185579518): disable the dropdown list for vulkan events.
     }
     m_command_hierarchy_model->EndResetModel();
 
@@ -639,8 +628,7 @@ void MainWindow::OnOpenFile()
         {
             QMessageBox::critical(this,
                                   QString("Error opening file"),
-                                  (QString("Unable to open file: ") + file_name),
-                                  QMessageBox::Ok);
+                                  (QString("Unable to open file: ") + file_name));
         }
     }
 }
@@ -735,6 +723,9 @@ void MainWindow::OnShortcuts()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::closeEvent(QCloseEvent *closeEvent)
 {
+    DIVE_ASSERT(m_plugin_manager != nullptr);
+    m_plugin_manager->UnloadPlugins();
+
     if (!m_capture_saved && !m_unsaved_capture_path.empty())
     {
         switch (QMessageBox::question(this,
@@ -743,7 +734,9 @@ void MainWindow::closeEvent(QCloseEvent *closeEvent)
                                       QMessageBox::Yes | QMessageBox::No,
                                       QMessageBox::No))
         {
-        case QMessageBox::Yes: OnSaveCapture(); break;
+        case QMessageBox::Yes:
+            OnSaveCapture();
+            break;
         case QMessageBox::No:
         {
             // Remove unsaved capture files.
@@ -754,7 +747,8 @@ void MainWindow::closeEvent(QCloseEvent *closeEvent)
             }
             break;
         }
-        default: DIVE_ASSERT(false);
+        default:
+            DIVE_ASSERT(false);
         }
     }
     if (m_trace_dig)
@@ -803,9 +797,13 @@ void MainWindow::OnSaveCapture()
                                       QMessageBox::Yes | QMessageBox::No,
                                       QMessageBox::No))
         {
-        case QMessageBox::Yes: target_file.remove(); break;
-        case QMessageBox::No: return OnSaveCapture();
-        default: DIVE_ASSERT(false);
+        case QMessageBox::Yes:
+            target_file.remove();
+            break;
+        case QMessageBox::No:
+            return OnSaveCapture();
+        default:
+            DIVE_ASSERT(false);
         }
     }
 
@@ -823,17 +821,13 @@ void MainWindow::OnSaveCapture()
 
     if (save_result)
     {
-        QMessageBox::information(this,
-                                 QString("Save capture succeed"),
-                                 (QString("Save capture succeed.")),
-                                 QMessageBox::Ok);
+        QMessageBox::information(this, tr("Save capture succeed"), tr("Save capture succeed."));
     }
     else
     {
         QMessageBox::critical(this,
-                              QString("Save capture file failed"),
-                              (QString("Save capture file failed.")),
-                              QMessageBox::Ok);
+                              tr("Save capture file failed"),
+                              tr("Save capture file failed."));
         return;
     }
     if (is_saving_new_capture)
@@ -1170,7 +1164,9 @@ void MainWindow::OnCrossReference(Dive::CrossRef ref)
         if (m_shader_view->OnCrossReference(ref))
             m_tab_widget->setCurrentIndex(m_shader_view_tab_index);
         break;
-    case Dive::CrossRefType::kGFRIndex: m_command_hierarchy_view->setCurrentNode(ref.Id()); break;
+    case Dive::CrossRefType::kGFRIndex:
+        m_command_hierarchy_view->setCurrentNode(ref.Id());
+        break;
     default:
         // Ignore
         break;
