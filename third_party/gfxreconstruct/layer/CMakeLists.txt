@@ -73,7 +73,6 @@ target_link_libraries(VkLayer_gfxreconstruct
 
 # Limit what symbols are exported
 if(MSVC)
-<<<<<<< HEAD
     target_sources(VkLayer_gfxreconstruct
                     PRIVATE
                         ${PROJECT_SOURCE_DIR}/version.rc
@@ -83,6 +82,10 @@ if(MSVC)
                         PRIVATE
                             /DEF:${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.def
                        )
+    # GOOGLE: Add folder organization for windows build in dive.
+    target_link_libraries(VkLayer_gfxreconstruct psapi.lib)
+    set_target_properties(VkLayer_gfxreconstruct PROPERTIES FOLDER "gfxreconstruct")
+    target_compile_options(VkLayer_gfxreconstruct PRIVATE /wd4244)
 elseif(APPLE)
     # Both Apple and IOS
     target_link_options(VkLayer_gfxreconstruct
@@ -94,10 +97,6 @@ else()
                         PRIVATE
                             LINKER:--version-script=${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.map
                        )
-=======
-    target_link_libraries(VkLayer_gfxreconstruct psapi.lib)
-    set_target_properties(VkLayer_gfxreconstruct PROPERTIES FOLDER "gfxreconstruct")
->>>>>>> 8bafc2569ae (Creates folders for gfxr and freedreno in dive solution (#151))
 endif()
 
 common_build_directives(VkLayer_gfxreconstruct)
@@ -126,6 +125,7 @@ if (OPENXR_SUPPORT_ENABLED)
             )
 endif()
 
+# GOOGLE: Add folder organization for windows build in dive.
 if(MSVC)
     set_target_properties(VkLayer_gfxreconstruct_json PROPERTIES FOLDER "gfxreconstruct")
 endif()

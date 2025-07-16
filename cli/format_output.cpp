@@ -634,7 +634,7 @@ int ExtractCapture(const char *filename, const char *extract_assets)
 int ModifyGFXRCapture(const char *original_filename, const char *new_filename)
 {
     Dive::LogConsole                log;
-    std::unique_ptr<Dive::DataCore> data = std::make_unique<Dive::DataCore>(&log);
+    std::unique_ptr<Dive::DataCore> data = std::make_unique<Dive::DataCore>();
     if (data->LoadCaptureData(original_filename) != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Load GFXR capture failed." << std::endl;
