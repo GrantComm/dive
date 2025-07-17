@@ -84,9 +84,7 @@ class Application final
 
     void StopRunning() { running_ = false; }
 
-    // GOOGLE: fix a warning of possible loss of data
-    // file_processor_->GetCurrentFrameNumber() returns a uint64_t
-    uint64_t GetCurrentFrameNumber() const
+    uint32_t GetCurrentFrameNumber() const
     {
         return file_processor_->GetCurrentFrameNumber();
     }
