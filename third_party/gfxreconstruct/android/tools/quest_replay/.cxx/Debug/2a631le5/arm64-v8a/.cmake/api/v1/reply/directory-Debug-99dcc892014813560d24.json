@@ -1,0 +1,49 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 124,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Headers",
+			"destination" : "/openxr",
+			"paths" : 
+			[
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr_platform_defines.h",
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr.h",
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr_loader_negotiation.h",
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr_platform.h",
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr_reflection.h",
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr_reflection_structs.h",
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr/openxr_reflection_parent_structs.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/application/build/tools/quest_replay_openxr/arm64-v8a/include/openxr",
+		"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/include/openxr"
+	}
+}

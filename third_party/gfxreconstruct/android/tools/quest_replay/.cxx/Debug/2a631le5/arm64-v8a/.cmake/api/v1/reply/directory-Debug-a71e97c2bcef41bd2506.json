@@ -1,0 +1,43 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 186,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "License",
+			"destination" : "share/doc/openxr",
+			"paths" : 
+			[
+				"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK/LICENSE"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/application/build/tools/quest_replay_openxr/arm64-v8a",
+		"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/OpenXR-SDK"
+	}
+}

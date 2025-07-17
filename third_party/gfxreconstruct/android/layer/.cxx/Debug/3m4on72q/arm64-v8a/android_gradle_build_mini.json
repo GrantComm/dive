@@ -1,0 +1,68 @@
+{
+  "buildFiles": [
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/encode/CMakeLists.txt",
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/format/CMakeLists.txt",
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/graphics/CMakeLists.txt",
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util/CMakeLists.txt",
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/layer/CMakeLists.txt",
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/SPIRV-Reflect/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/layer/.cxx/Debug/3m4on72q/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/layer/.cxx/Debug/3m4on72q/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "gfxrecon_graphics::@74331663e1c608ed3752": {
+      "artifactName": "gfxrecon_graphics",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/graphics/build/layer/arm64-v8a/libgfxrecon_graphics.a",
+      "runtimeFiles": []
+    },
+    "gfxrecon_format::@479b46e9aba8134f9088": {
+      "artifactName": "gfxrecon_format",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/format/build/layer/arm64-v8a/libgfxrecon_format.a",
+      "runtimeFiles": []
+    },
+    "VkLayer_gfxreconstruct::@6890427a1f51a3e7e1df": {
+      "artifactName": "VkLayer_gfxreconstruct",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/layer/build/intermediates/cxx/Debug/3m4on72q/obj/arm64-v8a/libVkLayer_gfxreconstruct.so",
+      "runtimeFiles": []
+    },
+    "spirv-reflect-static::@20bf84040e3417563c86": {
+      "artifactName": "spirv-reflect-static",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/layer/.cxx/Debug/3m4on72q/arm64-v8a/external/SPIRV-Reflect/libspirv-reflect-static.a",
+      "runtimeFiles": []
+    },
+    "native_app_glue::@3174901220f013138995": {
+      "artifactName": "native_app_glue",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util/build/layer/arm64-v8a/libnative_app_glue.a",
+      "runtimeFiles": []
+    },
+    "gfxrecon_encode::@dcbf064a4b42d513cd69": {
+      "artifactName": "gfxrecon_encode",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/encode/build/layer/arm64-v8a/libgfxrecon_encode.a",
+      "runtimeFiles": []
+    },
+    "gfxrecon_util::@3174901220f013138995": {
+      "artifactName": "gfxrecon_util",
+      "abi": "arm64-v8a",
+      "output": "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util/build/layer/arm64-v8a/libgfxrecon_util.a",
+      "runtimeFiles": []
+    }
+  }
+}

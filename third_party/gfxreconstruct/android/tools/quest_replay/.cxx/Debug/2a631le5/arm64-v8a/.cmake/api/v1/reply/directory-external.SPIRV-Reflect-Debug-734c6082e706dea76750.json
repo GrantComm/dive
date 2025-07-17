@@ -1,0 +1,45 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/SPIRV-Reflect/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 116,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"external/SPIRV-Reflect/libspirv-reflect-static.a"
+			],
+			"targetId" : "spirv-reflect-static::@20bf84040e3417563c86",
+			"targetIndex" : 38,
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "external/SPIRV-Reflect",
+		"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/SPIRV-Reflect"
+	}
+}

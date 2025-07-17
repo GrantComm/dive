@@ -1,0 +1,295 @@
+{
+	"inputs" : 
+	[
+		{
+			"path" : "CMakeLists.txt"
+		},
+		{
+			"isGenerated" : true,
+			"path" : ".cxx/Debug/2yd2jky8/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CMakeSystem.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/ndk/22.1.7171670/build/cmake/android.toolchain.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/ndk/22.1.7171670/build/cmake/platforms.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeSystemSpecificInitialize.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Android-Initialize.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : ".cxx/Debug/2yd2jky8/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CMakeCCompiler.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : ".cxx/Debug/2yd2jky8/arm64-v8a/CMakeFiles/3.22.1-g37088a8/CMakeCXXCompiler.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeSystemSpecificInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeGenericSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeInitializeConfigs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Android.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Linux.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/UnixPaths.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeCInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/Clang-C.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Android-Clang-C.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Android-Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeCXXInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/Clang-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Compiler/Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Android-Clang-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/Platform/Android-Clang.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/nlohmann-json/share/cmake/nlohmann_json/nlohmann_jsonConfigVersion.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/nlohmann-json/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/nlohmann-json/share/cmake/nlohmann_json/nlohmann_jsonTargets.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/cmake-config/PlatformConfig.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/nlohmann-json/share/cmake/nlohmann_json/nlohmann_jsonConfigVersion.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/nlohmann-json/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/cmake-modules/GetGitRevisionDescription.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/.git/HEAD"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/cmake-modules/GetGitRevisionDescription.cmake.in"
+		},
+		{
+			"isGenerated" : true,
+			"path" : ".cxx/Debug/2yd2jky8/arm64-v8a/CMakeFiles/git-data/grabRef.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/.git/refs/heads/fix_3"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindGit.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/Android/Sdk/cmake/3.22.1/share/cmake-3.22/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/.git/HEAD"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/cmake-modules/GetGitRevisionDescription.cmake.in"
+		},
+		{
+			"isGenerated" : true,
+			"path" : ".cxx/Debug/2yd2jky8/arm64-v8a/CMakeFiles/git-data/grabRef.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/.git/refs/heads/fix_3"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/project_version.h.in"
+		},
+		{
+			"isGenerated" : true,
+			"path" : ".cxx/Debug/2yd2jky8/arm64-v8a/project_version_temp.h.in"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/SPIRV-Reflect/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/graphics/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/format/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/decode/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/application-multi-win/CMakeLists.txt"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/google/home/gcommodore/dive/gfxr_ext/decode/CMakeLists.txt"
+		}
+	],
+	"kind" : "cmakeFiles",
+	"paths" : 
+	{
+		"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/tools/multi-win-replay/.cxx/Debug/2yd2jky8/arm64-v8a",
+		"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/tools/multi-win-replay"
+	},
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}

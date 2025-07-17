@@ -1,0 +1,566 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "external/SPIRV-Reflect",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-external.SPIRV-Reflect-Debug-1115e047a5e9767b0824.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/SPIRV-Reflect",
+					"targetIndexes" : 
+					[
+						20
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/common/build/arm64-v8a",
+					"childIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19
+					],
+					"jsonFile" : "directory-Debug-fb5c686461854d728230.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/common",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-75a6dc3b1acfca93d027.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util",
+					"targetIndexes" : 
+					[
+						18,
+						19
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/decode/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-ca9e58c274e13be8ba7b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/decode",
+					"targetIndexes" : 
+					[
+						15
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/graphics/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-d1246b69de1fb1b75dfa.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/graphics",
+					"targetIndexes" : 
+					[
+						17
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/format/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-f581dfabe10a7b4e1ac3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/format",
+					"targetIndexes" : 
+					[
+						16
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/application/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-93583f003b9d0094c4a5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/application",
+					"targetIndexes" : 
+					[
+						14
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/acquired-image/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-029559731659c28035c9.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/acquired-image",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/external-memory-fd-export/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-06039285a9545b69db7f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/external-memory-fd-export",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/external-memory-fd-import/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-3f5f6b85d5a21945b6a6.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/external-memory-fd-import",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/host-image-copy/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-d8d9624401774a08e1bf.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/host-image-copy",
+					"targetIndexes" : 
+					[
+						6
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/multisample-depth/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-ec0c6f81732881adeab1.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/multisample-depth",
+					"targetIndexes" : 
+					[
+						7
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/pipeline-binaries/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-558fb6274e9ca844e2ab.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/pipeline-binaries",
+					"targetIndexes" : 
+					[
+						8
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/triangle/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-3f64315919dc33654b40.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/triangle",
+					"targetIndexes" : 
+					[
+						11
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/triangle-extra-device/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-6d06ef6e3be743f89ee8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/triangle-extra-device",
+					"targetIndexes" : 
+					[
+						12
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/shader-objects/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-c7bad0d92f7630bc6773.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/shader-objects",
+					"targetIndexes" : 
+					[
+						9
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/sparse-resources/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-991cb176d0a2227f29ee.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/sparse-resources",
+					"targetIndexes" : 
+					[
+						10
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/wait-for-present/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-592853c53f109ea656b2.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/wait-for-present",
+					"targetIndexes" : 
+					[
+						13
+					]
+				},
+				{
+					"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/ahb/build/arm64-v8a",
+					"jsonFile" : "directory-Debug-658103929655627ebfc4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 0,
+					"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/test/test_apps/ahb",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19
+					],
+					"name" : "gfxrecon-test-launcher",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "spirv-reflect",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						20
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "gfxrecon-test-launcher::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gfxrecon-test-launcher-Debug-42d3f1cee777bdd5d803.json",
+					"name" : "gfxrecon-test-launcher",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "gfxrecon-testapp-acquired-image::@5eeda649244fbad7631e",
+					"jsonFile" : "target-gfxrecon-testapp-acquired-image-Debug-7d47e547f1e191a18aff.json",
+					"name" : "gfxrecon-testapp-acquired-image",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 19,
+					"id" : "gfxrecon-testapp-ahb::@31a93efe054cf9f22950",
+					"jsonFile" : "target-gfxrecon-testapp-ahb-Debug-0c5d2ec62f1d42ccbf62.json",
+					"name" : "gfxrecon-testapp-ahb",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "gfxrecon-testapp-base::@dbb62d64a7345e579cd8",
+					"jsonFile" : "target-gfxrecon-testapp-base-Debug-3639ded70b0901d6322d.json",
+					"name" : "gfxrecon-testapp-base",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "gfxrecon-testapp-external-memory-fd-export::@729527a29c69be9d9cb4",
+					"jsonFile" : "target-gfxrecon-testapp-external-memory-fd-export-Debug-5ae132fa56ae6eca7c29.json",
+					"name" : "gfxrecon-testapp-external-memory-fd-export",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 10,
+					"id" : "gfxrecon-testapp-external-memory-fd-import::@d023d95dcb2d80760b5b",
+					"jsonFile" : "target-gfxrecon-testapp-external-memory-fd-import-Debug-98206dd7f997f7356b16.json",
+					"name" : "gfxrecon-testapp-external-memory-fd-import",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 11,
+					"id" : "gfxrecon-testapp-host-image-copy::@ef30d478851c3dad2a01",
+					"jsonFile" : "target-gfxrecon-testapp-host-image-copy-Debug-7e3dd3b97532fd7f81a2.json",
+					"name" : "gfxrecon-testapp-host-image-copy",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 12,
+					"id" : "gfxrecon-testapp-multisample-depth::@5e2e9b67b07b4555d42f",
+					"jsonFile" : "target-gfxrecon-testapp-multisample-depth-Debug-a331333dd02ace9202b0.json",
+					"name" : "gfxrecon-testapp-multisample-depth",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 13,
+					"id" : "gfxrecon-testapp-pipeline-binaries::@9d5a0efc39887e7cd9ba",
+					"jsonFile" : "target-gfxrecon-testapp-pipeline-binaries-Debug-7d31242503cdae2116fa.json",
+					"name" : "gfxrecon-testapp-pipeline-binaries",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 16,
+					"id" : "gfxrecon-testapp-shader-objects::@776dbc219f15a68ca41b",
+					"jsonFile" : "target-gfxrecon-testapp-shader-objects-Debug-cc9a950d7f5a4ed71e67.json",
+					"name" : "gfxrecon-testapp-shader-objects",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 17,
+					"id" : "gfxrecon-testapp-sparse-resources::@ffff6eafd8fd4f20841b",
+					"jsonFile" : "target-gfxrecon-testapp-sparse-resources-Debug-038a9e18ca7758778a25.json",
+					"name" : "gfxrecon-testapp-sparse-resources",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 14,
+					"id" : "gfxrecon-testapp-triangle::@420d622ad26a94cc03e4",
+					"jsonFile" : "target-gfxrecon-testapp-triangle-Debug-df4a78ae7e2b93c79316.json",
+					"name" : "gfxrecon-testapp-triangle",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 15,
+					"id" : "gfxrecon-testapp-triangle-extra-device::@ad076ba04f214032cf4e",
+					"jsonFile" : "target-gfxrecon-testapp-triangle-extra-device-Debug-2d7dd129500a455adc8e.json",
+					"name" : "gfxrecon-testapp-triangle-extra-device",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 18,
+					"id" : "gfxrecon-testapp-wait-for-present::@9027d2fde26228a79528",
+					"jsonFile" : "target-gfxrecon-testapp-wait-for-present-Debug-0e03a771861f572d8603.json",
+					"name" : "gfxrecon-testapp-wait-for-present",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "gfxrecon_application::@4dfa28d8bebc2034ff78",
+					"jsonFile" : "target-gfxrecon_application-Debug-6d67d52729590c4c608a.json",
+					"name" : "gfxrecon_application",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "gfxrecon_decode::@b57d0b128474b0c70e6a",
+					"jsonFile" : "target-gfxrecon_decode-Debug-5ea54c94ab1d4cdadd94.json",
+					"name" : "gfxrecon_decode",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "gfxrecon_format::@6c1b34bd678f35c81956",
+					"jsonFile" : "target-gfxrecon_format-Debug-7aedb805fc11b3cf1005.json",
+					"name" : "gfxrecon_format",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "gfxrecon_graphics::@787f060f11db4fbcde6c",
+					"jsonFile" : "target-gfxrecon_graphics-Debug-e0511b0780af0b4866fa.json",
+					"name" : "gfxrecon_graphics",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "gfxrecon_util::@a1dfa92291204e0daaf2",
+					"jsonFile" : "target-gfxrecon_util-Debug-8dd1656edf08e81d4870.json",
+					"name" : "gfxrecon_util",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "native_app_glue::@a1dfa92291204e0daaf2",
+					"jsonFile" : "target-native_app_glue-Debug-621af84e748ae4ee7be7.json",
+					"name" : "native_app_glue",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "spirv-reflect-static::@20bf84040e3417563c86",
+					"jsonFile" : "target-spirv-reflect-static-Debug-2175dba1cb3a0500f44d.json",
+					"name" : "spirv-reflect-static",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/launcher/.cxx/Debug/4x54v5d1/arm64-v8a",
+		"source" : "/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/test/test_apps/launcher"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

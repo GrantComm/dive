@@ -1,0 +1,8 @@
+/usr/local/google/home/gcommodore/dive/gfxr_ext/decode/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/application-multi-win/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/decode/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/format/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/graphics/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/framework/util/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/android/tools/multi-win-replay/CMakeLists.txt
+/usr/local/google/home/gcommodore/dive/third_party/gfxreconstruct/external/SPIRV-Reflect/CMakeLists.txt
