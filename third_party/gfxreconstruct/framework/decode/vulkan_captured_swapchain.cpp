@@ -24,7 +24,6 @@
 #include "decode/decoder_util.h"
 
 #include "util/logging.h"
-#include "graphics/vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -35,7 +34,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                   
                                                      const VkSwapchainCreateInfoKHR*       create_info,
                                                      const VkAllocationCallbacks*          allocator,
                                                      HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                     const graphics::VulkanDeviceTable*    device_table)
+                                                     const encode::VulkanDeviceTable*      device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
 
@@ -399,6 +398,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
         image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
         image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
         image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
         image_barrier.subresourceRange.baseMipLevel   = 0;
         image_barrier.subresourceRange.levelCount     = 1;
         image_barrier.subresourceRange.baseArrayLayer = 0;
@@ -457,8 +457,6 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                         {
                             image_barrier.newLayout = image_layout;
                             image_barrier.image     = image;
-                            image_barrier.subresourceRange.aspectMask =
-                                graphics::GetFormatAspectMask(image_entry->format);
 
                             result = device_table_->BeginCommandBuffer(transition_command, &begin_info);
 
@@ -609,6 +607,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
         image_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
         image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
         image_barrier.subresourceRange.baseMipLevel   = 0;
         image_barrier.subresourceRange.levelCount     = 1;
         image_barrier.subresourceRange.baseArrayLayer = 0;
@@ -656,9 +655,8 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
 
                     if (result == VK_SUCCESS)
                     {
-                        image_barrier.image                       = image;
-                        image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspectMask(image_entry->format);
-                        present_info.pImageIndices                = &image_index;
+                        image_barrier.image        = image;
+                        present_info.pImageIndices = &image_index;
 
                         result = device_table_->BeginCommandBuffer(command, &begin_info);
                     }

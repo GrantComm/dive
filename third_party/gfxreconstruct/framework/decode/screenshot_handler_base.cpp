@@ -32,19 +32,15 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 ScreenshotHandlerBase::ScreenshotHandlerBase(util::ScreenshotFormat              screenshot_format,
-                                             const std::vector<ScreenshotRange>& screenshot_ranges,
-                                             uint32_t                            screenshot_interval) :
+                                             const std::vector<ScreenshotRange>& screenshot_ranges) :
     current_frame_number_(1),
-    screenshot_format_(screenshot_format), screenshot_ranges_(screenshot_ranges),
-    screenshot_interval_(screenshot_interval), current_range_index_(0)
+    screenshot_format_(screenshot_format), screenshot_ranges_(screenshot_ranges), current_range_index_(0)
 {}
 
 ScreenshotHandlerBase::ScreenshotHandlerBase(util::ScreenshotFormat         screenshot_format,
-                                             std::vector<ScreenshotRange>&& screenshot_ranges,
-                                             uint32_t                       screenshot_interval) :
+                                             std::vector<ScreenshotRange>&& screenshot_ranges) :
     current_frame_number_(1),
-    screenshot_format_(screenshot_format), screenshot_ranges_(std::move(screenshot_ranges)),
-    screenshot_interval_(screenshot_interval), current_range_index_(0)
+    screenshot_format_(screenshot_format), screenshot_ranges_(std::move(screenshot_ranges)), current_range_index_(0)
 {}
 
 void ScreenshotHandlerBase::EndFrame()
@@ -66,8 +62,7 @@ bool ScreenshotHandlerBase::IsScreenshotFrame() const
     if (current_range_index_ < screenshot_ranges_.size())
     {
         const auto& current_range = screenshot_ranges_[current_range_index_];
-        if ((current_range.first <= current_frame_number_) && (current_range.last >= current_frame_number_) &&
-            ((current_frame_number_ - current_range.first) % screenshot_interval_ == 0))
+        if ((current_range.first <= current_frame_number_) && (current_range.last >= current_frame_number_))
         {
             return true;
         }

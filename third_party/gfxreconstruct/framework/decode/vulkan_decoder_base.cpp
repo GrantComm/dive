@@ -126,7 +126,6 @@ void VulkanDecoderBase::DispatchResizeWindowCommand2(
 
 void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
     format::ThreadId                                    thread_id,
-    format::HandleId                                    device_id,
     format::HandleId                                    memory_id,
     uint64_t                                            buffer_id,
     uint32_t                                            format,
@@ -142,7 +141,7 @@ void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
     for (auto consumer : consumers_)
     {
         consumer->ProcessCreateHardwareBufferCommand(
-            device_id, memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
+            memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
     }
 }
 
@@ -566,14 +565,6 @@ void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     for (auto consumer : consumers_)
     {
         consumer->SetCurrentBlockIndex(block_index);
-    }
-}
-
-void VulkanDecoderBase::SetCurrentFrameNumber(uint64_t frame_number)
-{
-    for (auto consumer : consumers_)
-    {
-        consumer->SetCurrentFrameNumber(frame_number);
     }
 }
 

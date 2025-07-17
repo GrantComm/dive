@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2025 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,15 +24,12 @@
 # Description: CMake script for multisample depth test app
 ###############################################################################
 
-add_library(gfxrecon-testapp-multisample-depth app.cpp)
+add_executable(gfxrecon-testapp-multisample-depth app.cpp)
 
-target_include_directories(gfxrecon-testapp-multisample-depth PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(gfxrecon-testapp-multisample-depth
-                      PUBLIC
-                          vulkan_memory_allocator
-                          gfxrecon-testapp-base)
+target_link_libraries(gfxrecon-testapp-multisample-depth vulkan_memory_allocator gfxrecon-testapp-base platform_specific)
 common_build_directives(gfxrecon-testapp-multisample-depth)
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-    install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth )
-endif()
+install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth )
+install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth)
+
+add_dependencies(gfxrecon-testapps gfxrecon-testapp-multisample-depth)

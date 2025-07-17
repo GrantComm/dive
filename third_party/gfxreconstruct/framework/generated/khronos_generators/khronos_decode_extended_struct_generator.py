@@ -73,11 +73,10 @@ class KhronosDecodeExtendedStructGenerator():
         current_api_data = self.get_api_data()
 
         write(
-            'size_t Decode{func}Struct(const uint8_t* parameter_buffer, size_t buffer_size, {node}Node** {})'
+            'size_t Decode{prefix}Struct(const uint8_t* parameter_buffer, size_t buffer_size, {prefix}Node** {})'
             .format(
                 current_api_data.extended_struct_variable,
-                func=current_api_data.extended_struct_func_prefix,
-                node=current_api_data.extended_struct_node_prefix
+                prefix=current_api_data.extended_struct_func_prefix
             ),
             file=self.outFile
         )
@@ -193,11 +192,10 @@ class KhronosDecodeExtendedStructGenerator():
             stype = self.struct_type_names[struct]
             write('            case {}:'.format(stype), file=self.outFile)
             write(
-                '                (*{var}) = DecodeAllocator::Allocate<{node}TypedNode<Decoded_{type}>>();'
+                '                (*{}) = DecodeAllocator::Allocate<{}TypedNode<Decoded_{}>>();'
                 .format(
-                    var=current_api_data.extended_struct_variable,
-                    node=current_api_data.extended_struct_node_prefix,
-                    type=struct
+                    current_api_data.extended_struct_variable,
+                    current_api_data.extended_struct_func_prefix, struct
                 ),
                 file=self.outFile
             )

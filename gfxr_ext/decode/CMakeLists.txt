@@ -64,6 +64,4 @@ if(WIN32)
     gtest_main
   )
   gtest_discover_tests(gfxr_decode_ext_lib_test)
-  target_include_directories(gfxr_decode_ext_lib PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 endif()

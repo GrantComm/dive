@@ -110,7 +110,6 @@ class VulkanReplayConsumerBodyGenerator(
 
         KhronosReplayConsumerBodyGenerator.generate_replay_consumer_content(self, api_data)
         KhronosReplayConsumerBodyGenerator.generate_extended_struct_handling(self, api_data)
-        KhronosReplayConsumerBodyGenerator.generate_extended_struct_initialize_template(self, api_data)
 
         self.newline()
 

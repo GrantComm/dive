@@ -52,7 +52,7 @@
 #if defined(WIN32)
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 615;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
 }
 extern "C"
 {
@@ -272,13 +272,12 @@ int main(int argc, const char** argv)
         {
             bool detected_d3d12  = false;
             bool detected_vulkan = false;
-            bool detected_openxr = false;
-            gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr);
+            gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
 
             if ((!detected_d3d12) && (!detected_vulkan))
             {
                 // Detect with no block limit
-                gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr, true);
+                gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, true);
             }
 
             if (detected_d3d12)
@@ -291,12 +290,6 @@ int main(int argc, const char** argv)
             {
                 VkRemoveRedundantResources(input_filename, output_filename);
             }
-#if ENABLE_OPENXR_SUPPORT
-            else if (detected_openxr)
-            {
-                GFXRECON_LOG_INFO("No optimizations defined for OpenXR capture files");
-            }
-#endif
             else
             {
                 GFXRECON_LOG_ERROR("Could not detect graphics API. Aborting optimization.")

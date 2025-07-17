@@ -30,11 +30,9 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
 #include "util/defines.h"
-#include "util/logging.h"
 #include "vulkan/vulkan_core.h"
 
 #include <cstdint>
-#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -47,20 +45,21 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DispatchTraceRaysDumpingContext
 {
   public:
-    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>* dispatch_indices,
-                                    const std::vector<uint64_t>* trace_rays_indices,
+    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
+                                    const std::vector<uint64_t>& trace_rays_indices,
                                     CommonObjectInfoTable&       object_info_table,
                                     const VulkanReplayOptions&   options,
                                     VulkanDumpResourcesDelegate& delegate);
 
     ~DispatchTraceRaysDumpingContext();
 
-    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
-                                const graphics::VulkanDeviceTable*   dev_table,
-                                const graphics::VulkanInstanceTable* inst_table,
-                                const VkCommandBufferBeginInfo*      begin_info);
+    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*           orig_cmd_buf_info,
+                                const encode::VulkanDeviceTable*   dev_table,
+                                const encode::VulkanInstanceTable* inst_table);
 
-    VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
+    VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer; }
+
+    void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
     bool IsRecording() const;
 
@@ -107,17 +106,17 @@ class DispatchTraceRaysDumpingContext
 
     VkResult CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd);
 
-    void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
+    void SnapshotBoundDescriptorsDispatch(uint64_t index);
+
+    void SnapshotBoundDescriptorsTraceRays(uint64_t index);
+
+    VkResult CopyDispatchIndirectParameters(uint64_t index);
+
+    VkResult CopyTraceRaysIndirectParameters(uint64_t index);
 
     void EndCommandBuffer();
 
     void Release();
-
-    void UpdateSecondaries();
-
-    void AssignSecondary(uint64_t execute_commands_index, DispatchTraceRaysDumpingContext* secondary_context);
-
-    bool ShouldHandleExecuteCommands(uint64_t index) const;
 
   private:
     void CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image);
@@ -133,22 +132,20 @@ class DispatchTraceRaysDumpingContext
 
     VkResult FetchIndirectParams();
 
-    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
+    VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
 
-    const VulkanCommandBufferInfo* original_command_buffer_info_;
-    VkCommandBuffer                DR_command_buffer_;
-    std::vector<uint64_t>          dispatch_indices_;
-    std::vector<uint64_t>          trace_rays_indices_;
-    bool                           dump_resources_before_;
+    const VulkanCommandBufferInfo* original_command_buffer_info;
+    VkCommandBuffer                DR_command_buffer;
+    std::vector<uint64_t>          dispatch_indices;
+    std::vector<uint64_t>          trace_rays_indices;
+    const VulkanPipelineInfo*      bound_pipelines[kBindPoint_count];
+    bool                           dump_resources_before;
     VulkanDumpResourcesDelegate&   delegate_;
-    bool                           dump_immutable_resources_;
+    bool                           dump_immutable_resources;
 
     // One entry per descriptor set for each compute and ray tracing binding points
-    BoundDescriptorSets bound_descriptor_sets_compute_;
-    BoundDescriptorSets bound_descriptor_sets_ray_tracing_;
-
-    const VulkanPipelineInfo* bound_pipeline_compute_;
-    const VulkanPipelineInfo* bound_pipeline_trace_rays_;
+    std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_compute;
+    std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_ray_tracing;
 
   public:
     // For each Dispatch/TraceRays that we dump we create a clone of all mutable resources used in the
@@ -160,13 +157,13 @@ class DispatchTraceRaysDumpingContext
         struct ImageContext
         {
             const VulkanImageInfo* original_image{ nullptr };
-            VkImage                image{ VK_NULL_HANDLE };
-            VkDeviceMemory         image_memory{ VK_NULL_HANDLE };
-            VkShaderStageFlags     stages;
-            VkDescriptorType       desc_type;
-            uint32_t               desc_set;
-            uint32_t               desc_binding;
-            uint32_t               array_index;
+            VkImage               image{ VK_NULL_HANDLE };
+            VkDeviceMemory        image_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlagBits stage;
+            VkDescriptorType      desc_type;
+            uint32_t              desc_set;
+            uint32_t              desc_binding;
+            uint32_t              array_index;
         };
 
         std::vector<ImageContext> images;
@@ -174,14 +171,13 @@ class DispatchTraceRaysDumpingContext
         struct BufferContext
         {
             const VulkanBufferInfo* original_buffer{ nullptr };
-            VkBuffer                buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory          buffer_memory{ VK_NULL_HANDLE };
-            VkDeviceSize            cloned_size{ 0 };
-            VkShaderStageFlags      stages;
-            VkDescriptorType        desc_type;
-            uint32_t                desc_set;
-            uint32_t                desc_binding;
-            uint32_t                array_index;
+            VkBuffer              buffer{ VK_NULL_HANDLE };
+            VkDeviceMemory        buffer_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlagBits stage;
+            VkDescriptorType      desc_type;
+            uint32_t              desc_set;
+            uint32_t              desc_binding;
+            uint32_t              array_index;
         };
 
         std::vector<BufferContext> buffers;
@@ -193,24 +189,6 @@ class DispatchTraceRaysDumpingContext
         kDispatchIndirect,
         kDispatchBase
     };
-
-    static bool IsDispatchIndirect(DispatchTypes type)
-    {
-        switch (type)
-        {
-            case kDispatch:
-            case kDispatchBase:
-                return false;
-
-            case kDispatchIndirect:
-                return true;
-
-            default:
-                GFXRECON_LOG_ERROR("%s() Unrecognized dispatch call type (%u)", __func__, static_cast<uint32_t>(type))
-                GFXRECON_ASSERT(0);
-                return false;
-        }
-    }
 
     static const char* DispatchTypeToStr(DispatchTypes type)
     {
@@ -228,7 +206,7 @@ class DispatchTraceRaysDumpingContext
         }
     }
 
-    struct DispatchParams
+    struct DispatchParameters
     {
         union DispatchParamsUnion
         {
@@ -288,42 +266,37 @@ class DispatchTraceRaysDumpingContext
             {}
         } dispatch_params_union;
 
-        DispatchParams(DispatchTypes type, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) :
-            dispatch_params_union{ groupCountX, groupCountY, groupCountZ }, type(type),
-            updated_referenced_descriptors(false)
+        DispatchParameters(DispatchTypes type, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) :
+            dispatch_params_union{ groupCountX, groupCountY, groupCountZ }, type(type)
         {
             assert(type == kDispatch);
         }
 
-        DispatchParams(DispatchTypes type, const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
-            dispatch_params_union{ params_buffer_info, offset }, type(type), updated_referenced_descriptors(false)
+        DispatchParameters(DispatchTypes type, const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
+            dispatch_params_union{ params_buffer_info, offset }, type(type)
         {
             assert(type == kDispatchIndirect);
         }
 
-        DispatchParams(DispatchTypes type,
-                       uint32_t      baseGroupX,
-                       uint32_t      baseGroupY,
-                       uint32_t      baseGroupZ,
-                       uint32_t      groupCountX,
-                       uint32_t      groupCountY,
-                       uint32_t      groupCountZ) :
+        DispatchParameters(DispatchTypes type,
+                           uint32_t      baseGroupX,
+                           uint32_t      baseGroupY,
+                           uint32_t      baseGroupZ,
+                           uint32_t      groupCountX,
+                           uint32_t      groupCountY,
+                           uint32_t      groupCountZ) :
             dispatch_params_union{ baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ },
-            type(type), updated_referenced_descriptors(false)
+            type(type)
         {
             assert(type == kDispatchBase);
         }
 
         DispatchTypes type;
 
-        BoundDescriptorSets referenced_descriptors;
+        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
 
         MutableResourcesBackupContext mutable_resources_clones;
         MutableResourcesBackupContext mutable_resources_clones_before;
-
-        // Need to keep track if a dispatch context from a secondary command buffer has been updated with information
-        // that might be available only from the primary command buffer
-        bool updated_referenced_descriptors;
     };
 
     enum TraceRaysTypes
@@ -332,24 +305,6 @@ class DispatchTraceRaysDumpingContext
         kTraceRaysIndirect,
         kTraceRaysIndirect2
     };
-
-    static bool IsTraceRaysIndirect(TraceRaysTypes type)
-    {
-        switch (type)
-        {
-            case kTraceRays:
-                return false;
-
-            case kTraceRaysIndirect:
-            case kTraceRaysIndirect2:
-                return true;
-
-            default:
-                GFXRECON_LOG_ERROR("%s() Unrecognized trace rays call type (%u)", __func__, static_cast<uint32_t>(type))
-                GFXRECON_ASSERT(0);
-                return false;
-        }
-    }
 
     static const char* TraceRaysTypeToStr(TraceRaysTypes type)
     {
@@ -367,7 +322,7 @@ class DispatchTraceRaysDumpingContext
         }
     }
 
-    struct TraceRaysParams
+    struct TraceRaysParameters
     {
         union TraceRaysParamsUnion
         {
@@ -412,14 +367,14 @@ class DispatchTraceRaysDumpingContext
             {}
         } trace_rays_params_union;
 
-        TraceRaysParams(TraceRaysTypes type, uint32_t width, uint32_t height, uint32_t depth) :
-            type(type), trace_rays_params_union(width, height, depth), updated_referenced_descriptors(false)
+        TraceRaysParameters(TraceRaysTypes type, uint32_t width, uint32_t height, uint32_t depth) :
+            type(type), trace_rays_params_union(width, height, depth)
         {
             assert(type == kTraceRays);
         }
 
-        TraceRaysParams(TraceRaysTypes type, VkDeviceAddress indirectDeviceAddress) :
-            type(type), trace_rays_params_union(indirectDeviceAddress), updated_referenced_descriptors(false)
+        TraceRaysParameters(TraceRaysTypes type, VkDeviceAddress indirectDeviceAddress) :
+            type(type), trace_rays_params_union(indirectDeviceAddress)
 
         {
             assert(type == kTraceRaysIndirect);
@@ -427,28 +382,21 @@ class DispatchTraceRaysDumpingContext
 
         TraceRaysTypes type;
 
-        BoundDescriptorSets referenced_descriptors;
+        std::unordered_map<VkShaderStageFlagBits,
+                           std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>>
+            referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
         MutableResourcesBackupContext mutable_resources_clones;
         MutableResourcesBackupContext mutable_resources_clones_before;
-
-        // Need to keep track if a trace rays context from a secondary command buffer has been updated with information
-        // that might be available only from the primary command buffer
-        bool updated_referenced_descriptors;
     };
 
   private:
-    VkResult CloneMutableResources(const BoundDescriptorSets&     referenced_descriptors,
-                                   MutableResourcesBackupContext& backup_context);
+    VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context, bool is_dispatch);
 
-    void SnapshotDispatchState(DispatchParams& disp_params);
+    void SnapshotBoundDescriptors(DispatchParameters& disp_params);
 
-    void SnapshotTraceRaysState(TraceRaysParams& tr_params);
-
-    VkResult CopyDispatchIndirectParameters(DispatchParams& disp_params);
-
-    VkResult CopyTraceRaysIndirectParameters(TraceRaysParams& tr_params);
+    void SnapshotBoundDescriptors(TraceRaysParameters& tr_params);
 
     // Gather here all descriptors referenced by commands that have already been dumped
     // in order to avoid dumping descriptors referenced from multiple shader stages,
@@ -460,37 +408,29 @@ class DispatchTraceRaysDumpingContext
         std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
     };
 
-    DumpedDescriptors dispatch_dumped_descriptors_;
-    DumpedDescriptors trace_rays_dumped_descriptors_;
+    DumpedDescriptors dispatch_dumped_descriptors;
+    DumpedDescriptors trace_rays_dumped_descriptors;
 
-    DumpResourcesCommandBufferLevel command_buffer_level_;
+    // Keep track of images for which scalling failed so we can
+    // note them in the output json
+    std::unordered_set<std::string> images_failed_scaling;
 
-    void SecondaryUpdateContextFromPrimary(const BoundDescriptorSets& dispatch_descriptor_sets,
-                                           const BoundDescriptorSets& tr_descriptor_sets);
+    bool ImageFailedScaling(const std::string& filename) const { return images_failed_scaling.count(filename); }
 
     // One entry for each dispatch command
-    using DispatchParameters = std::unordered_map<uint64_t, std::unique_ptr<DispatchParams>>;
-    DispatchParameters dispatch_params_;
-
-    DispatchParameters& GetDispatchParameters() { return dispatch_params_; }
+    std::unordered_map<uint64_t, DispatchParameters> dispatch_params;
 
     // One entry for each trace rays command
-    using TraceRaysParameters = std::unordered_map<uint64_t, std::unique_ptr<TraceRaysParams>>;
-    TraceRaysParameters trace_rays_params_;
+    std::unordered_map<uint64_t, TraceRaysParameters> trace_rays_params;
 
-    TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }
-
-    // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<DispatchTraceRaysDumpingContext*>> secondaries_;
-
-    const graphics::VulkanDeviceTable*      device_table_;
-    VkDevice                                parent_device_;
-    const graphics::VulkanInstanceTable*    instance_table_;
-    CommonObjectInfoTable&                  object_info_table_;
-    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
-    size_t                                  current_dispatch_index_;
-    size_t                                  current_trace_rays_index_;
-    bool                                    reached_end_command_buffer_;
+    const encode::VulkanDeviceTable*        device_table;
+    VkDevice                                parent_device;
+    const encode::VulkanInstanceTable*      instance_table;
+    CommonObjectInfoTable&                  object_info_table;
+    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
+    size_t                                  current_dispatch_index;
+    size_t                                  current_trace_rays_index;
+    bool                                    reached_end_command_buffer;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

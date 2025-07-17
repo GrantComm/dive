@@ -1,5 +1,0 @@
-{
-    "functions": {
-        "xrCreateApiLayerInstance": "OpenXrCaptureManager::OverrideCreateApiLayerInstance"
-    }
-}

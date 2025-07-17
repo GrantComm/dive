@@ -71,7 +71,7 @@ class VulkanDispatchTableGeneratorOptions(VulkanBaseGeneratorOptions):
             ''
         ))
 
-        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'graphics'))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
 
 class VulkanDispatchTableGenerator(VulkanBaseGenerator, KhronosDispatchTableGenerator):
     """VulkanDispatchTableGenerator - subclass of VulkanBaseGenerator.

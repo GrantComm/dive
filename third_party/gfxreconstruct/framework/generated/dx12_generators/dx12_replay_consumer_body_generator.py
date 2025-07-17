@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
-# Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -224,7 +223,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
-
+        
         code += (
             "    CustomReplayPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n"
             "        this,\n"
@@ -258,9 +257,6 @@ class Dx12ReplayConsumerBodyGenerator(
                 value.base_type in self.EXTERNAL_OBJECT_TYPES
             ) and not value.is_array
             is_output = self.is_output(value)
-            if value.full_type == '_Out_ void *' or value.full_type == '_Inout_ void *':
-                is_output = False
-
             is_struct = self.is_struct(value.base_type)
             is_variable_length_array = self.is_variable_length_array(
                 name, value
@@ -416,15 +412,16 @@ class Dx12ReplayConsumerBodyGenerator(
 
             elif is_extenal_object:
                 if is_output:
-                    length = '1'
-                    if value.array_length:
-                        if value.array_length[0] == '*':
-                            length = value.array_length + '->GetPointer()'
-                        else:
-                            length = value.array_length
-                    code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
-                        value.name, value.name, length
-                    )
+                    if value.full_type != '_Out_ void *':
+                        length = '1'
+                        if value.array_length:
+                            if value.array_length[0] == '*':
+                                length = value.array_length + '->GetPointer()'
+                            else:
+                                length = value.array_length
+                        code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
+                            value.name, value.name, length
+                        )
 
                     if is_override:
                         arg_list.append(value.name)
@@ -580,10 +577,17 @@ class Dx12ReplayConsumerBodyGenerator(
                     if is_struct:
                         arg_list.append('*' + value.name + '.decoded_value')
 
-                    elif self.is_callback(value.base_type):
-                        code += '    auto in_{0} = reinterpret_cast<{2}>(GetReplayCallback({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
-                                .format(value.name, name, value.base_type)
-                        arg_list.append('in_{}'.format(value.name))
+                    elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
+                        arg_list.append(
+                            'reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'.
+                            format(value.name)
+                        )
+
+                    elif value.base_type == 'D3D12MessageFunc':
+                        arg_list.append(
+                            'reinterpret_cast<D3D12MessageFunc>({})'.
+                            format(value.name)
+                        )
 
                     else:
                         arg_list.append(value.name)
@@ -647,7 +651,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 )
                 indent_length = len(code)
                 code += "            command_list{}".format(class_name[-1])
-
+                
             else:
                 indent_length = len(code)
                 code += "            command_set.list"
@@ -666,7 +670,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 "        }\n"
                 "    }\n"
             )
-
+           
         for e in post_call_expr_list:
             code += '    {}'.format(e)
 

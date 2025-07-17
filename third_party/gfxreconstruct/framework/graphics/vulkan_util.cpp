@@ -27,16 +27,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-util::platform::LibraryHandle InitializeLoader(const char* loader_path)
+util::platform::LibraryHandle InitializeLoader()
 {
-    if (loader_path != nullptr && loader_path[0] != '\0')
-    {
-        return util::platform::OpenLibrary(loader_path);
-    }
-    else
-    {
-        return util::platform::OpenLibrary(kLoaderLibNames);
-    }
+    return util::platform::OpenLibrary(kLoaderLibNames);
 }
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle)
@@ -45,11 +38,6 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle)
     {
         util::platform::CloseLibrary(loader_handle);
     }
-}
-
-bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit)
-{
-    return (usage_flags & bit) == bit;
 }
 
 GFXRECON_END_NAMESPACE(graphics)

@@ -26,9 +26,7 @@
 
 #include "util/defines.h"
 
-#ifdef WIN32
 #include <d3d12.h>
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)

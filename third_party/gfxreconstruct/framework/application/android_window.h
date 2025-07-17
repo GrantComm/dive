@@ -31,11 +31,9 @@
 #include "util/platform.h"
 
 #include <android_native_app_glue.h>
-#include <jni.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
-extern ANativeWindow* tmp_window;
 
 class AndroidWindow : public decode::Window
 {
@@ -75,13 +73,13 @@ class AndroidWindow : public decode::Window
 
     virtual VkExtent2D GetSize() const override;
 
-    virtual VkResult CreateSurface(const graphics::VulkanInstanceTable* table,
-                                   VkInstance                           instance,
-                                   VkFlags                              flags,
-                                   VkSurfaceKHR*                        pSurface) override;
+    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface) override;
 
     virtual void
-    DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
     AndroidContext* android_context_;
@@ -108,8 +106,8 @@ class AndroidWindowFactory : public decode::WindowFactory
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
-                                                          VkPhysicalDevice                     physical_device,
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                   physical_device,
                                                           uint32_t queue_family_index) override;
 
   private:
