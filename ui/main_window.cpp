@@ -934,7 +934,7 @@ void MainWindow::CreateActions()
     m_pm4_capture_action->setShortcut(QKeySequence("f5"));
     connect(m_pm4_capture_action, &QAction::triggered, this, &MainWindow::OnNormalCapture);
     // GFXR Capture action
-    m_gfxr_capture_action = new QAction(tr("GFXR Capture"), this);
+    m_gfxr_capture_action = new QAction(tr("GFXR Capture !"), this);
     m_gfxr_capture_action->setStatusTip(tr("Capture a Dive trace (GFXR)"));
     m_gfxr_capture_action->setShortcut(QKeySequence("f6"));
     connect(m_gfxr_capture_action, &QAction::triggered, this, &MainWindow::OnGFXRCapture);
