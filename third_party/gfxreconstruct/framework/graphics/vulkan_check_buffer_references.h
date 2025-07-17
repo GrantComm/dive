@@ -48,27 +48,29 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
 
 /**
  * @brief   vulkan_check_buffer_references can be used to check provided SPIRV-bytecode for usage of buffer-references.
- *          Retrieved buffer-references will be assigned to a provided wrapper-struct.
+ *          In case any buffer-references are actively used, a warning will be issued.
  *
- * @param   spirv_code      SPIRV-bytecode
- * @param   num_bytes       number of bytes
- * @param   out_info_struct a wrapper-struct
+ * @param   spirv_code  SPIRV-bytecode
+ * @param   num_bytes   number of bytes
  */
 template <typename T>
 static void vulkan_check_buffer_references(const uint32_t* const spirv_code, size_t num_bytes, T* out_info_struct)
 {
-    static_assert(std::is_same_v<T, decode::VulkanShaderModuleInfo> || std::is_same_v<T, decode::VulkanPipelineInfo> ||
-                  std::is_same_v<T, decode::VulkanShaderEXTInfo>);
     GFXRECON_ASSERT(out_info_struct != nullptr);
 
-    // check for buffer-references
+    // check for buffer-references, issue warning
     gfxrecon::util::SpirVParsingUtil spirv_util;
 
     if (spirv_util.ParseBufferReferences(spirv_code, num_bytes))
     {
-        if (out_info_struct != nullptr)
+        auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
+
+        if (!buffer_reference_infos.empty())
         {
-            out_info_struct->buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
+            out_info_struct->buffer_reference_infos = buffer_reference_infos;
+            GFXRECON_LOG_WARNING_ONCE("A Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
+                                      "Resource tracking for buffers accessed via references is currently "
+                                      "unsupported, so replay may fail.");
         }
     }
 }

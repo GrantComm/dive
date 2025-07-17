@@ -43,9 +43,7 @@ void decode::VulkanDeviceAddressTracker::TrackBuffer(const decode::VulkanBufferI
         // track replay device address
         if (buffer_info->replay_address != 0)
         {
-            buffer_replay_addresses_[buffer_info->replay_address]    = buffer_info->capture_id;
-            address_lookup_helper_map_[buffer_info->capture_address] = { buffer_info->replay_address,
-                                                                         buffer_info->size };
+            buffer_replay_addresses_[buffer_info->replay_address] = buffer_info->capture_id;
         }
 
         // track vulkan-handle
@@ -63,7 +61,6 @@ void VulkanDeviceAddressTracker::RemoveBuffer(const VulkanBufferInfo* buffer_inf
         buffer_capture_addresses_.erase(buffer_info->capture_address);
         buffer_replay_addresses_.erase(buffer_info->replay_address);
         buffer_handles_.erase(buffer_info->handle);
-        address_lookup_helper_map_.erase(buffer_info->capture_address);
     }
 }
 
@@ -197,10 +194,19 @@ VulkanDeviceAddressTracker::GetAccelerationStructureDeviceAddressMap() const
     return ret;
 }
 
-const std::unordered_map<VkDeviceAddress, VulkanDeviceAddressTracker::device_address_range_t>&
-VulkanDeviceAddressTracker::GetBufferDeviceAddressMap() const
+std::unordered_map<VkDeviceAddress, VkDeviceAddress> VulkanDeviceAddressTracker::GetBufferDeviceAddressMap() const
 {
-    return address_lookup_helper_map_;
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> ret;
+    for (const auto& [address, handleId] : buffer_capture_addresses_)
+    {
+        const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(handleId);
+
+        if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        {
+            ret[address] = buffer_info->replay_address;
+        }
+    }
+    return ret;
 }
 
 GFXRECON_END_NAMESPACE(decode)

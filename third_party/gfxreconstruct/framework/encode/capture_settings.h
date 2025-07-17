@@ -106,7 +106,6 @@ class CaptureSettings
         MemoryTrackingMode           memory_tracking_mode{ kPageGuard };
         std::string                  screenshot_dir;
         std::vector<util::UintRange> screenshot_ranges;
-        uint32_t                     screenshot_interval{ 1 };
         util::ScreenshotFormat       screenshot_format;
         TrimBoundary                 trim_boundary{ TrimBoundary::kUnknown };
         std::vector<util::UintRange> trim_ranges;
@@ -133,8 +132,6 @@ class CaptureSettings
         bool                         quit_after_frame_ranges{ false };
         bool                         force_fifo_present_mode{ true };
         bool                         use_asset_file{ false };
-        bool                         ignore_frame_boundary_android{ false };
-        bool                         skip_threads_with_invalid_data{ false };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

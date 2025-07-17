@@ -1,8 +1,7 @@
 {
   "functions": {
     "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
-    "D3D12CreateDevice": "OverrideD3D12CreateDevice",
-    "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary": "OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary"
+    "D3D12CreateDevice": "OverrideD3D12CreateDevice"
   },
   "classmethods": {
     "IUnknown": {
@@ -55,8 +54,7 @@
     },
     "ID3D12Device5": {
       "CreateStateObject": "OverrideCreateStateObject",
-      "GetRaytracingAccelerationStructurePrebuildInfo": "OverrideGetRaytracingAccelerationStructurePrebuildInfo",
-      "CreateMetaCommand": "OverrideCreateMetaCommand"
+      "GetRaytracingAccelerationStructurePrebuildInfo": "OverrideGetRaytracingAccelerationStructurePrebuildInfo"
     },
     "ID3D12Device7": {
       "AddToStateObject": "OverrideAddToStateObject"
@@ -117,14 +115,8 @@
       "BuildRaytracingAccelerationStructure": "OverrideBuildRaytracingAccelerationStructure",
       "DispatchRays": "OverrideDispatchRays",
       "SetPipelineState1": "OverrideSetPipelineState1",
-      "BeginRenderPass": "OverrideBeginRenderPass",
-      "InitializeMetaCommand": "OverrideInitializeMetaCommand",
-      "ExecuteMetaCommand": "OverrideExecuteMetaCommand"
+      "BeginRenderPass": "OverrideBeginRenderPass"
     },
-    "ID3D12GraphicsCommandList10": {
-      "SetProgram": "OverrideSetProgram",
-      "DispatchGraph": "OverrideDispatchGraph"
-    },    
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
     },

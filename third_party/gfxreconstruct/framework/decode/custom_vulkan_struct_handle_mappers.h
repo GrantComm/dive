@@ -45,10 +45,6 @@ void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
 void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
                       const CommonObjectInfoTable&                         object_info_table);
 
-void MapStructHandles(Decoded_VkCopyMemoryToImageInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkCopyImageToMemoryInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

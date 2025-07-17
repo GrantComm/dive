@@ -47,8 +47,6 @@ class Dx12StructDecodersForwardGenerator(
     def beginFile(self, gen_opts):
         """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
-        write('#if defined(D3D12_SUPPORT)', file=self.outFile)
-        self.newline()
 
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -72,9 +70,6 @@ class Dx12StructDecodersForwardGenerator(
         code = ("#include \"util/defines.h\"\n")
         code += "\n"
         code += ("#include <cstdint>\n")
-        code += "\n#ifndef WIN32\n"
-        code += ("#include <cstddef>\n")
-        code += "#endif\n"
         write(code, file=self.outFile)
 
     def get_struct_function_body(self, properties):
@@ -110,12 +105,9 @@ class Dx12StructDecodersForwardGenerator(
 
     def endFile(self):
         """Method override."""
-        code = '\n'
-        code += 'GFXRECON_END_NAMESPACE(decode)\n'
-        code += 'GFXRECON_END_NAMESPACE(gfxrecon)\n'
-        code += '\n'
-        code += '#endif // defined(D3D12_SUPPORT)'
-        write(code, file=self.outFile)
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)

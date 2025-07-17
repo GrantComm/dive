@@ -24,7 +24,9 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <triangle_app.h>
+#include <test_app_base.h>
+
+#include <SDL3/SDL_main.h>
 
 namespace gfxrecon
 {
@@ -35,12 +37,43 @@ namespace test_app
 namespace triangle
 {
 
+const size_t MAX_FRAMES_IN_FLIGHT = 2;
+
+class App : public gfxrecon::test::TestAppBase
+{
+  public:
+    App() = default;
+
+  private:
+    VkQueue graphics_queue_;
+    VkQueue present_queue_;
+
+    std::vector<VkFramebuffer> framebuffers_;
+
+    VkRenderPass     render_pass_;
+    VkPipelineLayout pipeline_layout_;
+    VkPipeline       graphics_pipeline_;
+
+    VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
+
+    size_t current_frame_ = 0;
+
+    gfxrecon::test::Sync sync_;
+
+    void create_render_pass();
+    void create_graphics_pipeline();
+    void create_framebuffers();
+    void recreate_swapchain();
+    void cleanup() override;
+    bool frame(const int frame_num) override;
+    void setup() override;
+
+    void configure_instance_builder(gfxrecon::test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
+};
+
 void App::configure_instance_builder(gfxrecon::test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
-    if (test_config)
-    {
-        test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
-    }
+    test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
 
     TestAppBase::configure_instance_builder(instance_builder, test_config);
 }
@@ -80,13 +113,8 @@ void App::create_render_pass()
 
 void App::create_graphics_pipeline()
 {
-#ifdef __ANDROID__
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/vert.spv", init.android_app);
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/frag.spv", init.android_app);
-#else
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/frag.spv");
-#endif
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv");
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -464,3 +492,18 @@ void App::setup()
 } // namespace test_app
 
 } // namespace gfxrecon
+
+int main(int argc, char* argv[])
+{
+    try
+    {
+        gfxrecon::test_app::triangle::App app{};
+        app.run("triangle");
+        return 0;
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
+}

@@ -25,7 +25,6 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/decoder_util.h"
 #include "decode/mark_injected_commands.h"
-#include "graphics/vulkan_resources_util.h"
 #include "vulkan/vulkan_core.h"
 #include <array>
 
@@ -50,7 +49,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
                                                     const VkSwapchainCreateInfoKHR*       create_info,
                                                     const VkAllocationCallbacks*          allocator,
                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                    const graphics::VulkanDeviceTable*    device_table)
+                                                    const encode::VulkanDeviceTable*      device_table)
 {
     VkDevice                 device = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfCapabilities{};
@@ -521,7 +520,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 VK_QUEUE_FAMILY_IGNORED,                // dstQueueFamilyIndex
                 VK_NULL_HANDLE,                         // image
                 VkImageSubresourceRange{
-                    graphics::GetFormatAspectMask(swapchain_info->format),
+                    VK_IMAGE_ASPECT_COLOR_BIT,
                     0,
                     image_create_info.mipLevels,
                     0,
@@ -808,13 +807,6 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         const auto* swapchain_info      = swapchain_infos[i];
         uint32_t    capture_image_index = capture_image_indices[i];
         uint32_t    replay_image_index  = present_info->pImageIndices[i];
-
-        auto aspect_mask       = graphics::GetFormatAspectMask(swapchain_info->format);
-        subresource.aspectMask = aspect_mask;
-        initial_barrier_virtual_image.subresourceRange.aspectMask   = aspect_mask;
-        final_barrier_virtual_image.subresourceRange.aspectMask     = aspect_mask;
-        initial_barrier_swapchain_image.subresourceRange.aspectMask = aspect_mask;
-        final_barrier_swapchain_image.subresourceRange.aspectMask   = aspect_mask;
 
         // Get the per swapchain resource data so we have access to the virtual swapchain-specific information.
         if (swapchain_resources_.find(swapchain_info->handle) == swapchain_resources_.end())

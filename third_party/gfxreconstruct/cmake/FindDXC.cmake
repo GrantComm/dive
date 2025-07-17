@@ -14,10 +14,7 @@ if (${D3D12_SUPPORT})
 
     # Find the build architecture.
     set(DXC_ARCH "")
-    # Some IDEs pass -A in lowercase or in mixed case.
-    # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
-    string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" NORMALIZED_CMAKE_GENERATOR_PLATFORM)
-    if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+    if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
         set(DXC_ARCH "arm64")
     elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(DXC_ARCH "x64")
@@ -48,7 +45,7 @@ if (${D3D12_SUPPORT})
             message("Current DXC_INCLUDE_DIR '${DXC_INCLUDE_DIR}' does not contain 'dxcapi.h'. Resetting DXC_INCLUDE_DIR.")
             unset(DXC_INCLUDE_DIR CACHE)
         endif()
-        find_path(DXC_INCLUDE_DIR NAME "dxcapi.h" PATHS "${DXC_SDK_DIR}/inc" NO_DEFAULT_PATH)
+        find_path(DXC_INCLUDE_DIR NAME "dxcapi.h" PATHS "${DXC_SDK_DIR}/inc")
         mark_as_advanced(DXC_INCLUDE_DIR)
 
         # If the cached library path doesn't exist or arch doesn't match, unset variable.

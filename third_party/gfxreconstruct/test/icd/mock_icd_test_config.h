@@ -21,7 +21,6 @@ namespace vkmock
 struct TestConfig
 {
     uint32_t device_api_version_override = 0;
-    void*    map_addr_override           = nullptr;
 };
 
 } // namespace vkmock

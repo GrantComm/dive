@@ -44,14 +44,10 @@ class KhronosStructHandleMappersBodyGenerator():
 
     def write_struct_handle_wrapper_content(self):
         for struct in self.get_all_filtered_struct_names():
-            if struct in self.STRUCT_MAPPERS_BLACKLIST:
-                continue
-
-            child_has_handles = self.child_struct_has_handles(struct)
-            if ( child_has_handles or
-                (struct in self.structs_with_handles) or
-                (struct in self.GENERIC_HANDLE_STRUCTS)
-            ):
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = list()
                 generic_handle_members = dict()
 
@@ -65,7 +61,7 @@ class KhronosStructHandleMappersBodyGenerator():
                 # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
                 # and does not need a temporary variable referencing the struct value.
                 needs_value_ptr = False
-                if generic_handle_members or child_has_handles:
+                if generic_handle_members:
                     needs_value_ptr = True
                 else:
                     for member in handle_members:
@@ -93,8 +89,8 @@ class KhronosStructHandleMappersBodyGenerator():
                     )
 
                     # Add handling for parent/child structs since this actually might be one of the children.
-                    if child_has_handles:
-                        type_var = self.get_struct_type_var_name()
+                    if struct in self.children_structs.keys():
+                        type_var = self.getStructTypeMemberName()
                         body += '\n'
                         body += f'        switch (value->{type_var})\n'
                         body += '        {\n'
@@ -103,7 +99,7 @@ class KhronosStructHandleMappersBodyGenerator():
                         body += '                break;\n'
 
                         for child in self.children_structs[struct]:
-                            if child not in self.structs_with_handles:
+                            if child not in self.struct_type_names:
                                 continue
                             switch_type = self.struct_type_names[child]
 
@@ -124,31 +120,29 @@ class KhronosStructHandleMappersBodyGenerator():
                 write(body, file=self.outFile)
 
         # Print out a function to handle mapping the extended struct types
+        extended_struct_func_name = self.get_extended_struct_func_prefix()
         self.newline()
-        next_field = self.get_extended_struct_var_name()
-        next_var = next_field.lower()
-        type_var = self.get_struct_type_var_name()
-        cast_type = 'const {}MetaStructHeader*'.format(self.get_api_prefix())
-
-        lines = []
-        lines.append('void Map{func}StructHandles({node}Node* {var}, const CommonObjectInfoTable& object_info_table)'.format(
-                func=self.get_extended_struct_func_prefix(),
-                node=self.get_extended_struct_node_prefix(),
-                var=next_var
-            )
+        write(
+            'void Map{}StructHandles(PNextNode* pnext, const CommonObjectInfoTable& object_info_table)'.format(extended_struct_func_name),
+            file=self.outFile
         )
-        lines.append('{')
-        lines.append(f'    while ({next_var})')
-        lines.append('    {')
-        lines.append(f'        void *wrapper = {next_var}->GetMetaStructPointer();')
-        lines.append(f'        const auto* header = reinterpret_cast<{cast_type}>({next_var}->GetMetaStructPointer());')
-        lines.append('')
-        lines.append(f'        switch (*header->{type_var})')
-        lines.append('        {')
-        lines.append('        default:')
-        lines.append(f'            // TODO: Report or raise fatal error for unrecognized {type_var}?')
-        lines.append('            break;')
-        write('\n'.join(lines), file=self.outFile)
+        write('{', file=self.outFile)
+        write(
+            '    while (pnext)',
+            file=self.outFile
+        )
+        write('    {', file=self.outFile)
+        write('        void *wrapper = pnext->GetMetaStructPointer();', file=self.outFile)
+        write('        const auto* header = reinterpret_cast<const MetaStructHeader*>(pnext->GetMetaStructPointer());', file=self.outFile)
+        write('', file=self.outFile)
+        write('        switch (*header->{})'.format(self.get_struct_type_var_name()), file=self.outFile)
+        write('        {', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write(
+            '            // TODO: Report or raise fatal error for unrecognized {}?'.format(self.get_struct_type_var_name()),
+            file=self.outFile
+        )
+        write('            break;', file=self.outFile)
 
         extended_list = []
         for struct in self.all_extended_structs:
@@ -170,7 +164,7 @@ class KhronosStructHandleMappersBodyGenerator():
                 write('            break;', file=self.outFile)
 
         write('        }', file=self.outFile)
-        write(f'        {next_var} = header->{next_field};', file=self.outFile)
+        write('    pnext = header->pNext;', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
@@ -248,16 +242,8 @@ class KhronosStructHandleMappersBodyGenerator():
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    length_exprs = member.array_length.split(',')
-                    length_count = len(length_exprs)
-
-                    if member.pointer_count > 1 and length_count < member.pointer_count:
-                        unwrap_function = f'MapStructPtrArrayHandles<Decoded_{member.base_type}*>'
-                    else:
-                        unwrap_function = f'MapStructArrayHandles<Decoded_{member.base_type}>'
-
-                    body += '        {func}(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table);\n'.format(
-                        func=unwrap_function,
+                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table);\n'.format(
+                        member.base_type,
                         name=member.name
                     )
                 elif member.is_pointer:

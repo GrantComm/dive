@@ -235,6 +235,12 @@ struct TrackDumpCommandList
 // It runs tasks that need to be completed before replay.
 class Dx12PreProcessConsumer : public Dx12Consumer
 {
+#define CHECK_DX12_CONSUMER_USAGE() \
+    if (!dx12_consumer_usage_)      \
+    {                               \
+        return;                     \
+    }
+
   public:
     Dx12PreProcessConsumer() {}
 
@@ -305,6 +311,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                         Decoded_GUID                 riid,
                                                         HandlePointerDecoder<void*>* ppCommandList) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         InitializeTracking(call_info, *ppCommandList->GetPointer());
     }
 
@@ -314,6 +321,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                          format::HandleId   pAllocator,
                                                          format::HandleId   pInitialState) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         InitializeTracking(call_info, object_id);
     }
 
@@ -325,6 +333,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
         D3D12_RENDER_PASS_FLAGS                                             Flags) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -339,6 +348,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
     virtual void Process_ID3D12GraphicsCommandList4_EndRenderPass(const ApiCallInfo& call_info,
                                                                   format::HandleId   object_id) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -363,6 +373,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         BOOL                                                       RTsSingleHandleToDescriptorRange,
         StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -378,6 +389,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                            format::HandleId   object_id,
                                                                            format::HandleId   pRootSignature) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -392,6 +404,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                             format::HandleId   object_id,
                                                                             format::HandleId   pRootSignature) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -409,6 +422,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                                                    NumViews,
         StructPointerDecoder<Decoded_D3D12_VERTEX_BUFFER_VIEW>* pViews) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -429,6 +443,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         format::HandleId                                       object_id,
         StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -453,6 +468,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                                         NumDescriptorHeaps,
         HandlePointerDecoder<ID3D12DescriptorHeap*>* ppDescriptorHeaps) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -474,6 +490,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                                RootParameterIndex,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -493,6 +510,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                                RootParameterIndex,
         Decoded_D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -512,6 +530,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                UINT               SrcData,
                                                                                UINT DestOffsetIn32BitValues) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -530,6 +549,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                 UINT               SrcData,
                                                                                 UINT DestOffsetIn32BitValues) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -549,6 +569,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                 PointerDecoder<uint8_t>* pSrcData,
                                                                                 UINT DestOffsetIn32BitValues) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -568,6 +589,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                                  PointerDecoder<uint8_t>* pSrcData,
                                                                                  UINT DestOffsetIn32BitValues) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -586,6 +608,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -605,6 +628,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -624,6 +648,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -643,6 +668,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -662,6 +688,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -681,6 +708,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -701,6 +729,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                  UINT               StartVertexLocation,
                                                                  UINT               StartInstanceLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         TrackTargetDrawCall(call_info, object_id, DumpDrawCallType::kDraw);
     }
 
@@ -712,6 +741,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                         INT                BaseVertexLocation,
                                                                         UINT StartInstanceLocation) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         TrackTargetDrawCall(call_info, object_id, DumpDrawCallType::kDraw);
     }
 
@@ -721,6 +751,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                             UINT               ThreadGroupCountY,
                                                             UINT               ThreadGroupCountZ) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         TrackTargetDrawCall(call_info, object_id, DumpDrawCallType::kDispatch);
     }
 
@@ -733,6 +764,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                    format::HandleId   pCountBuffer,
                                                                    UINT64             CountBufferOffset) override
     {
+        CHECK_DX12_CONSUMER_USAGE()
         TrackTargetDrawCall(call_info,
                             object_id,
                             DumpDrawCallType::kIndirect,
@@ -746,6 +778,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                                  format::HandleId   object_id,
                                                                  format::HandleId   pCommandList) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         TrackTargetDrawCall(call_info,
                             object_id,
                             DumpDrawCallType::kBundle,
@@ -760,6 +793,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                          format::HandleId   object_id,
                                                          HRESULT            return_value) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             auto it = track_commandlist_infos_.find(object_id);
@@ -779,6 +813,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                                                    UINT                                      NumCommandLists,
                                                    HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists) override
     {
+        CHECK_DX12_CONSUMER_USAGE();
         if (target_command_list_ == format::kNullHandleId)
         {
             if (track_submit_index_ == dump_resources_target_.submit_index)

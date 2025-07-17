@@ -473,14 +473,5 @@ bool ReferencedResourceTable::IsUsed(const ResourceInfo* resource_info) const
     return false;
 }
 
-void ReferencedResourceTable::MarkResourceAsUsed(format::HandleId resource)
-{
-    auto resource_entry = resources_.find(resource);
-    if (resource_entry != resources_.end())
-    {
-        resource_entry->second->used = true;
-    }
-}
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

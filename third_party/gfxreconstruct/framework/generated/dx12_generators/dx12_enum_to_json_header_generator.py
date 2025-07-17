@@ -49,8 +49,6 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         Dx12BaseGenerator.beginFile(self, gen_opts)
 
         code = format_cpp_code('''
-            #if defined(D3D12_SUPPORT)
-
             /// @file Functions to convert enums to JSON. While trivial these do tidy up
             /// the FieldToJsons of structs which use them and the JSON consumer too.
             /// They also mean that generators don't need separate cases for enums.
@@ -120,8 +118,6 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         self.newline()
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-        self.newline()
-        write('#endif // defined(D3D12_SUPPORT)', file=self.outFile)
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)
