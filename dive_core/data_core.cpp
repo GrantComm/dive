@@ -115,6 +115,12 @@ const CaptureMetadata &DataCore::GetCaptureMetadata() const
     return m_capture_metadata;
 }
 
+//--------------------------------------------------------------------------------------------------
+bool DataCore::WriteNewGFXRCaptureData(const char *new_file_name)
+{
+    return m_capture_data.WriteModifiedGfxrFile(new_file_name);
+}
+
 // =================================================================================================
 // CaptureMetadataCreator
 // =================================================================================================
