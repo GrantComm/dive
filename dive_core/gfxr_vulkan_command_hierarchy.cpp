@@ -265,7 +265,7 @@ void GfxrVulkanCommandHierarchyCreator::CreateTopologies()
     {
         size_t    num_nodes = m_node_children[topology].size();
         Topology &cur_topology = m_command_hierarchy.m_topology[topology];
-        cur_topology.SetNumNodes(num_nodes);
+        cur_topology.SetNumGfxrNodes(num_nodes);
 
         if (total_num_children[topology] == 0)
         {
