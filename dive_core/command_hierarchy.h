@@ -81,6 +81,9 @@ public:
 
     uint64_t GetNumNodes() const;
 
+    // Returns the number of nodes when a Gfxr command hierarchy is created.
+    uint64_t GetNumGfxrNodes() const;
+
     // Node-index of parent node
     uint64_t GetParentNodeIndex(uint64_t node_index) const;
 
@@ -158,6 +161,7 @@ private:
     DiveVector<uint64_t> m_root_node_index;
 
     void SetNumNodes(uint64_t num_nodes);
+    void SetNumGfxrNodes(uint64_t num_nodes);
     void AddChildren(uint64_t node_index, const DiveVector<uint64_t> &children);
     void AddSharedChildren(uint64_t node_index, const DiveVector<uint64_t> &children);
 };

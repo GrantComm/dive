@@ -48,6 +48,15 @@ uint64_t Topology::GetNumNodes() const
 }
 
 //--------------------------------------------------------------------------------------------------
+uint64_t Topology::GetNumGfxrNodes() const
+{
+    // There are no shared_children in the gfxr command hierarchy.
+    DIVE_ASSERT(m_node_children.size() == m_node_parent.size());
+    DIVE_ASSERT(m_node_children.size() == m_node_child_index.size());
+    return m_node_children.size();
+}
+
+//--------------------------------------------------------------------------------------------------
 uint64_t Topology::GetParentNodeIndex(uint64_t node_index) const
 {
     DIVE_ASSERT(node_index < m_node_parent.size());
@@ -135,6 +144,14 @@ void Topology::SetNumNodes(uint64_t num_nodes)
 {
     m_node_children.resize(num_nodes);
     m_node_shared_children.resize(num_nodes);
+    m_node_parent.resize(num_nodes, UINT64_MAX);
+    m_node_child_index.resize(num_nodes, UINT64_MAX);
+}
+
+//--------------------------------------------------------------------------------------------------
+void Topology::SetNumGfxrNodes(uint64_t num_nodes)
+{
+    m_node_children.resize(num_nodes);
     m_node_parent.resize(num_nodes, UINT64_MAX);
     m_node_child_index.resize(num_nodes, UINT64_MAX);
 }
