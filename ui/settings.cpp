@@ -55,7 +55,7 @@ void Settings::WriteRecentFiles(QStringList recent_files)
     }
 
     QSettings settings;
-    settings.setValue("recentFiles", recent_files);
+    settings.setValue("recentFile(s)", recent_files);
 }
 
 //--------------------------------------------------------------------------------------------------
