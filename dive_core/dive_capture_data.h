@@ -33,6 +33,7 @@ public:
     DiveCaptureData &operator=(DiveCaptureData &&) = default;
 
     CaptureData::LoadResult LoadFile(const char *file_name);
+    CaptureData::LoadResult LoadFiles(const char *pm4_file_name, const char *gfxr_file_name);
     const Pm4CaptureData   &getPm4CaptureData() const;
     const GfxrCaptureData  &getGfxrCaptureData() const;
 

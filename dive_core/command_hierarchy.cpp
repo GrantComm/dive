@@ -401,6 +401,8 @@ uint64_t CommandHierarchy::Nodes::AddGfxrNode(NodeType type, std::string &&desc)
 
     m_node_type.push_back(type);
     m_description.push_back(std::move(desc));
+    AuxInfo aux_info(0); 
+    m_aux_info.push_back(aux_info);
     return m_node_type.size() - 1;
 }
 
@@ -972,6 +974,11 @@ bool CommandHierarchyCreator::OnPacket(const IMemoryManager &mem_manager,
                                                             submit_index,
                                                             va_addr,
                                                             opcode);
+
+            if (event_string.find("Draw") != std::string::npos)
+            {
+                // Increase the counder and add it to the auxinfo
+            }                                          
             uint32_t    event_id = m_num_events++;
 
             uint64_t node_index;

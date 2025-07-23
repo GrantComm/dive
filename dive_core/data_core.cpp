@@ -43,6 +43,12 @@ CaptureData::LoadResult DataCore::LoadDiveCaptureData(const char *file_name)
 }
 
 //--------------------------------------------------------------------------------------------------
+CaptureData::LoadResult DataCore::LoadDiveFolderCaptureData(const char *pm4_file_name, const char *gfxr_file_name)
+{
+    return m_dive_capture_data.LoadFiles(pm4_file_name, gfxr_file_name);
+}
+
+//--------------------------------------------------------------------------------------------------
 CaptureData::LoadResult DataCore::LoadPm4CaptureData(const char *file_name)
 {
 
@@ -305,7 +311,6 @@ bool CaptureMetadataCreator::OnPacket(const IMemoryManager &mem_manager,
                                       uint64_t              va_addr,
                                       Pm4Header             header)
 {
-    std::cout << "CaptureMetadataCreator::OnPacket called" << std::endl;
     m_capture_metadata.m_num_pm4_packets++;
     if (!m_state_tracker.OnPacket(mem_manager, submit_index, ib_index, va_addr, header))
         return false;

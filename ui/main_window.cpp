@@ -528,6 +528,7 @@ void MainWindow::OnSelectionChanged(const QModelIndex &index)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnFilterModeChange(const QString &filter_mode)
 {
+    std::cout << "MainWindow::OnFilterModeChange called" << std::endl;
     DiveFilterModel::FilterMode new_mode;
 
     if (filter_mode == kFilterStrings[DiveFilterModel::kNone])
@@ -662,6 +663,133 @@ bool MainWindow::LoadDiveFile(const char *file_name, bool is_temp_file)
     ExpandResizeHierarchyView();
     m_hover_help->SetCurItem(HoverHelp::Item::kNone);
     m_capture_file = QString(file_name);
+    QFileInfo file_info(m_capture_file);
+    SetCurrentFile(m_capture_file, is_temp_file);
+    emit SetSaveAsMenuStatus(true);
+    if (m_unsaved_capture_path.empty())
+    {
+        emit SetSaveMenuStatus(false);
+    }
+    else
+    {
+        emit SetSaveMenuStatus(true);
+    }
+    HideOverlay();
+    ShowTempStatus(tr("File loaded successfully"));
+    [[maybe_unused]] int64_t
+    time_used_to_load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::steady_clock::now() - begin)
+                           .count();
+
+    DIVE_DEBUG_LOG("Time used to load the capture is %f seconds.", (time_used_to_load_ms / 1000.0));
+
+    FileLoaded();
+
+    std::cout << "TOTAL NUM NODES: "
+              << m_data_core->GetCommandHierarchy().GetAllEventHierarchyTopology().GetNumNodes()
+              << std::endl;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::LoadDiveFiles(const char *pm4_file_name, const char *gfxr_file_name, bool is_temp_file)
+{
+    m_gfxr_capture = false;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    m_command_hierarchy_view->setCurrentIndex(QModelIndex());
+
+    Dive::CaptureData::LoadResult load_res = m_data_core->LoadDiveFolderCaptureData(pm4_file_name, gfxr_file_name);
+    if (load_res != Dive::CaptureData::LoadResult::kSuccess)
+    {
+        HideOverlay();
+        QString error_msg;
+        if (load_res == Dive::CaptureData::LoadResult::kFileIoError)
+            error_msg = QString("File I/O error!");
+        else if (load_res == Dive::CaptureData::LoadResult::kCorruptData)
+            error_msg = QString("File corrupt!");
+        else if (load_res == Dive::CaptureData::LoadResult::kVersionError)
+            error_msg = QString("Incompatible version!");
+        QMessageBox::critical(this, (QString("Unable to open files: ") + pm4_file_name + ", " + gfxr_file_name), error_msg);
+        return false;
+    }
+
+    if (!m_data_core->ParseDiveCaptureData())
+    {
+        HideOverlay();
+        QMessageBox::critical(this,
+                              QString("Error parsing file"),
+                              (QString("Unable to parse files: ") + pm4_file_name + ", " + gfxr_file_name));
+        return false;
+    }
+
+    m_gfxr_vulkan_command_hierarchy_model->Reset();
+
+    // Reset models and views that display data from the capture
+    m_gfxr_vulkan_command_tab_view->ResetModel();
+    m_gfxr_vulkan_command_arguments_tab_view->ResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->Reset();
+    m_command_tab_view->ResetModel();
+    m_command_hierarchy_model->Reset();
+    m_event_selection->Reset();
+    m_shader_view->Reset();
+    m_text_file_view->Reset();
+    m_prev_command_view_mode = QString();
+
+    m_gfxr_vulkan_commands_filter_proxy_model->setSourceModel(
+    m_gfxr_vulkan_command_hierarchy_model);
+
+    m_command_hierarchy_model->BeginResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->BeginResetModel();
+
+    // Remove all the tabs.
+    while (m_tab_widget->count() > 0)
+    {
+        m_tab_widget->removeTab(0);
+    }
+
+    // Add the tabs required for a .dive file.
+    m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view,
+                                                                "Commands");
+    m_gfxr_vulkan_command_arguments_view_tab_index =
+    m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
+    m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Command Buffers");
+    m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+    m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+    m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+#if defined(ENABLE_CAPTURE_BUFFERS)
+    // If m_buffer_view is dynamically created/deleted, handle it here.
+    // If it's a fixed member, ensure it's reset.
+    if (!m_buffer_view)
+    {  // Only create if null, otherwise just reset
+        m_buffer_view = new BufferView(*m_data_core);
+    }
+    else
+    {
+        // m_buffer_view->Reset(); // Assuming it has a reset method
+    }
+    m_tab_widget->addTab(m_buffer_view, "Buffers");
+#endif
+
+    m_filter_model->SetMode(DiveFilterModel::kBinningAndFirstTilePass);
+    m_command_hierarchy_view->setModel(m_filter_model);
+
+    m_filter_mode_combo_box->setEnabled(true);
+    m_view_mode_combo_box->setEnabled(true);
+
+    ConnectDiveFileTabs();
+
+    {
+        OnCommandViewModeChange(tr(kEventViewModeStrings[0]));
+    }
+
+    m_command_hierarchy_model->EndResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->EndResetModel();
+
+    ExpandResizeHierarchyView();
+    m_hover_help->SetCurItem(HoverHelp::Item::kNone);
+    m_capture_file = QString(gfxr_file_name);
     QFileInfo file_info(m_capture_file);
     SetCurrentFile(m_capture_file, is_temp_file);
     emit SetSaveAsMenuStatus(true);
@@ -895,32 +1023,66 @@ bool MainWindow::LoadGfxrFile(const char *file_name, bool is_temp_file)
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
+bool MainWindow::LoadFile(const char *path_name, bool is_temp_file)
 {
     // Check the file type to determine what is loaded.
-    std::string file_extension = std::filesystem::path(file_name).extension().generic_string();
+    std::string file_extension = std::filesystem::path(path_name).extension().generic_string();
 
     // Disconnect the signals for all of the possible tabs.
     DisconnectAllTabs();
-
-    if (file_extension.compare(".dive") == 0)
+    std::filesystem::path path(path_name);
+    if (std::filesystem::is_directory(path))
     {
-        return LoadDiveFile(file_name, is_temp_file);
+        std::string pm4_file_path;
+        std::string gfxr_file_path;
+
+        // Find the specific files within the directory
+        for (const auto &entry : std::filesystem::directory_iterator(path))
+        {
+            if (entry.is_regular_file())
+            {
+                std::string extension = entry.path().extension().string();
+                if (pm4_file_path.empty() && extension == ".rd")
+                {
+                    pm4_file_path = entry.path().string();
+                }
+                else if (gfxr_file_path.empty() && extension == ".gfxr")
+                {
+                    gfxr_file_path = entry.path().string();
+                }
+            }
+        }
+
+        // If both files are found, proceed with loading
+        if (!pm4_file_path.empty() && !gfxr_file_path.empty())
+        {
+            return LoadDiveFiles(pm4_file_path.c_str(), gfxr_file_path.c_str(), is_temp_file);
+        }
+        else
+        {
+            HideOverlay();
+            QString error_msg = QString("The selected folder must contain one .pm4 file and one .gfxr file.");
+            QMessageBox::critical(this, QString("Unable to open folder"), error_msg);
+            return false;
+        }
+    } else if (file_extension.compare(".dive") == 0)
+    {
+        return LoadDiveFile(path_name, is_temp_file);
     }
     else if (file_extension.compare(".rd") == 0)
     {
-        return LoadAdrenoRdFile(file_name, is_temp_file);
+        return LoadAdrenoRdFile(path_name, is_temp_file);
     }
     else if (file_extension.compare(".gfxr") == 0)
     {
-        return LoadDiveFile(file_name, is_temp_file);
+        return LoadDiveFile(path_name, is_temp_file);
         // return LoadGfxrFile(file_name, is_temp_file);
     }
     else
     {
         HideOverlay();
         QString error_msg = QString("File type not supported!");
-        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
+        QMessageBox::critical(this, (QString("Unable to open file: ") + path_name), error_msg);
         return false;
     }
 }
@@ -928,22 +1090,25 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnOpenFile()
 {
-    QString supported_files = QStringLiteral(
-    "Dive files (*.rd);;GFXR files (*.gfxr);;All files (*.*)");
-    QString file_name = QFileDialog::getOpenFileName(this,
-                                                     "Open Document",
-                                                     Settings::Get()->ReadLastFilePath(),
-                                                     supported_files);
+    // Use getExistingDirectory to select a folder instead of a file.
+    // The file filter string is no longer needed.
+    QString dir_path = QFileDialog::getExistingDirectory(this,
+                                     "Open Capture Folder",
+                                     Settings::Get()->ReadLastFilePath(),
+                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-    if (!file_name.isEmpty())
+    if (!dir_path.isEmpty())
     {
-        QString last_file_path = file_name.left(file_name.lastIndexOf('/'));
-        Settings::Get()->WriteLastFilePath(last_file_path);
-        if (!LoadFile(file_name.toStdString().c_str()))
+        // The returned path is the directory, so we can save it directly.
+        Settings::Get()->WriteLastFilePath(dir_path);
+
+        // Pass the directory path to LoadFile, which you already modified to handle it.
+        if (!LoadFile(dir_path.toStdString().c_str()))
         {
+            // Update the error message to be more accurate.
             QMessageBox::critical(this,
-                                  QString("Error opening file"),
-                                  (QString("Unable to open file: ") + file_name));
+                                  QString("Error Opening Folder"),
+                                  (QString("Unable to process folder: ") + dir_path));
         }
     }
 }

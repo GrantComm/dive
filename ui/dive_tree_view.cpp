@@ -63,11 +63,6 @@ void DiveFilterModel::applyNewFilterMode(FilterMode new_mode)
     // begin/endResetModel() will cause a full re-evaluation and rebuild of the proxy's internal
     // mapping.
     endResetModel();
-    std::cout << "Pm4 submit size: " << pm4_submit_indices.size() << std::endl;
-    std::cout << "Gfxr submit size: " << gfxr_submit_indices.size() << std::endl;
-
-    std::cout << "DiveFilterModel::applyNewFilterMode TOTAL NUM NODES: "
-              << m_command_hierarchy.GetAllEventHierarchyTopology().GetNumNodes() << std::endl;
 }
 
 void DiveFilterModel::SetMode(FilterMode filter_mode)

@@ -78,6 +78,7 @@ public:
     MainWindow();
     ~MainWindow();
     bool LoadDiveFile(const char *file_name, bool is_temp_file = false);
+    bool LoadDiveFiles(const char *pm4_file_name, const char *gfxr_file_name, bool is_temp_file);
     bool LoadAdrenoRdFile(const char *file_name, bool is_temp_file = false);
     bool LoadGfxrFile(const char *file_name, bool is_temp_file = false);
     bool LoadFile(const char *file_name, bool is_temp_file = false);

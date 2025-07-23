@@ -67,6 +67,7 @@ public:
 
     // Load the capture file
     CaptureData::LoadResult LoadDiveCaptureData(const char *file_name);
+    CaptureData::LoadResult LoadDiveFolderCaptureData(const char *pm4_file_name, const char *gfxr_file_name);
     CaptureData::LoadResult LoadPm4CaptureData(const char *file_name);
     CaptureData::LoadResult LoadGfxrCaptureData(const char *file_name);
 
