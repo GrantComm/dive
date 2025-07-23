@@ -54,8 +54,8 @@ void DiveFilterModel::applyNewFilterMode(FilterMode new_mode)
         return;
 
     // Clear the submit indices list for the pm4 and gfxr lists.
-    pm4_submit_indices.clear();
-    gfxr_submit_indices.clear();
+    pm4_draw_call_indices.clear();
+    gfxr_draw_call_indices.clear();
 
     beginResetModel();
     m_filter_mode = new_mode;
@@ -78,20 +78,20 @@ bool DiveFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
     // Ensure no gfxr nodes are displayed
     Dive::NodeType current_node_type = m_command_hierarchy.GetNodeType(node_index);
 
-    if (current_node_type == Dive::NodeType::kGfxrVulkanSubmitNode)
+    if (current_node_type == Dive::NodeType::kGfxrVulkanDrawCommandNode)
     {
         // Check if the node_index is not already in the vector before adding it
-        if (std::find(gfxr_submit_indices.begin(), gfxr_submit_indices.end(), node_index) ==
-            gfxr_submit_indices.end())
+        if (std::find(gfxr_draw_call_indices.begin(), gfxr_draw_call_indices.end(), node_index) ==
+            gfxr_draw_call_indices.end())
         {
-            gfxr_submit_indices.push_back(node_index);
+            gfxr_draw_call_indices.push_back(node_index);
         }
         return false;
     }
 
-    if (current_node_type == Dive::NodeType::kSubmitNode)
+    if (current_node_type == Dive::NodeType::kDrawDispatchNode)
     {
-        pm4_submit_indices.push_back(node_index);
+        pm4_draw_call_indices.push_back(node_index);
     }
 
     if (!index.isValid())
@@ -465,7 +465,7 @@ void DiveTreeView::GotoEvent(bool is_above)
                         command_model->data(event_id_idx, Qt::DisplayRole) :
                         gfxr_vulkan_command_model->data(event_id_idx, Qt::DisplayRole);
 
-        if (event_id != QVariant() && (node_type == Dive::NodeType::kDrawDispatchBlitNode ||
+        if (event_id != QVariant() && (node_type == Dive::NodeType::kDrawDispatchBlitNode || node_type == Dive::NodeType::kDrawDispatchNode ||
                                        (node_type == Dive::NodeType::kMarkerNode &&
                                         m_command_hierarchy.GetMarkerNodeType(node_idx) !=
                                         Dive::CommandHierarchy::MarkerType::kBeginEnd)))

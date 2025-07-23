@@ -514,7 +514,7 @@ void MainWindow::OnSelectionChanged(const QModelIndex &index)
     }
 
     Dive::NodeType node_type = command_hierarchy.GetNodeType(selected_item_node_index);
-    if (node_type == Dive::NodeType::kDrawDispatchBlitNode ||
+    if (node_type == Dive::NodeType::kDrawDispatchBlitNode || node_type == Dive::NodeType::kDrawDispatchNode || 
         node_type == Dive::NodeType::kMarkerNode)
     {
         emit EventSelected(selected_item_node_index);
@@ -685,10 +685,6 @@ bool MainWindow::LoadDiveFile(const char *file_name, bool is_temp_file)
 
     FileLoaded();
 
-    std::cout << "TOTAL NUM NODES: "
-              << m_data_core->GetCommandHierarchy().GetAllEventHierarchyTopology().GetNumNodes()
-              << std::endl;
-
     return true;
 }
 
@@ -811,10 +807,6 @@ bool MainWindow::LoadDiveFiles(const char *pm4_file_name, const char *gfxr_file_
     DIVE_DEBUG_LOG("Time used to load the capture is %f seconds.", (time_used_to_load_ms / 1000.0));
 
     FileLoaded();
-
-    std::cout << "TOTAL NUM NODES: "
-              << m_data_core->GetCommandHierarchy().GetAllEventHierarchyTopology().GetNumNodes()
-              << std::endl;
 
     return true;
 }
@@ -1937,26 +1929,16 @@ void MainWindow::ConnectDiveFileTabs()
                      m_event_state_view,
                      SLOT(OnEventSelected(uint64_t)));
 #if defined(ENABLE_CAPTURE_BUFFERS)
-    QObject::disconnect(this,
+    QObject::connect(this,
                         SIGNAL(EventSelected(uint64_t)),
                         m_buffer_view,
                         SLOT(OnEventSelected(uint64_t)));
 #endif
 
-    QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                     m_gfxr_vulkan_command_arguments_tab_view,
-                     SLOT(OnSelectionChanged(const QModelIndex &)));
-
     QObject::connect(m_gfxr_vulkan_command_arguments_tab_view,
                      SIGNAL(HideOtherSearchBars()),
                      this,
                      SLOT(OnTabViewChange()));
-
-    QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                     m_gfxr_vulkan_command_tab_view,
-                     SLOT(OnSelectionChanged(const QModelIndex &)));
 
     QObject::connect(m_gfxr_vulkan_command_tab_view,
                      SIGNAL(HideOtherSearchBars()),
@@ -2071,35 +2053,42 @@ QModelIndex MainWindow::findSourceIndexFromNode(QAbstractItemModel *model,
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnBinningFilterApplied(const QModelIndex &gfxr_index)
 {
-    uint64_t gfxr_submit_index = (uint64_t)gfxr_index.parent().parent().internalPointer();
-    std::vector<uint64_t> pm4_submit_indices = qobject_cast<DiveFilterModel *>(
+    uint64_t gfxr_draw_call_index = (uint64_t)gfxr_index.internalPointer();
+    std::vector<uint64_t> pm4_draw_call_indices = qobject_cast<DiveFilterModel *>(
                                                m_command_hierarchy_view->model())
-                                               ->GetPm4SubmitIndices();
-    std::vector<uint64_t> gfxr_submit_indices = qobject_cast<DiveFilterModel *>(
+                                               ->GetPm4DrawCallIndices();
+    std::vector<uint64_t> gfxr_draw_call_indices = qobject_cast<DiveFilterModel *>(
                                                 m_command_hierarchy_view->model())
-                                                ->GetGfxrSubmitIndices();
+                                                ->GetGfxrDrawCallIndices();
     m_filter_mode_combo_box->setCurrentIndex(1);
-    auto it = std::find(gfxr_submit_indices.begin(), gfxr_submit_indices.end(), gfxr_submit_index);
+    std::cout << "Pm4 draw indices size: " << pm4_draw_call_indices.size() << std::endl;
+    std::cout << "gfxr draw indices size: " << gfxr_draw_call_indices.size() << std::endl;
 
-    if (it != gfxr_submit_indices.end())
+    auto it = std::find(gfxr_draw_call_indices.begin(), gfxr_draw_call_indices.end(), gfxr_draw_call_index);
+
+    if (it != gfxr_draw_call_indices.end())
     {
-        long found_gfxr_submit_index = std::distance(gfxr_submit_indices.begin(), it);
-        std::cout << "Value " << gfxr_submit_index << " found at index: " << found_gfxr_submit_index
+        long found_gfxr_draw_call_index = std::distance(gfxr_draw_call_indices.begin(), it);
+        std::cout << "Value " << gfxr_draw_call_index << " found at index: " << found_gfxr_draw_call_index
                   << std::endl;
 
         /* Now correspond the submits
-        -----------------------------
-            uint64_t corresponding_pm4_submit_index =
-        pm4_submit_indices.at(found_gfxr_submit_index);
-        */
+        -----------------------------*/
+        uint64_t corresponding_pm4_submit_index =
+        pm4_draw_call_indices.at(found_gfxr_draw_call_index);
+
+        std::cout << "Corresponding pm4 draw index " << corresponding_pm4_submit_index << " found at index: " << found_gfxr_draw_call_index
+                  << std::endl;
+        
         QAbstractItemModel *source_model = m_filter_model->sourceModel();
 
-        QModelIndex source_index = findSourceIndexFromNode(source_model, gfxr_submit_index);
+        QModelIndex source_index = findSourceIndexFromNode(source_model, corresponding_pm4_submit_index);
+        std::cout << "--> Is the source index valid? " << source_index.isValid() << std::endl;
 
         if (source_index.isValid())
         {
             QModelIndex proxy_index = m_filter_model->mapFromSource(source_index);
-
+            std::cout << "--> Is the proxy index valid? " << proxy_index.isValid() << std::endl;
             if (proxy_index.isValid())
             {
                 // 3. Select the item in the view
@@ -2118,32 +2107,32 @@ void MainWindow::OnBinningFilterApplied(const QModelIndex &gfxr_index)
     }
     else
     {
-        std::cout << "Value " << gfxr_submit_index << " not found in the vector." << std::endl;
+        std::cout << "Value " << gfxr_draw_call_index << " not found in the vector." << std::endl;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnFirstTileFilterApplied(const QModelIndex &gfxr_index)
 {
-    uint64_t gfxr_submit_index = (uint64_t)gfxr_index.parent().parent().internalPointer();
-    std::vector<uint64_t> pm4_submit_indices = qobject_cast<DiveFilterModel *>(
+    uint64_t gfxr_draw_call_index = (uint64_t)gfxr_index.parent().parent().internalPointer();
+    std::vector<uint64_t> pm4_draw_call_indices = qobject_cast<DiveFilterModel *>(
                                                m_command_hierarchy_view->model())
-                                               ->GetPm4SubmitIndices();
-    std::vector<uint64_t> gfxr_submit_indices = qobject_cast<DiveFilterModel *>(
+                                               ->GetPm4DrawCallIndices();
+    std::vector<uint64_t> gfxr_draw_call_indices = qobject_cast<DiveFilterModel *>(
                                                 m_command_hierarchy_view->model())
-                                                ->GetGfxrSubmitIndices();
+                                                ->GetGfxrDrawCallIndices();
     // Find the parent index for the gfxr_index
     m_filter_mode_combo_box->setCurrentIndex(2);
-    auto it = std::find(gfxr_submit_indices.begin(), gfxr_submit_indices.end(), gfxr_submit_index);
+    auto it = std::find(gfxr_draw_call_indices.begin(), gfxr_draw_call_indices.end(), gfxr_draw_call_index);
 
-    if (it != gfxr_submit_indices.end())
+    if (it != gfxr_draw_call_indices.end())
     {
-        long long index = std::distance(gfxr_submit_indices.begin(), it);
-        std::cout << "Value " << gfxr_submit_index << " found at index: " << index << std::endl;
+        long long index = std::distance(gfxr_draw_call_indices.begin(), it);
+        std::cout << "Value " << gfxr_draw_call_index << " found at index: " << index << std::endl;
 
         QAbstractItemModel *source_model = m_filter_model->sourceModel();
 
-        QModelIndex source_index = findSourceIndexFromNode(source_model, gfxr_submit_index);
+        QModelIndex source_index = findSourceIndexFromNode(source_model, gfxr_draw_call_index);
 
         if (source_index.isValid())
         {
@@ -2168,6 +2157,6 @@ void MainWindow::OnFirstTileFilterApplied(const QModelIndex &gfxr_index)
     }
     else
     {
-        std::cout << "Value " << gfxr_submit_index << " not found in the vector." << std::endl;
+        std::cout << "Value " << gfxr_draw_call_index << " not found in the vector." << std::endl;
     }
 }

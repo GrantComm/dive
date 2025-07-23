@@ -190,7 +190,7 @@ void EventStateView::OnEventSelected(uint64_t node_index)
     };
 
     Dive::NodeType node_type = command_hierarchy.GetNodeType(node_index);
-    if (node_type == Dive::NodeType::kDrawDispatchBlitNode)
+    if (node_type == Dive::NodeType::kDrawDispatchBlitNode || node_type == Dive::NodeType::kDrawDispatchNode)
     {
         display_event_state_info(node_index);
     }
@@ -205,7 +205,7 @@ void EventStateView::OnEventSelected(uint64_t node_index)
         {
             auto           child_node_index = topology.GetChildNodeIndex(node_index, i);
             Dive::NodeType child_node_type = command_hierarchy.GetNodeType(child_node_index);
-            if (child_node_type == Dive::NodeType::kDrawDispatchBlitNode)
+            if (child_node_type == Dive::NodeType::kDrawDispatchBlitNode || child_node_type == Dive::NodeType::kDrawDispatchNode)
             {
                 event_node_index = child_node_index;
             }

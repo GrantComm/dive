@@ -251,10 +251,8 @@ void CommandBufferModel::OnSelectionChanged(const QModelIndex &index)
     uint64_t selected_node_index = (uint64_t)(index.internalPointer());
     if (m_selected_node_index == selected_node_index)  // Selected same item
         return;
-
     QAbstractItemModel *model = const_cast<QAbstractItemModel *>(index.model());
     DiveFilterModel    *dive_filter_model = dynamic_cast<DiveFilterModel *>(model);
-
     if (dive_filter_model)
     {
         QModelIndex new_index = dive_filter_model->mapToSource(index);
@@ -263,7 +261,12 @@ void CommandBufferModel::OnSelectionChanged(const QModelIndex &index)
 
     emit beginResetModel();
     m_selected_node_index = selected_node_index;
+    std::cout << "m_selected_node_index: " << m_selected_node_index << std::endl;
     uint64_t root_node_index = m_topology_ptr->GetSharedChildRootNodeIndex(m_selected_node_index);
+    std::cout << "root_node_index: " << root_node_index << std::endl;
+    std::cout << "num_shared_children: " << m_topology_ptr->GetNumSharedChildren(root_node_index) << std::endl;
+    std::cout << "num_children: " << m_topology_ptr->GetNumChildren(root_node_index) << std::endl;
+
 
     // Resize the look-up lists
     // The bit lists are 1-bit per node, but they're arrays of uint8_ts, so round up

@@ -56,6 +56,7 @@ enum class NodeType
     kSubmitNode,
     kIbNode,
     kMarkerNode,
+    kDrawDispatchNode,
     kDrawDispatchBlitNode,
     kSyncNode,
     kPostambleStateNode,

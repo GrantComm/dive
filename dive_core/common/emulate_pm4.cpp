@@ -904,8 +904,6 @@ const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_su
 {
     EmulatePM4 emu;
 
-    std::cout << "IEmulateCallbacks::ProcessDiveSubmits, pm4 submits size: " << submits.size()
-              << std::endl;
     for (uint32_t submit_index = 0; submit_index < submits.size(); ++submit_index)
     {
         const Dive::SubmitInfo &submit_info = submits[submit_index];
@@ -935,8 +933,6 @@ const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &gfxr_su
         OnSubmitEnd(submit_index, submit_info);
     }
 
-    std::cout << "IEmulateCallbacks::ProcessDiveSubmits, gfxr submits size: " << gfxr_submits.size()
-              << std::endl;
     for (uint32_t submit_index = 0; submit_index < gfxr_submits.size(); ++submit_index)
     {
         const DiveAnnotationProcessor::SubmitInfo &submit_info = *gfxr_submits[submit_index];
