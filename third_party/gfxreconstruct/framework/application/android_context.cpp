@@ -36,7 +36,7 @@ AndroidContext::AndroidContext(Application* application, struct android_app* app
     assert(android_app_);
     window_factory_ = std::make_unique<AndroidWindowFactory>(this);
 }
-
+// GOOGLE: TEST CHANGE
 AndroidContext::~AndroidContext() {}
 
 void AndroidContext::ProcessEvents(bool wait_for_input)
