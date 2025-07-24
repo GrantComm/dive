@@ -2353,10 +2353,10 @@ void CommandHierarchyCreator::CreateTopologies()
         {
             DIVE_ASSERT(m_node_children[topology][0].size() == m_node_children[topology][1].size());
             cur_topology.AddChildren(node_index, m_node_children[topology][0][node_index]);
-            if (m_node_children[topology][0].size() == m_node_children[topology][1].size())
+            if (node_index < m_node_children[topology][1].size())
             {
-                cur_topology.AddSharedChildren(node_index,
-                                               m_node_children[topology][1][node_index]);
+                // This code only runs if the index is valid for the second vector.
+                cur_topology.AddSharedChildren(node_index, m_node_children[topology][1][node_index]);
             }
         }
         cur_topology.m_start_shared_child = std::move(m_node_start_shared_child[topology]);
