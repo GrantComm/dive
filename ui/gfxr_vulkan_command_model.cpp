@@ -28,9 +28,9 @@ static_assert(sizeof(void *) == sizeof(uint64_t),
 // GfxrVulkanCommandModel
 // =================================================================================================
 GfxrVulkanCommandModel::GfxrVulkanCommandModel(const Dive::CommandHierarchy &command_hierarchy) :
-    m_command_hierarchy(command_hierarchy)
+    m_command_hierarchy(command_hierarchy),
+    m_topology_ptr(nullptr)
 {
-    m_topology_ptr = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
