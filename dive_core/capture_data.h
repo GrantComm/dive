@@ -19,6 +19,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 #include "third_party/libarchive/libarchive/archive.h"
 #include "common.h"
 #include "dive_core/common/dive_capture_format.h"
@@ -328,6 +329,36 @@ private:
     std::unique_ptr<struct archive, decltype(&archive_read_free)> m_handle;
 };
 
+enum class CaptureFileType
+{
+    kAdrenoPm4,
+    kGfxr,
+    kDive,
+    kNone
+};
+
+//--------------------------------------------------------------------------------------------------
+// Container for selected .gfxr, .rd, and .dive files.
+class SelectedCaptureFiles
+{
+public:
+    SelectedCaptureFiles();
+    ~SelectedCaptureFiles() = default;
+    void            AddSingleFile(std::string file_name);
+    void            ResetSelections();
+    std::string     PrintSelections();
+    CaptureFileType GetCaptureType() const;
+    const char     *GetDiveFile() const { return m_dive_file.c_str(); }
+    const char     *GetGfxrFile() const { return m_gfxr_file.c_str(); }
+    const char     *GetPm4File() const { return m_pm4_file.c_str(); }
+
+private:
+    std::string     m_pm4_file;
+    std::string     m_gfxr_file;
+    std::string     m_dive_file;
+    CaptureFileType m_capture_type;
+};
+
 //--------------------------------------------------------------------------------------------------
 class CaptureData
 {
@@ -343,7 +374,7 @@ public:
     CaptureData(ProgressTracker *progress_tracker);
     virtual ~CaptureData() = default;
 
-    LoadResult LoadFile(const char *file_name);
+    LoadResult LoadFile(const Dive::SelectedCaptureFiles *selected_capture_files);
 
     CaptureDataHeader::CaptureType          GetCaptureType() const;
     const MemoryManager                    &GetMemoryManager() const;

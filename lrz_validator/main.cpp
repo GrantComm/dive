@@ -161,7 +161,9 @@ int main(int argc, char **argv)
 
     // Load capture
     std::unique_ptr<Dive::DataCore> data_core = std::make_unique<Dive::DataCore>();
-    Dive::CaptureData::LoadResult   load_res = data_core->LoadCaptureData(input_file_name);
+    auto                            capture_file = std::make_unique<Dive::SelectedCaptureFiles>();
+    capture_file->AddSingleFile(input_file_name);
+    Dive::CaptureData::LoadResult load_res = data_core->LoadCaptureData(capture_file.get());
     if (load_res != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cout << "Loading capture \"" << input_file_name << "\" failed!";

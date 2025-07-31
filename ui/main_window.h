@@ -64,6 +64,7 @@ namespace Dive
 {
 class DataCore;
 class PluginLoader;
+class SelectedCaptureFiles;
 }  // namespace Dive
 
 #define MESSAGE_TIMEOUT 2500
@@ -74,10 +75,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     ~MainWindow();
-    bool LoadFile(const char *file_name, bool is_temp_file = false);
+    bool LoadFiles(bool is_temp_file = false);
     bool LoadDiveFile(const char *file_name);
     bool LoadGfxrFile(const char *file_name);
     bool InitializePlugins();
+    // Used during command line initialization.
+    void InitializeCaptureFileSelection(const char *file_name);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
@@ -98,7 +101,8 @@ private slots:
     void OnCommandViewModeComboBoxHover(const QString &);
     void OnSelectionChanged(const QModelIndex &index);
     void OnFilterModeChange(const QString &string);
-    void OnOpenFile();
+    void OnOpenFiles();
+    void OnOpenFolder();
     void OnGFXRCapture();
     void OnNormalCapture();
     void OnCaptureTrigger();
@@ -134,10 +138,13 @@ private:
     void    HideOverlay();
     void    UpdateTabAvailability();
     void    ResetTabWidget();
+    void    ValidateSelections(const QStringList &files_to_check);
 
     QMenu       *m_file_menu;
+    QMenu       *m_open_files_menu;
     QMenu       *m_recent_captures_menu;
-    QAction     *m_open_action;
+    QAction     *m_open_files_action;
+    QAction     *m_open_folder_action;
     QAction     *m_save_action;
     QAction     *m_save_as_action;
     QAction     *m_exit_action;
@@ -232,4 +239,5 @@ private:
 
     std::unique_ptr<Dive::PluginLoader>         m_plugin_manager;
     GfxrVulkanCommandArgumentsFilterProxyModel *m_gfxr_vulkan_commands_arguments_filter_proxy_model;
+    Dive::SelectedCaptureFiles                 *m_selected_capture_files;
 };

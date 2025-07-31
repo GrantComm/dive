@@ -22,6 +22,7 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <string>
 #include "archive.h"
 #include "dive_core/command_hierarchy.h"
 #include "dive_core/common/common.h"
@@ -840,6 +841,87 @@ const std::map<std::string, uint32_t> &RegisterInfo::GetRegisters() const
 }
 
 // =================================================================================================
+// SelectedCaptureFiles
+// =================================================================================================
+SelectedCaptureFiles::SelectedCaptureFiles()
+{
+    m_capture_type = CaptureFileType::kNone;
+}
+
+//--------------------------------------------------------------------------------------------------
+void SelectedCaptureFiles::AddSingleFile(std::string file_name)
+{
+    std::string file_extension = std::filesystem::path(file_name).extension().generic_string();
+    if (file_extension.compare(".dive") == 0)
+    {
+        m_capture_type = CaptureFileType::kDive;
+        m_dive_file = file_name;
+    }
+    else if (file_extension.compare(".rd") == 0)
+    {
+        m_pm4_file = file_name;
+        if (m_gfxr_file != "")
+        {
+            m_capture_type = CaptureFileType::kDive;
+        }
+        else
+        {
+            m_capture_type = CaptureFileType::kAdrenoPm4;
+        }
+    }
+    else if (file_extension.compare(".gfxr") == 0)
+    {
+        m_gfxr_file = file_name;
+        if (m_pm4_file != "")
+        {
+            m_capture_type = CaptureFileType::kDive;
+        }
+        else
+        {
+            m_capture_type = CaptureFileType::kGfxr;
+        }
+    }
+}
+
+CaptureFileType SelectedCaptureFiles::GetCaptureType() const
+{
+    return m_capture_type;
+}
+
+std::string SelectedCaptureFiles::PrintSelections()
+{
+    if (m_capture_type == CaptureFileType::kNone)
+    {
+        return "No file(s) selected";
+    }
+    else if (m_capture_type == CaptureFileType::kAdrenoPm4)
+    {
+        return m_pm4_file;
+    }
+    else if (m_capture_type == CaptureFileType::kGfxr)
+    {
+        return m_gfxr_file;
+    }
+    else
+    {
+        if (m_gfxr_file != "" && m_pm4_file != "")
+        {
+            return (m_pm4_file + ", " + m_gfxr_file);
+        }
+
+        return m_dive_file;
+    }
+}
+
+void SelectedCaptureFiles::ResetSelections()
+{
+    m_pm4_file = "";
+    m_gfxr_file = "";
+    m_dive_file = "";
+    m_capture_type = CaptureFileType::kNone;
+}
+
+// =================================================================================================
 // CaptureData
 // =================================================================================================
 CaptureData::CaptureData() :
@@ -854,26 +936,23 @@ CaptureData::CaptureData(ProgressTracker *progress_tracker) :
 }
 
 //--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult CaptureData::LoadFile(const char *file_name)
+CaptureData::LoadResult CaptureData::LoadFile(
+const Dive::SelectedCaptureFiles *selected_capture_files)
 {
-    std::string file_name_(file_name);
-    std::string file_extension = std::filesystem::path(file_name_).extension().generic_string();
-
-    if (file_extension.compare(".dive") == 0)
+    if (selected_capture_files->GetCaptureType() == CaptureFileType::kDive)
     {
-        return LoadCaptureFile(file_name);
+        return LoadCaptureFile(selected_capture_files->GetDiveFile());
     }
-    else if (file_extension.compare(".rd") == 0)
+    else if (selected_capture_files->GetCaptureType() == CaptureFileType::kAdrenoPm4)
     {
-        return LoadAdrenoRdFile(file_name);
+        return LoadAdrenoRdFile(selected_capture_files->GetPm4File());
     }
-    else if (file_extension.compare(".gfxr") == 0)
+    else if (selected_capture_files->GetCaptureType() == CaptureFileType::kGfxr)
     {
-        return LoadGfxrFile(file_name);
+        return LoadGfxrFile(selected_capture_files->GetGfxrFile());
     }
     else
     {
-        std::cerr << "Unknown capture type: " << file_name << std::endl;
         return LoadResult::kCorruptData;
     }
 }

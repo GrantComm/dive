@@ -537,7 +537,9 @@ bool ParseCapture(const char                              *filename,
 {
     std::unique_ptr<Dive::CaptureData> &capture_data = *out_capture_data;
     capture_data = std::make_unique<Dive::CaptureData>();
-    if (capture_data->LoadFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
+    auto capture_file = std::make_unique<Dive::SelectedCaptureFiles>();
+    capture_file->AddSingleFile(filename);
+    if (capture_data->LoadFile(capture_file.get()) != Dive::CaptureData::LoadResult::kSuccess)
     {
         capture_data.reset();
         std::cerr << "Not able to open: " << filename << std::endl;
@@ -561,7 +563,9 @@ bool ParseCapture(const char                              *filename,
 int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 {
     std::unique_ptr<Dive::CaptureData> capture_data_ptr = std::make_unique<Dive::CaptureData>();
-    if (capture_data_ptr->LoadFile(filename) != Dive::CaptureData::LoadResult::kSuccess)
+    auto capture_file = std::make_unique<Dive::SelectedCaptureFiles>();
+    capture_file->AddSingleFile(filename);
+    if (capture_data_ptr->LoadFile(capture_file.get()) != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Not able to open: " << filename << std::endl;
         return EXIT_FAILURE;
@@ -608,7 +612,9 @@ int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 int ExtractCapture(const char *filename, const char *extract_assets)
 {
     std::unique_ptr<Dive::DataCore> data = std::make_unique<Dive::DataCore>();
-    if (data->LoadCaptureData(filename) != Dive::CaptureData::LoadResult::kSuccess)
+    auto                            capture_file = std::make_unique<Dive::SelectedCaptureFiles>();
+    capture_file->AddSingleFile(filename);
+    if (data->LoadCaptureData(capture_file.get()) != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Load capture failed." << std::endl;
         return EXIT_FAILURE;

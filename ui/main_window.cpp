@@ -111,6 +111,9 @@ MainWindow::MainWindow()
 
     m_event_selection = new EventSelection(m_data_core->GetCommandHierarchy());
 
+    // No files are currently selected when the MainWindow is initialized.
+    m_selected_capture_files = new Dive::SelectedCaptureFiles();
+
     // Left side panel
     QFrame *left_frame = new QFrame();
     m_view_mode_combo_box = new TreeViewComboBox();
@@ -416,11 +419,19 @@ bool MainWindow::InitializePlugins()
     return true;
 }
 
+void MainWindow::InitializeCaptureFileSelection(const char *file_name)
+{
+    m_selected_capture_files->AddSingleFile(file_name);
+}
+
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnTraceAvailable(const QString &path)
 {
     qDebug() << "Trace is at " << path;
-    LoadFile(path.toStdString().c_str(), true);
+    QStringList file_path;
+    file_path << path.toStdString().c_str();
+    ValidateSelections(file_path);
+    LoadFiles(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -669,19 +680,16 @@ bool MainWindow::LoadGfxrFile(const char *file_name)
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
+bool MainWindow::LoadFiles(bool is_temp_file)
 {
-    // Check the file type to determine what is loaded.
-    std::string file_extension = std::filesystem::path(file_name).extension().generic_string();
-
-    bool file_loaded = false;
+    bool files_loaded = false;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     m_log_record.Reset();
 
     m_command_hierarchy_view->setCurrentIndex(QModelIndex());
 
-    Dive::CaptureData::LoadResult load_res = m_data_core->LoadCaptureData(file_name);
+    Dive::CaptureData::LoadResult load_res = m_data_core->LoadCaptureData(m_selected_capture_files);
     if (load_res != Dive::CaptureData::LoadResult::kSuccess)
     {
         HideOverlay();
@@ -692,34 +700,41 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
             error_msg = QString("File corrupt!");
         else if (load_res == Dive::CaptureData::LoadResult::kVersionError)
             error_msg = QString("Incompatible version!");
-        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
+        QMessageBox::critical(this,
+                              (QString("Unable to open file: ") +
+                               m_selected_capture_files->PrintSelections().c_str()),
+                              error_msg);
         return false;
     }
 
-    m_gfxr_capture_loaded = (file_extension.compare(".gfxr") == 0);
+    m_gfxr_capture_loaded = m_selected_capture_files->GetCaptureType() ==
+                            Dive::CaptureFileType::kGfxr;
 
     // Disconnect the signals for all of the possible tabs.
     DisconnectAllTabs();
 
+    const char *loaded_capture_file;
     if (m_gfxr_capture_loaded)
     {
-        file_loaded = LoadGfxrFile(file_name);
+        loaded_capture_file = m_selected_capture_files->GetGfxrFile();
+        files_loaded = LoadGfxrFile(loaded_capture_file);
+        m_capture_file = QString(loaded_capture_file);
     }
-    else if (file_extension.compare(".dive") == 0 || file_extension.compare(".rd") == 0)
+    else if (m_selected_capture_files->GetCaptureType() == Dive::CaptureFileType::kAdrenoPm4)
     {
-        file_loaded = LoadDiveFile(file_name);
+        loaded_capture_file = m_selected_capture_files->GetPm4File();
+        files_loaded = LoadDiveFile(loaded_capture_file);
+        m_capture_file = QString(loaded_capture_file);
     }
-    else
+    else if (m_selected_capture_files->GetCaptureType() == Dive::CaptureFileType::kDive)
     {
-        HideOverlay();
-        QString error_msg = QString("File type not supported!");
-        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
-        return false;
+        loaded_capture_file = m_selected_capture_files->GetDiveFile();
+        files_loaded = LoadDiveFile(loaded_capture_file);
+        m_capture_file = QString(loaded_capture_file);
     }
 
     ExpandResizeHierarchyView();
     m_hover_help->SetCurItem(HoverHelp::Item::kNone);
-    m_capture_file = QString(file_name);
     QFileInfo file_info(m_capture_file);
     SetCurrentFile(m_capture_file, is_temp_file);
     emit SetSaveAsMenuStatus(true);
@@ -742,29 +757,137 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
 
     FileLoaded();
 
-    return file_loaded;
+    return files_loaded;
+}
+
+void MainWindow::ValidateSelections(const QStringList &files_to_check)
+{
+    QStringList rd_files, gfxr_files, gfxa_files, dive_files;
+    for (const QString &file : files_to_check)
+    {
+        if (file.endsWith(".rd"))
+            rd_files << file;
+        else if (file.endsWith(".gfxr"))
+            gfxr_files << file;
+        else if (file.endsWith(".gfxa"))
+            gfxa_files << file;
+        else if (file.endsWith(".dive"))
+            dive_files << file;
+    }
+
+    // Show an error if .gfxa, .rd, AND .dive files all exist.
+    if (!gfxa_files.isEmpty() && !rd_files.isEmpty() && !dive_files.isEmpty())
+    {
+        QMessageBox::
+        critical(this,
+                 "Invalid Selection",
+                 "A selection cannot contain .gfxa, .rd, and .dive files simultaneously.");
+        return;
+    }
+
+    // TODO(b/434039869) (.gfxr + .rd) pair, and nothing else.
+    /*if (gfxr_files.size() == 1 && rd_files.size() == 1 && gfxa_files.isEmpty() &&
+    dive_files.isEmpty()) {
+        m_selected_capture_files->AddSingleFile(gfxr_files.first().toStdString());
+        m_selected_capture_files->AddSingleFile(rd_files.first().toStdString());
+
+        if (!LoadFiles()) {
+            QMessageBox::critical(this, "Error Loading Files", "Failed to load the .gfxr and .rd
+    file pair.");
+        }
+    }*/
+
+    // A single .gfxr file, and possibly a .gfxa file.
+    else if (gfxr_files.size() == 1 && rd_files.isEmpty() && dive_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(gfxr_files.first().toStdString());
+        if (!LoadFiles())
+        {
+            QMessageBox::critical(this, "Error Loading File", "Failed to load the .gfxr file.");
+        }
+    }
+    // A single .dive file, and nothing else.
+    else if (dive_files.size() == 1 && rd_files.isEmpty() && gfxa_files.isEmpty() &&
+             gfxr_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(dive_files.first().toStdString());
+        if (!LoadFiles())
+        {
+            QMessageBox::critical(this, "Error Loading File", "Failed to load the .dive file.");
+        }
+    }
+    // A single .rd file, and nothing else.
+    else if (rd_files.size() == 1 && gfxr_files.isEmpty() && gfxa_files.isEmpty() &&
+             dive_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(rd_files.first().toStdString());
+        if (!LoadFiles())
+        {
+            QMessageBox::critical(this, "Error Loading File", "Failed to load the .rd file.");
+        }
+    }
+    // All other combinations are considered invalid.
+    else
+    {
+        QMessageBox::information(this,
+                                 "Invalid Selection or Folder Contents",
+                                 "The selection must contain exactly one of the following valid "
+                                 "combinations:\n\n"
+                                 "  • 1 .gfxr file AND 1 .rd file\n"
+                                 "  • 1 single .gfxr file and possibly the optional .gfxa file.\n"
+                                 "  • 1 single .dive file\n"
+                                 "  • 1 single .rd file\n\n"
+                                 "No other files (.gfxa) or combinations are allowed.");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-void MainWindow::OnOpenFile()
+void MainWindow::OnOpenFiles()
 {
-    QString supported_files = QStringLiteral(
-    "Dive files (*.rd);;GFXR files (*.gfxr);;All files (*.*)");
-    QString file_name = QFileDialog::getOpenFileName(this,
-                                                     "Open Document",
-                                                     Settings::Get()->ReadLastFilePath(),
-                                                     supported_files);
-
-    if (!file_name.isEmpty())
+    // Ensure there are no previously selected files.
+    if (m_selected_capture_files->GetCaptureType() != Dive::CaptureFileType::kNone)
     {
-        QString last_file_path = file_name.left(file_name.lastIndexOf('/'));
-        Settings::Get()->WriteLastFilePath(last_file_path);
-        if (!LoadFile(file_name.toStdString().c_str()))
+        m_selected_capture_files->ResetSelections();
+    }
+
+    QString supported_files = QStringLiteral(
+    "Supported Files (*.rd *.gfxr *.dive);;All files (*.*)");
+    QStringList selected_files = QFileDialog::getOpenFileNames(this,
+                                                               "Open Document(s)",
+                                                               Settings::Get()->ReadLastFilePath(),
+                                                               supported_files);
+
+    if (!selected_files.isEmpty())
+    {
+        Settings::Get()->WriteLastFilePath(
+        selected_files.first().left(selected_files.first().lastIndexOf('/')));
+        ValidateSelections(selected_files);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnOpenFolder()
+{
+    QString dir_path = QFileDialog::getExistingDirectory(this,
+                                                         "Open Folder",
+                                                         Settings::Get()->ReadLastFilePath());
+
+    if (!dir_path.isEmpty())
+    {
+        Settings::Get()->WriteLastFilePath(dir_path);
+
+        // Discover all files and put them into a single list.
+        QStringList  discovered_files;
+        QDirIterator it(dir_path,
+                        { "*.rd", "*.gfxr", "*.gfxa", "*.dive" },
+                        QDir::Files,
+                        QDirIterator::Subdirectories);
+        while (it.hasNext())
         {
-            QMessageBox::critical(this,
-                                  QString("Error opening file"),
-                                  (QString("Unable to open file: ") + file_name));
+            discovered_files << it.next();
         }
+
+        ValidateSelections(discovered_files);
     }
 }
 
@@ -897,7 +1020,9 @@ void MainWindow::OpenRecentFile()
     QAction *action = qobject_cast<QAction *>(sender());
     if (action)
     {
-        LoadFile(action->data().toString().toStdString().c_str());
+        std::cout << "Recent file: " << action->data().toString().toStdString().c_str()
+                  << std::endl;
+        LoadFiles();
     }
 }
 
@@ -1030,12 +1155,19 @@ void MainWindow::OnSearchTrigger()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::CreateActions()
 {
-    // Open file action
-    m_open_action = new QAction(tr("&Open"), this);
-    m_open_action->setIcon(QIcon(":/images/open.png"));
-    m_open_action->setShortcuts(QKeySequence::Open);
-    m_open_action->setStatusTip(tr("Open an existing capture"));
-    connect(m_open_action, &QAction::triggered, this, &MainWindow::OnOpenFile);
+    // Open file(s) action
+    m_open_files_action = new QAction(tr("&Open File(s)"), this);
+    m_open_files_action->setIcon(QIcon(":/images/open_file.png"));
+    m_open_files_action->setShortcuts(QKeySequence::Open);
+    m_open_files_action->setStatusTip(tr("Open existing capture file(s)"));
+    connect(m_open_files_action, &QAction::triggered, this, &MainWindow::OnOpenFiles);
+
+    // Open folder action
+    m_open_folder_action = new QAction(tr("&Open Folder"), this);
+    m_open_folder_action->setIcon(QIcon(":/images/open_file.png"));
+    m_open_folder_action->setShortcut(QKeySequence("Ctrl+Shift+O"));
+    m_open_folder_action->setStatusTip(tr("Open folder"));
+    connect(m_open_folder_action, &QAction::triggered, this, &MainWindow::OnOpenFolder);
 
     // Exit application action
     m_exit_action = new QAction(tr("E&xit"), this);
@@ -1108,7 +1240,8 @@ void MainWindow::CreateMenus()
 {
     // File Menu
     m_file_menu = menuBar()->addMenu(tr("&File"));
-    m_file_menu->addAction(m_open_action);
+    m_file_menu->addAction(m_open_files_action);
+    m_file_menu->addAction(m_open_folder_action);
     m_file_menu->addAction(m_save_action);
     m_file_menu->addAction(m_save_as_action);
     m_file_menu->addSeparator();
@@ -1131,8 +1264,25 @@ void MainWindow::CreateMenus()
 void MainWindow::CreateToolBars()
 {
     m_file_tool_bar = addToolBar(tr("&File"));
-    m_file_tool_bar->addAction(m_open_action);
+
+    // Create a menu for the "Open" button
+    QMenu* open_menu = new QMenu(this);
+    open_menu->addAction(m_open_files_action);
+    open_menu->addAction(m_open_folder_action);
+
+    // Create a QToolButton to hold the menu
+    QToolButton* open_button = new QToolButton();
+    open_button->setPopupMode(QToolButton::InstantPopup);
+    open_button->setMenu(open_menu);
+    open_button->setIcon(QIcon(":/images/open_file.png"));
+    open_button->setToolTip(tr("Open File(s) or Folder"));
+
+    // Add the new button to the toolbar
+    m_file_tool_bar->addWidget(open_button);
+
+    // Add the rest of the original toolbar actions
     m_file_tool_bar->addAction(m_save_action);
+
 #ifndef NDEBUG
     m_file_tool_bar->addSeparator();
     for (int i = 0; i < MaxRecentFiles; ++i)

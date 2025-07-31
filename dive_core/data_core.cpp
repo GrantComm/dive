@@ -33,11 +33,12 @@ DataCore::DataCore(ProgressTracker *progress_tracker) :
 }
 
 //--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DataCore::LoadCaptureData(const char *file_name)
+CaptureData::LoadResult DataCore::LoadCaptureData(
+const Dive::SelectedCaptureFiles *selected_capture_files)
 {
     m_capture_data = CaptureData(m_progress_tracker);  // Clear any previously loaded data
     m_capture_metadata = CaptureMetadata();
-    return m_capture_data.LoadFile(file_name);
+    return m_capture_data.LoadFile(selected_capture_files);
 }
 
 //--------------------------------------------------------------------------------------------------

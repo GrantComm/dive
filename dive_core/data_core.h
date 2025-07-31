@@ -65,7 +65,8 @@ public:
     DataCore(ProgressTracker *progress_tracker);
 
     // Load the capture file
-    CaptureData::LoadResult LoadCaptureData(const char *file_name);
+    CaptureData::LoadResult LoadCaptureData(
+    const Dive::SelectedCaptureFiles *selected_capture_files);
 
     // Parse the capture to generate info that describes the capture
     bool ParseCaptureData(bool is_gfxr_capture);

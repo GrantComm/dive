@@ -145,7 +145,12 @@ int main(int argc, char *argv[])
         << "Application: Plugin initialization failed. Application may proceed without plugins.";
     }
 
-    if (argc == 2 && !main_window->LoadFile(argv[1]))
+    if (argc > 1)
+    {
+        main_window->InitializeCaptureFileSelection(argv[1]);
+    }
+
+    if (argc == 2 && !main_window->LoadFiles())
     {
         std::cerr << "Not able to open: " << argv[1] << std::endl;
         return 0;
