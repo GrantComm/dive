@@ -22,8 +22,18 @@ namespace Dive
 // =================================================================================================
 GfxrVulkanCommandHierarchyCreator::GfxrVulkanCommandHierarchyCreator(
 CommandHierarchy &command_hierarchy,
-CaptureData      &capture_data) :
+GfxrCaptureData      &capture_data) :
     m_command_hierarchy(command_hierarchy),
+    m_capture_data(capture_data)
+{
+}
+
+GfxrVulkanCommandHierarchyCreator::GfxrVulkanCommandHierarchyCreator(
+CommandHierarchy        &command_hierarchy,
+CommandHierarchyCreator &pm4_command_hierarchy_creator,
+GfxrCaptureData         &capture_data) :
+    m_command_hierarchy(command_hierarchy),
+    m_pm4_command_hierarchy_creator(pm4_command_hierarchy_creator),
     m_capture_data(capture_data)
 {
 }
@@ -92,18 +102,24 @@ const std::vector<std::unique_ptr<DiveAnnotationProcessor::SubmitInfo>> &submits
 bool GfxrVulkanCommandHierarchyCreator::CreateTrees()
 {
     // Clear/Reset internal data structures, just in case
-    m_command_hierarchy = CommandHierarchy();
+    if (!m_pm4_command_hierarchy_creator)
+    {
+        m_command_hierarchy = CommandHierarchy();
 
-    // Add a dummy root node for easier management
-    uint64_t root_node_index = AddNode(NodeType::kRootNode, "");
-    DIVE_VERIFY(root_node_index == Topology::kRootNodeIndex);
+        // Add a dummy root node for easier management
+        uint64_t root_node_index = AddNode(NodeType::kRootNode, "");
+        DIVE_VERIFY(root_node_index == Topology::kRootNodeIndex);
+    }
 
     if (!ProcessGfxrSubmits(m_capture_data.GetGfxrSubmits()))
     {
         return false;
     }
-    // Convert the info in m_node_children into GfxrVulkanCommandHierarchy's topologies
-    CreateTopologies();
+    // Convert the info in m_gfxr_node_children into GfxrVulkanCommandHierarchy's topologies
+    if (!m_pm4_command_hierarchy_creator)
+    {
+        CreateTopologies();
+    }
 
     return true;
 }

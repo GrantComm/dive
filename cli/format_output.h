@@ -19,6 +19,7 @@
 #include "cli.h"
 #include "dive_core/capture_data.h"
 #include "dive_core/command_hierarchy.h"
+#include <memory>
 
 namespace Dive
 {

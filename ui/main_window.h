@@ -34,6 +34,7 @@ class EventStateView;
 #ifndef NDEBUG
 class EventTimingView;
 #endif
+class GfxrVulkanCommandTabView;
 class GfxrVulkanCommandArgumentsTabView;
 class GfxrVulkanCommandArgumentsFilterProxyModel;
 class GfxrVulkanCommandFilterProxyModel;
@@ -76,6 +77,7 @@ public:
     ~MainWindow();
     bool LoadFile(const char *file_name, bool is_temp_file = false);
     bool LoadDiveFile(const char *file_name);
+    bool LoadAdrenoRdFile(const char *file_name);
     bool LoadGfxrFile(const char *file_name);
     bool InitializePlugins();
 
@@ -115,6 +117,7 @@ private slots:
     void OnTabViewSearchBarVisibilityChange(bool isHidden);
     void OnTabViewChange();
     void ConnectDiveFileTabs();
+    void ConnectAdrenoRdFileTabs();
     void ConnectGfxrFileTabs();
     void ConnectSearchBar();
     void DisconnectSearchBar();
@@ -194,6 +197,8 @@ private:
     int                                m_shader_view_tab_index;
     EventStateView                    *m_event_state_view;
     int                                m_event_state_view_tab_index;
+    GfxrVulkanCommandTabView           *m_gfxr_vulkan_command_tab_view;
+    int                                m_gfxr_vulkan_command_view_tab_index;
     GfxrVulkanCommandArgumentsTabView *m_gfxr_vulkan_command_arguments_tab_view;
     int                                m_gfxr_vulkan_command_arguments_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)

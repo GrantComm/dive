@@ -18,6 +18,8 @@
 #include <vector>
 #include "capture_data.h"
 #include "common.h"
+#include "dive_core/common/emulate_pm4.h"
+#include "dive_core/common/gpudefs.h"
 #include "shader_disassembly.h"
 
 namespace Dive
