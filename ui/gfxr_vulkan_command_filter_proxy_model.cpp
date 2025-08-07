@@ -13,6 +13,7 @@
 
 #include "gfxr_vulkan_command_filter_proxy_model.h"
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 GfxrVulkanCommandFilterProxyModel::GfxrVulkanCommandFilterProxyModel(
@@ -63,6 +64,11 @@ bool GfxrVulkanCommandFilterProxyModel::filterAcceptsRow(int                sour
     }
 
     if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kGfxrVulkanCommandArgNode)
+    {
+        return false;
+    }
+
+    if (m_command_hierarchy->GetNodeType(node_index) == Dive::NodeType::kSubmitNode)
     {
         return false;
     }

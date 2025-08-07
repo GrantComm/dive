@@ -37,6 +37,35 @@ protected:
     std::string m_cur_capture_file;
 };
 
+enum class CaptureFileType
+{
+    kAdrenoPm4,
+    kGfxr,
+    kDive,
+    kNone
+};
+//--------------------------------------------------------------------------------------------------
+// Container for selected .gfxr, .rd, and .dive files.
+class SelectedCaptureFiles
+{
+public:
+    SelectedCaptureFiles();
+    ~SelectedCaptureFiles() = default;
+    void            AddSingleFile(std::string file_name);
+    void            ResetSelections();
+    std::string     PrintSelections();
+    CaptureFileType GetCaptureType() const;
+    const char     *GetDiveFile() const { return m_dive_file.c_str(); }
+    const char     *GetGfxrFile() const { return m_gfxr_file.c_str(); }
+    const char     *GetPm4File() const { return m_pm4_file.c_str(); }
+
+private:
+    std::string     m_pm4_file;
+    std::string     m_gfxr_file;
+    std::string     m_dive_file;
+    CaptureFileType m_capture_type;
+};
+
 // Inline function used to include CaptureData::LoadResult in a std::cerr log
 inline std::ostream& operator<<(std::ostream& os, const CaptureData::LoadResult& r)
 {
