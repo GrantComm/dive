@@ -32,28 +32,16 @@ DiveCaptureData::DiveCaptureData() :
 DiveCaptureData::~DiveCaptureData() {}
 
 //--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DiveCaptureData::LoadFile(const char* file_name)
-{
-    CaptureData::LoadResult result;
-
-    m_gfxr_capture_data = GfxrCaptureData();
-    m_pm4_capture_data = Pm4CaptureData(m_progress_tracker);
-    // m_capture_metadata = CaptureMetadata();
-    result = m_pm4_capture_data.LoadCaptureFile(file_name);
-    result = m_gfxr_capture_data.LoadCaptureFile(file_name);
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DiveCaptureData::LoadFiles(const char* pm4_file_name,
-                                                   const char* gfxr_file_name)
+CaptureData::LoadResult DiveCaptureData::LoadFiles(
+const Dive::SelectedCaptureFiles* selected_capture_files)
 {
     // Initialize capture data objects
     m_gfxr_capture_data = GfxrCaptureData();
     m_pm4_capture_data = Pm4CaptureData(m_progress_tracker);
 
     // 1. Load the PM4 capture file
-    CaptureData::LoadResult pm4_result = m_pm4_capture_data.LoadCaptureFile(pm4_file_name);
+    CaptureData::LoadResult pm4_result = m_pm4_capture_data.LoadCaptureFile(
+    selected_capture_files->GetPm4File());
     if (pm4_result != CaptureData::LoadResult::kSuccess)
     {
         // If the first file fails, stop and return its error code
@@ -61,7 +49,8 @@ CaptureData::LoadResult DiveCaptureData::LoadFiles(const char* pm4_file_name,
     }
 
     // 2. Load the GFXR capture file
-    CaptureData::LoadResult gfxr_result = m_gfxr_capture_data.LoadCaptureFile(gfxr_file_name);
+    CaptureData::LoadResult gfxr_result = m_gfxr_capture_data.LoadCaptureFile(
+    selected_capture_files->GetGfxrFile());
     if (gfxr_result != CaptureData::LoadResult::kSuccess)
     {
         // If the second file fails, you might want to clean up the first one if necessary

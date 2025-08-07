@@ -613,7 +613,10 @@ int PrintTopology(const char *filename, TopologyName topology, bool verbose)
 int ExtractCapture(const char *filename, const char *extract_assets)
 {
     std::unique_ptr<Dive::DataCore> data = std::make_unique<Dive::DataCore>();
-    if (data->LoadPm4CaptureData(filename) != Dive::CaptureData::LoadResult::kSuccess)
+    auto                            capture_file = std::make_unique<Dive::SelectedCaptureFiles>();
+    capture_file->AddSingleFile(filename);
+    Dive::CaptureData::LoadResult load_res = data->LoadCaptureData(capture_file.get());
+    if (load_res != Dive::CaptureData::LoadResult::kSuccess)
     {
         std::cerr << "Load capture failed." << std::endl;
         return EXIT_FAILURE;

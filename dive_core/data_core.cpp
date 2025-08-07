@@ -17,6 +17,7 @@
 #include "data_core.h"
 #include <assert.h>
 #include <optional>
+#include "dive_core/capture_data.h"
 #include "pm4_info.h"
 
 namespace Dive
@@ -33,25 +34,25 @@ DataCore::DataCore(ProgressTracker *progress_tracker) :
 }
 
 //--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DataCore::LoadDiveCaptureData(const char *file_name)
+CaptureData::LoadResult DataCore::LoadCaptureData(
+const Dive::SelectedCaptureFiles *selected_capture_files)
 {
-    return m_dive_capture_data.LoadFile(file_name);
-}
-
-//--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DataCore::LoadPm4CaptureData(const char *file_name)
-{
-
-    m_pm4_capture_data = Pm4CaptureData(m_progress_tracker);  // Clear any previously loaded data
-    m_capture_metadata = CaptureMetadata();
-    return m_pm4_capture_data.LoadCaptureFile(file_name);
-}
-
-//--------------------------------------------------------------------------------------------------
-CaptureData::LoadResult DataCore::LoadGfxrCaptureData(const char *file_name)
-{
-    m_gfxr_capture_data = GfxrCaptureData();
-    return m_gfxr_capture_data.LoadCaptureFile(file_name);
+    if (selected_capture_files->GetCaptureType() == CaptureFileType::kGfxr)
+    {
+        m_gfxr_capture_data = GfxrCaptureData();
+        return m_gfxr_capture_data.LoadCaptureFile(selected_capture_files->GetGfxrFile());
+    }
+    else if (selected_capture_files->GetCaptureType() == CaptureFileType::kAdrenoPm4)
+    {
+        m_pm4_capture_data = Pm4CaptureData(
+        m_progress_tracker);  // Clear any previously loaded data
+        m_capture_metadata = CaptureMetadata();
+        return m_pm4_capture_data.LoadCaptureFile(selected_capture_files->GetPm4File());
+    }
+    else
+    {
+        return m_dive_capture_data.LoadFiles(selected_capture_files);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
