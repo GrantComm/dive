@@ -57,6 +57,7 @@
 #include "gfxr_vulkan_command_filter_proxy_model.h"
 #include "gfxr_vulkan_command_arguments_filter_proxy_model.h"
 #include "gfxr_vulkan_command_arguments_tab_view.h"
+#include "gfxr_vulkan_command_tab_view.h"
 #include "hover_help_model.h"
 #include "overlay.h"
 #include "overview_tab_view.h"
@@ -110,6 +111,9 @@ MainWindow::MainWindow()
     m_data_core = std::make_unique<Dive::DataCore>(&m_progress_tracker);
 
     m_event_selection = new EventSelection(m_data_core->GetCommandHierarchy());
+
+    // No files are currently selected when the MainWindow is initialized.
+    m_selected_capture_files = new Dive::SelectedCaptureFiles();
 
     // Left side panel
     QFrame *left_frame = new QFrame();
@@ -243,16 +247,24 @@ MainWindow::MainWindow()
         m_overview_tab_view = new OverviewTabView(m_data_core->GetCaptureMetadata(),
                                                   *m_event_selection);
         m_event_state_view = new EventStateView(*m_data_core);
+        m_gfxr_vulkan_command_tab_view =
+        new GfxrVulkanCommandTabView(m_data_core->GetCommandHierarchy(),
+                                     *m_gfxr_vulkan_commands_filter_proxy_model,
+                                     *m_gfxr_vulkan_command_hierarchy_model,
+                                     this);
+        m_gfxr_vulkan_command_arguments_tab_view =
+        new GfxrVulkanCommandArgumentsTabView(m_data_core->GetCommandHierarchy(),
+                                              m_gfxr_vulkan_commands_arguments_filter_proxy_model,
+                                              m_gfxr_vulkan_command_hierarchy_model);
+
         m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
 
         m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Commands");
         m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
         m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
 
-        m_gfxr_vulkan_command_arguments_tab_view =
-        new GfxrVulkanCommandArgumentsTabView(m_data_core->GetCommandHierarchy(),
-                                              m_gfxr_vulkan_commands_arguments_filter_proxy_model,
-                                              m_gfxr_vulkan_command_hierarchy_model);
+        m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view,
+                                                                    "Commands");
         m_gfxr_vulkan_command_arguments_view_tab_index =
         m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
 #if defined(ENABLE_CAPTURE_BUFFERS)
@@ -417,10 +429,19 @@ bool MainWindow::InitializePlugins()
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::InitializeCaptureFileSelection(const char *file_name)
+{
+    m_selected_capture_files->AddSingleFile(file_name);
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::OnTraceAvailable(const QString &path)
 {
     qDebug() << "Trace is at " << path;
-    LoadFile(path.toStdString().c_str(), true);
+    QStringList file_path;
+    file_path << path.toStdString().c_str();
+    ValidateSelections(file_path);
+    LoadFiles(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,6 +465,7 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
         }
         else
         {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
             m_command_hierarchy_model->SetTopologyToView(&topology);
             m_command_tab_view->SetTopologyToView(&topology);
         }
@@ -451,8 +473,16 @@ void MainWindow::OnCommandViewModeChange(const QString &view_mode)
     else  // All Vulkan Calls + GPU Events
     {
         const Dive::SharedNodeTopology &topology = command_hierarchy.GetAllEventHierarchyTopology();
-        m_command_hierarchy_model->SetTopologyToView(&topology);
-        m_command_tab_view->SetTopologyToView(&topology);
+        if (m_gfxr_capture_loaded)
+        {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
+        }
+        else
+        {
+            m_gfxr_vulkan_command_hierarchy_model->SetTopologyToView(&topology);
+            m_command_hierarchy_model->SetTopologyToView(&topology);
+            m_command_tab_view->SetTopologyToView(&topology);
+        }
 
         // Put EventID column to the left of the tree. This forces the expand/collapse icon to be
         // part of the 2nd column (originally 1st)
@@ -556,6 +586,7 @@ void MainWindow::ResetTabWidget()
     }
 
     // Reset all of the tab indices.
+    m_gfxr_vulkan_command_view_tab_index = -1;
     m_gfxr_vulkan_command_arguments_view_tab_index = -1;
     m_overview_view_tab_index = -1;
     m_command_view_tab_index = -1;
@@ -564,9 +595,90 @@ void MainWindow::ResetTabWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-// TODO (gcommodore): Separate loading .rd files from loading .dive files so that this function is
-// used purely for loading a .dive file.
-bool MainWindow::LoadDiveFile(const char *file_name)
+// TODO (gcommodore) (b/436646197) : Separate loading .rd files from loading .dive files so that
+// this function is used purely for loading a .dive file or loading a group of files (.gfxr, .rd,
+// and .gfxa).
+bool MainWindow::LoadDiveFile()
+{
+    // Reset models and views that display data from the capture
+    m_gfxr_vulkan_command_tab_view->ResetModel();
+    m_gfxr_vulkan_command_arguments_tab_view->ResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->Reset();
+    m_command_tab_view->ResetModel();
+    m_command_hierarchy_model->Reset();
+    m_event_selection->Reset();
+    m_shader_view->Reset();
+    m_text_file_view->Reset();
+    m_prev_command_view_mode = QString();
+
+    m_gfxr_vulkan_commands_filter_proxy_model->setSourceModel(
+    m_gfxr_vulkan_command_hierarchy_model);
+
+    m_command_hierarchy_model->BeginResetModel();
+
+    // Reset the tab widget.
+    ResetTabWidget();
+
+    if (!m_data_core->ParseDiveCaptureData())
+    {
+        HideOverlay();
+        QMessageBox::critical(this,
+                              QString("Error parsing file"),
+                              (QString("Unable to parse files: ") +
+                               m_selected_capture_files->GetPm4File() + ", " +
+                               m_selected_capture_files->GetGfxrFile()));
+        return false;
+    }
+
+    // Add the tabs required for an Dive file or .rd and .gfxr file.
+    m_gfxr_vulkan_command_view_tab_index = m_tab_widget->addTab(m_gfxr_vulkan_command_tab_view,
+                                                                "Commands");
+    m_gfxr_vulkan_command_arguments_view_tab_index =
+    m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
+    m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Command Buffers");
+    m_event_state_view_tab_index = m_tab_widget->addTab(m_event_state_view, "Event State");
+    m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+    m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
+#if defined(ENABLE_CAPTURE_BUFFERS)
+    // If m_buffer_view is dynamically created/deleted, handle it here.
+    // If it's a fixed member, ensure it's reset.
+    if (!m_buffer_view)
+    {  // Only create if null, otherwise just reset
+        m_buffer_view = new BufferView(*m_data_core);
+    }
+    else
+    {
+        // m_buffer_view->Reset(); // Assuming it has a reset method
+    }
+    m_tab_widget->addTab(m_buffer_view, "Buffers");
+#endif
+
+    m_filter_model->SetMode(DiveFilterModel::kBinningAndFirstTilePass);
+    m_command_hierarchy_view->setModel(m_filter_model);
+
+    m_filter_mode_combo_box->setEnabled(true);
+    m_view_mode_combo_box->setEnabled(true);
+
+    ConnectDiveFileTabs();
+
+    {
+        OnCommandViewModeChange(tr(kEventViewModeStrings[0]));
+        // TODO (b/185579518): disable the dropdown list for vulkan events.
+    }
+    m_command_hierarchy_model->EndResetModel();
+    m_gfxr_vulkan_command_hierarchy_model->EndResetModel();
+
+    // Collect the gfxr draw call indices
+    m_filter_model->CollectGfxrDrawCallIndices();
+
+    // Ensure there is no previous tab index set
+    m_previous_tab_index = -1;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::LoadAdrenoRdFile()
 {
     // Reset models and views that display data from the capture
     m_command_tab_view->ResetModel();
@@ -581,16 +693,17 @@ bool MainWindow::LoadDiveFile(const char *file_name)
     // Reset the tab widget.
     ResetTabWidget();
 
-    if (!m_data_core->ParseCaptureData(m_gfxr_capture_loaded))
+    if (!m_data_core->ParsePm4CaptureData())
     {
         HideOverlay();
         QMessageBox::critical(this,
                               QString("Error parsing file"),
-                              (QString("Unable to parse file: ") + file_name));
+                              (QString("Unable to parse file: ") +
+                               m_selected_capture_files->GetPm4File()));
         return false;
     }
 
-    // Add the tabs required for an Dive/AdrenoRd file.
+    // Add the tabs required for an AdrenoRd file.
     m_overview_view_tab_index = m_tab_widget->addTab(m_overview_tab_view, "Overview");
     m_command_view_tab_index = m_tab_widget->addTab(m_command_tab_view, "Command Buffers");
     m_shader_view_tab_index = m_tab_widget->addTab(m_shader_view, "Shaders");
@@ -623,11 +736,14 @@ bool MainWindow::LoadDiveFile(const char *file_name)
     }
     m_command_hierarchy_model->EndResetModel();
 
+    // Ensure there is no previous tab index set
+    m_previous_tab_index = -1;
+
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::LoadGfxrFile(const char *file_name)
+bool MainWindow::LoadGfxrFile()
 {
     // Reset models and views that display data from the capture
     m_gfxr_vulkan_command_hierarchy_model->Reset();
@@ -638,12 +754,13 @@ bool MainWindow::LoadGfxrFile(const char *file_name)
     // Reset the tab widget.
     ResetTabWidget();
 
-    if (!m_data_core->ParseCaptureData(m_gfxr_capture_loaded))
+    if (!m_data_core->ParseGfxrCaptureData())
     {
         HideOverlay();
         QMessageBox::critical(this,
                               QString("Error parsing file"),
-                              (QString("Unable to parse file: ") + file_name));
+                              (QString("Unable to parse file: ") +
+                               m_selected_capture_files->GetGfxrFile()));
         return false;
     }
 
@@ -656,67 +773,31 @@ bool MainWindow::LoadGfxrFile(const char *file_name)
     m_gfxr_vulkan_command_arguments_view_tab_index =
     m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Command Arguments");
 
-    // Ensure the submit topology is displayed.
-    m_view_mode_combo_box->currentTextChanged("Submit");
+    // Ensure the All Event topology is displayed.
+    m_view_mode_combo_box->currentTextChanged(kViewModeStrings[1]);
     // Disable the Mode and Filter combo boxes.
     m_view_mode_combo_box->setEnabled(false);
     m_filter_mode_combo_box->setEnabled(false);
 
     m_gfxr_vulkan_command_hierarchy_model->EndResetModel();
 
+    // Ensure there is no previous tab index set
+    m_previous_tab_index = -1;
+
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
+bool MainWindow::LoadFiles(bool is_temp_file)
 {
-    // Check the file type to determine what is loaded.
-    std::string file_extension = std::filesystem::path(file_name).extension().generic_string();
-
-    // Check if the file loaded is a .gfxr file.
-    m_gfxr_capture_loaded = (file_extension.compare(".gfxr") == 0);
-
-    if (m_gfxr_capture_loaded)
-    {
-        // Convert the filename to a string to perform a replacement.
-        std::string potential_asset_name(file_name);
-
-        const std::string trim_str = "_trim_trigger";
-        const std::string asset_str = "_asset_file";
-
-        // Find and replace the "trim_trigger" part of the filename.
-        size_t pos = potential_asset_name.find(trim_str);
-        if (pos != std::string::npos)
-        {
-            potential_asset_name.replace(pos, trim_str.length(), asset_str);
-        }
-
-        // Create a path object to the asset file.
-        std::filesystem::path asset_file_path(potential_asset_name);
-        asset_file_path.replace_extension(".gfxa");
-
-        // Check if the required asset file exists.
-        bool asset_file_exists = std::filesystem::exists(asset_file_path);
-
-        if (!asset_file_exists)
-        {
-            HideOverlay();
-            QString title = QString("Unable to open file: %1").arg(file_name);
-            QString description = QString("Required .gfxa file: %1 not found!")
-                                  .arg(QString::fromStdString(asset_file_path.string()));
-            QMessageBox::critical(this, title, description);
-            return false;
-        }
-    }
-
-    bool file_loaded = false;
+    bool files_loaded = false;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     m_log_record.Reset();
 
     m_command_hierarchy_view->setCurrentIndex(QModelIndex());
 
-    Dive::CaptureData::LoadResult load_res = m_data_core->LoadCaptureData(file_name);
+    Dive::CaptureData::LoadResult load_res = m_data_core->LoadCaptureData(m_selected_capture_files);
     if (load_res != Dive::CaptureData::LoadResult::kSuccess)
     {
         HideOverlay();
@@ -727,32 +808,41 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
             error_msg = QString("File corrupt!");
         else if (load_res == Dive::CaptureData::LoadResult::kVersionError)
             error_msg = QString("Incompatible version!");
-        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
+        QMessageBox::critical(this,
+                              (QString("Unable to open file: ") +
+                               m_selected_capture_files->PrintSelections().c_str()),
+                              error_msg);
         return false;
     }
+
+    m_gfxr_capture_loaded = m_selected_capture_files->GetCaptureType() ==
+                            Dive::CaptureFileType::kGfxr;
 
     // Disconnect the signals for all of the possible tabs.
     DisconnectAllTabs();
 
+    const char *loaded_capture_file;
     if (m_gfxr_capture_loaded)
     {
-        file_loaded = LoadGfxrFile(file_name);
+        loaded_capture_file = m_selected_capture_files->GetGfxrFile();
+        files_loaded = LoadGfxrFile();
+        m_capture_file = QString(loaded_capture_file);
     }
-    else if (file_extension.compare(".dive") == 0 || file_extension.compare(".rd") == 0)
+    else if (m_selected_capture_files->GetCaptureType() == Dive::CaptureFileType::kAdrenoPm4)
     {
-        file_loaded = LoadDiveFile(file_name);
+        loaded_capture_file = m_selected_capture_files->GetPm4File();
+        files_loaded = LoadAdrenoRdFile();
+        m_capture_file = QString(loaded_capture_file);
     }
-    else
+    else if (m_selected_capture_files->GetCaptureType() == Dive::CaptureFileType::kDive)
     {
-        HideOverlay();
-        QString error_msg = QString("File type not supported!");
-        QMessageBox::critical(this, (QString("Unable to open file: ") + file_name), error_msg);
-        return false;
+        loaded_capture_file = m_selected_capture_files->GetDiveFile();
+        files_loaded = LoadDiveFile();
+        m_capture_file = QString(loaded_capture_file);
     }
 
     ExpandResizeHierarchyView();
     m_hover_help->SetCurItem(HoverHelp::Item::kNone);
-    m_capture_file = QString(file_name);
     QFileInfo file_info(m_capture_file);
     SetCurrentFile(m_capture_file, is_temp_file);
     emit SetSaveAsMenuStatus(true);
@@ -775,29 +865,139 @@ bool MainWindow::LoadFile(const char *file_name, bool is_temp_file)
 
     FileLoaded();
 
-    return file_loaded;
+    return files_loaded;
 }
 
 //--------------------------------------------------------------------------------------------------
-void MainWindow::OnOpenFile()
+void MainWindow::ValidateSelections(const QStringList &files_to_check)
 {
-    QString supported_files = QStringLiteral(
-    "Dive files (*.rd);;GFXR files (*.gfxr);;All files (*.*)");
-    QString file_name = QFileDialog::getOpenFileName(this,
-                                                     "Open Document",
-                                                     Settings::Get()->ReadLastFilePath(),
-                                                     supported_files);
-
-    if (!file_name.isEmpty())
+    QStringList rd_files, gfxr_files, gfxa_files, dive_files;
+    for (const QString &file : files_to_check)
     {
-        QString last_file_path = file_name.left(file_name.lastIndexOf('/'));
-        Settings::Get()->WriteLastFilePath(last_file_path);
-        if (!LoadFile(file_name.toStdString().c_str()))
+        if (file.endsWith(".rd"))
+            rd_files << file;
+        else if (file.endsWith(".gfxr"))
+            gfxr_files << file;
+        else if (file.endsWith(".gfxa"))
+            gfxa_files << file;
+        else if (file.endsWith(".dive"))
+            dive_files << file;
+    }
+
+    // Show an error if .gfxa, .rd, AND .dive files all exist.
+    if (!gfxa_files.isEmpty() && !rd_files.isEmpty() && !dive_files.isEmpty())
+    {
+        QMessageBox::
+        critical(this,
+                 "Invalid Selection",
+                 "A selection cannot contain .gfxa, .rd, and .dive files simultaneously.");
+        return;
+    }
+
+    if (gfxr_files.size() == 1 && rd_files.size() == 1 && dive_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(gfxr_files.first().toStdString());
+        m_selected_capture_files->AddSingleFile(rd_files.first().toStdString());
+
+        if (!LoadFiles())
         {
             QMessageBox::critical(this,
-                                  QString("Error opening file"),
-                                  (QString("Unable to open file: ") + file_name));
+                                  "Error Loading Files",
+                                  "Failed to load the .gfxr and .rd file pair.");
         }
+    }
+
+    // A single .gfxr file, and possibly a .gfxa file.
+    else if (gfxr_files.size() == 1 && rd_files.isEmpty() && dive_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(gfxr_files.first().toStdString());
+        if (!LoadFiles())
+        {
+            QMessageBox::critical(this, "Error Loading File", "Failed to load the .gfxr file.");
+        }
+    }
+    // A single .dive file, and nothing else.
+    else if (dive_files.size() == 1 && rd_files.isEmpty() && gfxa_files.isEmpty() &&
+             gfxr_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(dive_files.first().toStdString());
+        if (!LoadFiles())
+        {
+            QMessageBox::critical(this, "Error Loading File", "Failed to load the .dive file.");
+        }
+    }
+    // A single .rd file, and nothing else.
+    else if (rd_files.size() == 1 && gfxr_files.isEmpty() && gfxa_files.isEmpty() &&
+             dive_files.isEmpty())
+    {
+        m_selected_capture_files->AddSingleFile(rd_files.first().toStdString());
+        if (!LoadFiles())
+        {
+            QMessageBox::critical(this, "Error Loading File", "Failed to load the .rd file.");
+        }
+    }
+    // All other combinations are considered invalid.
+    else
+    {
+        QMessageBox::information(this,
+                                 "Invalid Selection or Folder Contents",
+                                 "The selection must contain exactly one of the following valid "
+                                 "combinations:\n\n"
+                                 "  • 1 .gfxr file AND 1 .rd file\n"
+                                 "  • 1 single .gfxr file and possibly the optional .gfxa file.\n"
+                                 "  • 1 single .dive file\n"
+                                 "  • 1 single .rd file\n\n"
+                                 "No other files (.gfxa) or combinations are allowed.");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnOpenFiles()
+{
+    // Ensure there are no previously selected files.
+    if (m_selected_capture_files->GetCaptureType() != Dive::CaptureFileType::kNone)
+    {
+        m_selected_capture_files->ResetSelections();
+    }
+
+    QString supported_files = QStringLiteral(
+    "Supported Files (*.rd *.gfxr *.dive);;All files (*.*)");
+    QStringList selected_files = QFileDialog::getOpenFileNames(this,
+                                                               "Open Document(s)",
+                                                               Settings::Get()->ReadLastFilePath(),
+                                                               supported_files);
+
+    if (!selected_files.isEmpty())
+    {
+        Settings::Get()->WriteLastFilePath(
+        selected_files.first().left(selected_files.first().lastIndexOf('/')));
+        ValidateSelections(selected_files);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnOpenFolder()
+{
+    QString dir_path = QFileDialog::getExistingDirectory(this,
+                                                         "Open Folder",
+                                                         Settings::Get()->ReadLastFilePath());
+
+    if (!dir_path.isEmpty())
+    {
+        Settings::Get()->WriteLastFilePath(dir_path);
+
+        // Discover all files and put them into a single list.
+        QStringList  discovered_files;
+        QDirIterator it(dir_path,
+                        { "*.rd", "*.gfxr", "*.gfxa", "*.dive" },
+                        QDir::Files,
+                        QDirIterator::Subdirectories);
+        while (it.hasNext())
+        {
+            discovered_files << it.next();
+        }
+
+        ValidateSelections(discovered_files);
     }
 }
 
@@ -930,7 +1130,9 @@ void MainWindow::OpenRecentFile()
     QAction *action = qobject_cast<QAction *>(sender());
     if (action)
     {
-        LoadFile(action->data().toString().toStdString().c_str());
+        std::cout << "Recent file: " << action->data().toString().toStdString().c_str()
+                  << std::endl;
+        LoadFiles();
     }
 }
 
@@ -1044,6 +1246,19 @@ void MainWindow::OnSearchTrigger()
         }
         tab_wiget_search_button->show();
     }
+    else if (current_index == m_gfxr_vulkan_command_view_tab_index)
+    {
+        tab_wiget_search_bar = current_tab->findChild<SearchBar *>(kGfxrVulkanCommandSearchBarName);
+        tab_wiget_search_button = current_tab->findChild<QPushButton *>(
+        kGfxrVulkanCommandSearchButtonName);
+
+        if (!tab_wiget_search_bar->isHidden())
+        {
+            tab_wiget_search_bar->clearSearch();
+            tab_wiget_search_bar->hide();
+        }
+        tab_wiget_search_button->show();
+    }
     else if (current_index == m_gfxr_vulkan_command_arguments_view_tab_index)
     {
         tab_wiget_search_bar = current_tab->findChild<SearchBar *>(
@@ -1063,12 +1278,19 @@ void MainWindow::OnSearchTrigger()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::CreateActions()
 {
-    // Open file action
-    m_open_action = new QAction(tr("&Open"), this);
-    m_open_action->setIcon(QIcon(":/images/open.png"));
-    m_open_action->setShortcuts(QKeySequence::Open);
-    m_open_action->setStatusTip(tr("Open an existing capture"));
-    connect(m_open_action, &QAction::triggered, this, &MainWindow::OnOpenFile);
+    // Open file(s) action
+    m_open_files_action = new QAction(tr("&Open File(s)"), this);
+    m_open_files_action->setIcon(QIcon(":/images/open.png"));
+    m_open_files_action->setShortcuts(QKeySequence::Open);
+    m_open_files_action->setStatusTip(tr("Open existing capture file(s)"));
+    connect(m_open_files_action, &QAction::triggered, this, &MainWindow::OnOpenFiles);
+
+    // Open folder action
+    m_open_folder_action = new QAction(tr("&Open Folder"), this);
+    m_open_folder_action->setIcon(QIcon(":/images/open.png"));
+    m_open_folder_action->setShortcut(QKeySequence("Ctrl+Shift+O"));
+    m_open_folder_action->setStatusTip(tr("Open folder"));
+    connect(m_open_folder_action, &QAction::triggered, this, &MainWindow::OnOpenFolder);
 
     // Exit application action
     m_exit_action = new QAction(tr("E&xit"), this);
@@ -1141,7 +1363,8 @@ void MainWindow::CreateMenus()
 {
     // File Menu
     m_file_menu = menuBar()->addMenu(tr("&File"));
-    m_file_menu->addAction(m_open_action);
+    m_file_menu->addAction(m_open_files_action);
+    m_file_menu->addAction(m_open_folder_action);
     m_file_menu->addAction(m_save_action);
     m_file_menu->addAction(m_save_as_action);
     m_file_menu->addSeparator();
@@ -1164,8 +1387,25 @@ void MainWindow::CreateMenus()
 void MainWindow::CreateToolBars()
 {
     m_file_tool_bar = addToolBar(tr("&File"));
-    m_file_tool_bar->addAction(m_open_action);
+
+    // Create a menu for the "Open" button
+    QMenu *open_menu = new QMenu(this);
+    open_menu->addAction(m_open_files_action);
+    open_menu->addAction(m_open_folder_action);
+
+    // Create a QToolButton to hold the menu
+    QToolButton *open_button = new QToolButton();
+    open_button->setPopupMode(QToolButton::InstantPopup);
+    open_button->setMenu(open_menu);
+    open_button->setIcon(QIcon(":/images/open.png"));
+    open_button->setToolTip(tr("Open File(s) or Folder"));
+
+    // Add the new button to the toolbar
+    m_file_tool_bar->addWidget(open_button);
+
+    // Add the rest of the original toolbar actions
     m_file_tool_bar->addAction(m_save_action);
+
 #ifndef NDEBUG
     m_file_tool_bar->addSeparator();
     for (int i = 0; i < MaxRecentFiles; ++i)
@@ -1197,9 +1437,17 @@ void MainWindow::CreateShortcuts()
         {
             m_command_tab_view->OnSearchCommandBuffer();
         }
+        else if (current_tab_index == m_gfxr_vulkan_command_view_tab_index)
+        {
+            m_gfxr_vulkan_command_tab_view->OnSearchCommands();
+        }
         else if (current_tab_index == m_gfxr_vulkan_command_arguments_view_tab_index)
         {
             m_gfxr_vulkan_command_arguments_tab_view->OnSearchCommandArgs();
+        }
+        else if (current_tab_index == m_gfxr_vulkan_command_view_tab_index)
+        {
+            m_gfxr_vulkan_command_tab_view->OnSearchCommands();
         }
         else
         {
@@ -1232,6 +1480,25 @@ void MainWindow::CreateShortcuts()
     m_event_state_tab_shortcut = new QShortcut(QKeySequence(SHORTCUT_EVENT_STATE_TAB), this);
     connect(m_event_state_tab_shortcut, &QShortcut::activated, [this]() {
         m_tab_widget->setCurrentIndex(m_event_state_view_tab_index);
+    });
+    // Gfxr Vulkan Command Shortcut
+    m_gfxr_vulkan_command_tab_shortcut = new QShortcut(QKeySequence(
+                                                       SHORTCUT_GFXR_VULKAN_COMMAND_TAB),
+                                                       this);
+    connect(m_gfxr_vulkan_command_tab_shortcut, &QShortcut::activated, [this]() {
+        if (m_gfxr_vulkan_command_view_tab_index != -1)
+        {
+            m_tab_widget->setCurrentIndex(m_gfxr_vulkan_command_view_tab_index);
+        }
+    });
+    // Gfxr Vulkan Command Arguments Shortcut
+    m_gfxr_vulkan_command_arguments_tab_shortcut =
+    new QShortcut(QKeySequence(SHORTCUT_GFXR_VULKAN_COMMAND_ARGUMENTS_TAB), this);
+    connect(m_gfxr_vulkan_command_arguments_tab_shortcut, &QShortcut::activated, [this]() {
+        if (m_gfxr_vulkan_command_arguments_view_tab_index != -1)
+        {
+            m_tab_widget->setCurrentIndex(m_gfxr_vulkan_command_arguments_view_tab_index);
+        }
     });
 }
 
@@ -1271,6 +1538,7 @@ void MainWindow::ShowTempStatus(const QString &status_message)
 void MainWindow::ExpandResizeHierarchyView()
 {
     m_command_hierarchy_view->expandAll();
+    m_gfxr_vulkan_command_tab_view->ExpandAll();
 
     // Set to -1 so that resizeColumnToContents() will consider *all* rows to determine amount
     // to resize. This can potentially be slow!
@@ -1329,7 +1597,7 @@ void MainWindow::UpdateTabAvailability()
 {
     m_overview_tab_view->UpdateTabAvailability();
 
-    bool has_text = m_data_core->GetCaptureData().GetNumText() > 0;
+    bool has_text = m_data_core->GetPm4CaptureData().GetNumText() > 0;
     SetTabAvailable(m_tab_widget, m_text_file_view_tab_index, has_text);
 
     SetTabAvailable(m_tab_widget, m_event_state_view_tab_index, true);
@@ -1362,7 +1630,7 @@ void MainWindow::OnFileLoaded()
 {
     UpdateTabAvailability();
 
-    if (m_data_core->GetCaptureData().HasPm4Data())
+    if (m_data_core->GetPm4CaptureData().HasPm4Data())
         m_overview_tab_view->Update(&m_log_record);
 }
 
@@ -1389,16 +1657,37 @@ void MainWindow::OnTabViewSearchBarVisibilityChange(bool isHidden)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnTabViewChange()
 {
-    int currentIndex = m_tab_widget->currentIndex();
+    int current_index = m_tab_widget->currentIndex();
 
     // If no current index is selected, return.
-    if (currentIndex == -1)
+    if (current_index == -1)
     {
         return;
     }
 
-    QWidget *currentTab = m_tab_widget->widget(currentIndex);
-    if (currentIndex == m_command_view_tab_index &&
+    // Check if there was a previous tab search that needs to be disabled.
+    if (m_previous_tab_index != -1 && m_previous_tab_index != current_index)
+    {
+        QWidget *previousTab = m_tab_widget->widget(m_previous_tab_index);
+        if (previousTab)
+        {
+            if (m_previous_tab_index == m_command_view_tab_index)
+            {
+                m_command_tab_view->OnSearchBarVisibilityChange(true);
+            }
+            else if (m_previous_tab_index == m_gfxr_vulkan_command_view_tab_index)
+            {
+                m_gfxr_vulkan_command_tab_view->OnSearchBarVisibilityChange(true);
+            }
+            else if (m_previous_tab_index == m_gfxr_vulkan_command_arguments_view_tab_index)
+            {
+                m_gfxr_vulkan_command_arguments_tab_view->OnSearchBarVisibilityChange(true);
+            }
+        }
+    }
+
+    QWidget *currentTab = m_tab_widget->widget(current_index);
+    if (current_index == m_command_view_tab_index &&
         !currentTab->findChild<SearchBar *>(kCommandBufferSearchBarName)->isHidden())
     {
         m_event_search_bar->clearSearch();
@@ -1406,7 +1695,18 @@ void MainWindow::OnTabViewChange()
         m_search_trigger_button->show();
         DisconnectSearchBar();
     }
-    else if (currentIndex == m_gfxr_vulkan_command_arguments_view_tab_index &&
+    else if (current_index == m_gfxr_vulkan_command_view_tab_index &&
+             currentTab->findChild<SearchBar *>(kGfxrVulkanCommandSearchBarName))
+    {
+        if (!currentTab->findChild<SearchBar *>(kGfxrVulkanCommandSearchBarName)->isHidden())
+        {
+            m_event_search_bar->clearSearch();
+            m_event_search_bar->hide();
+            m_search_trigger_button->show();
+            DisconnectSearchBar();
+        }
+    }
+    else if (current_index == m_gfxr_vulkan_command_arguments_view_tab_index &&
              currentTab->findChild<SearchBar *>(kGfxrVulkanCommandArgumentsSearchBarName))
     {
         if (!currentTab->findChild<SearchBar *>(kGfxrVulkanCommandArgumentsSearchBarName)
@@ -1418,10 +1718,12 @@ void MainWindow::OnTabViewChange()
             DisconnectSearchBar();
         }
     }
-    else if (currentIndex != m_command_view_tab_index)
+    else
     {
         m_command_tab_view->OnSearchBarVisibilityChange(true);
     }
+
+    m_previous_tab_index = current_index;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1519,6 +1821,26 @@ void MainWindow::DisconnectAllTabs()
                         this,
                         SLOT(OnTabViewChange()));
 
+    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                        SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                        m_gfxr_vulkan_command_tab_view,
+                        SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                        SIGNAL(HideOtherSearchBars()),
+                        this,
+                        SLOT(OnTabViewChange()));
+
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                        SIGNAL(ApplyFilter(const QModelIndex &, int)),
+                        this,
+                        SLOT(OnFilterApplied(const QModelIndex &, int)));
+
+    QObject::disconnect(m_gfxr_vulkan_command_tab_view,
+                        SIGNAL(SelectCommand(const QModelIndex &)),
+                        m_gfxr_vulkan_command_arguments_tab_view,
+                        SLOT(OnSelectionChanged(const QModelIndex &)));
+
     // Temporarily set the model to nullptr and clear selection/current index
     // before loading new data. This forces a clean break.
     m_command_hierarchy_view->setModel(nullptr);
@@ -1529,9 +1851,70 @@ void MainWindow::DisconnectAllTabs()
 }
 
 //--------------------------------------------------------------------------------------------------
-// TODO (gcommodore): Separate loading .rd files from loading .dive files so that this function is
-// used purely for loading a .dive file.
+// TODO (gcommodore) (b/436646197): Separate loading .rd files from loading .dive files so that this
+// function is used purely for loading a .dive file or loading a group of files (.gfxr, .rd, and
+// .gfxa).
 void MainWindow::ConnectDiveFileTabs()
+{
+    QObject::connect(m_command_hierarchy_view,
+                     SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     m_command_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_command_hierarchy_view->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     this,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+
+    QObject::connect(m_command_tab_view,
+                     SIGNAL(HideOtherSearchBars()),
+                     this,
+                     SLOT(OnTabViewChange()));
+
+    QObject::connect(this,
+                     SIGNAL(EventSelected(uint64_t)),
+                     m_shader_view,
+                     SLOT(OnEventSelected(uint64_t)));
+
+    QObject::connect(this,
+                     SIGNAL(EventSelected(uint64_t)),
+                     m_event_state_view,
+                     SLOT(OnEventSelected(uint64_t)));
+#if defined(ENABLE_CAPTURE_BUFFERS)
+    QObject::connect(this,
+                     SIGNAL(EventSelected(uint64_t)),
+                     m_buffer_view,
+                     SLOT(OnEventSelected(uint64_t)));
+#endif
+
+    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view,
+                     SIGNAL(HideOtherSearchBars()),
+                     this,
+                     SLOT(OnTabViewChange()));
+
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                     SIGNAL(HideOtherSearchBars()),
+                     this,
+                     SLOT(OnTabViewChange()));
+
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                     SIGNAL(ApplyFilter(const QModelIndex &, int)),
+                     this,
+                     SLOT(OnFilterApplied(const QModelIndex &, int)));
+
+    QObject::connect(m_gfxr_vulkan_command_tab_view,
+                     SIGNAL(SelectCommand(const QModelIndex &)),
+                     m_gfxr_vulkan_command_arguments_tab_view,
+                     SLOT(OnSelectionChanged(const QModelIndex &)));
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::ConnectAdrenoRdFileTabs()
 {
     QObject::connect(m_command_hierarchy_view,
                      SIGNAL(sourceCurrentChanged(const QModelIndex &, const QModelIndex &)),
@@ -1587,4 +1970,83 @@ void MainWindow::ConnectGfxrFileTabs()
                      SIGNAL(HideOtherSearchBars()),
                      this,
                      SLOT(OnTabViewChange()));
+}
+
+//--------------------------------------------------------------------------------------------------
+QModelIndex MainWindow::findSourceIndexFromNode(QAbstractItemModel *model,
+                                                uint64_t            target_node_index,
+                                                const QModelIndex  &parent)
+{
+    if (!model)
+        return QModelIndex();
+
+    for (int r = 0; r < model->rowCount(parent); ++r)
+    {
+        QModelIndex index = model->index(r, 0, parent);
+        if (index.isValid() && (uint64_t)index.internalPointer() == target_node_index)
+        {
+            return index;  // We found it!
+        }
+        if (model->hasChildren(index))
+        {
+            QModelIndex result = findSourceIndexFromNode(model, target_node_index, index);
+            if (result.isValid())
+            {
+                return result;  // Found in a child, return it up the call stack
+            }
+        }
+    }
+    return QModelIndex();  // Not found in this branch
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnFilterApplied(const QModelIndex &gfxr_index, int filter_index)
+{
+    uint64_t              gfxr_draw_call_index = (uint64_t)gfxr_index.internalPointer();
+    std::vector<uint64_t> pm4_draw_call_indices = qobject_cast<DiveFilterModel *>(
+                                                  m_command_hierarchy_view->model())
+                                                  ->GetPm4DrawCallIndices();
+    std::vector<uint64_t> gfxr_draw_call_indices = qobject_cast<DiveFilterModel *>(
+                                                   m_command_hierarchy_view->model())
+                                                   ->GetGfxrDrawCallIndices();
+    m_filter_mode_combo_box->setCurrentIndex(filter_index);
+
+    auto it = std::find(gfxr_draw_call_indices.begin(),
+                        gfxr_draw_call_indices.end(),
+                        gfxr_draw_call_index);
+
+    if (it != gfxr_draw_call_indices.end())
+    {
+        long found_gfxr_draw_call_index = std::distance(gfxr_draw_call_indices.begin(), it);
+
+        uint64_t corresponding_pm4_draw_call_index = pm4_draw_call_indices.at(
+        found_gfxr_draw_call_index);
+
+        QAbstractItemModel *source_model = m_filter_model->sourceModel();
+
+        QModelIndex source_index = findSourceIndexFromNode(source_model,
+                                                           corresponding_pm4_draw_call_index);
+
+        if (source_index.isValid())
+        {
+            QModelIndex proxy_index = m_filter_model->mapFromSource(source_index);
+            if (proxy_index.isValid())
+            {
+                QItemSelectionModel *selection_model = m_command_hierarchy_view->selectionModel();
+
+                QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect |
+                                                            QItemSelectionModel::Rows;
+
+                selection_model->setCurrentIndex(proxy_index, flags);
+
+                m_command_hierarchy_view->scrollTo(proxy_index,
+                                                   QAbstractItemView::PositionAtCenter);
+                m_command_hierarchy_view->expand(proxy_index);
+            }
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this, "Correlation Failed", "Corresponding PM4 draw call not found.");
+    }
 }

@@ -17,6 +17,7 @@
 #pragma once
 #include <memory>
 #include <QMainWindow>
+#include <qabstractitemmodel.h>
 #include <qshortcut.h>
 #include "dive_core/cross_ref.h"
 #include "progress_tracker_callback.h"
@@ -34,6 +35,7 @@ class EventStateView;
 #ifndef NDEBUG
 class EventTimingView;
 #endif
+class GfxrVulkanCommandTabView;
 class GfxrVulkanCommandArgumentsTabView;
 class GfxrVulkanCommandArgumentsFilterProxyModel;
 class GfxrVulkanCommandFilterProxyModel;
@@ -64,6 +66,7 @@ namespace Dive
 {
 class DataCore;
 class PluginLoader;
+class SelectedCaptureFiles;
 }  // namespace Dive
 
 #define MESSAGE_TIMEOUT 2500
@@ -74,10 +77,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     ~MainWindow();
-    bool LoadFile(const char *file_name, bool is_temp_file = false);
-    bool LoadDiveFile(const char *file_name);
-    bool LoadGfxrFile(const char *file_name);
+    bool LoadFiles(bool is_temp_file = false);
+    bool LoadDiveFile();
+    bool LoadAdrenoRdFile();
+    bool LoadGfxrFile();
     bool InitializePlugins();
+    // Used during command line initialization.
+    void InitializeCaptureFileSelection(const char *file_name);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
@@ -92,13 +98,15 @@ signals:
 public slots:
     void OnCapture(bool is_capture_delayed = false, bool is_gfxr_capture = false);
     void OnSwitchToShaderTab();
+    void OnFilterApplied(const QModelIndex &, int);
 
 private slots:
     void OnCommandViewModeChange(const QString &string);
     void OnCommandViewModeComboBoxHover(const QString &);
     void OnSelectionChanged(const QModelIndex &index);
     void OnFilterModeChange(const QString &string);
-    void OnOpenFile();
+    void OnOpenFiles();
+    void OnOpenFolder();
     void OnGFXRCapture();
     void OnNormalCapture();
     void OnCaptureTrigger();
@@ -115,6 +123,7 @@ private slots:
     void OnTabViewSearchBarVisibilityChange(bool isHidden);
     void OnTabViewChange();
     void ConnectDiveFileTabs();
+    void ConnectAdrenoRdFileTabs();
     void ConnectGfxrFileTabs();
     void ConnectSearchBar();
     void DisconnectSearchBar();
@@ -134,9 +143,12 @@ private:
     void    HideOverlay();
     void    UpdateTabAvailability();
     void    ResetTabWidget();
+    void    ValidateSelections(const QStringList &files_to_check);
 
     QMenu       *m_file_menu;
     QMenu       *m_recent_captures_menu;
+    QAction     *m_open_files_action;
+    QAction     *m_open_folder_action;
     QAction     *m_open_action;
     QAction     *m_save_action;
     QAction     *m_save_as_action;
@@ -194,6 +206,8 @@ private:
     int                                m_shader_view_tab_index;
     EventStateView                    *m_event_state_view;
     int                                m_event_state_view_tab_index;
+    GfxrVulkanCommandTabView          *m_gfxr_vulkan_command_tab_view;
+    int                                m_gfxr_vulkan_command_view_tab_index;
     GfxrVulkanCommandArgumentsTabView *m_gfxr_vulkan_command_arguments_tab_view;
     int                                m_gfxr_vulkan_command_arguments_view_tab_index;
 #if defined(ENABLE_CAPTURE_BUFFERS)
@@ -219,10 +233,13 @@ private:
     QShortcut *m_command_tab_shortcut = nullptr;
     QShortcut *m_shader_tab_shortcut = nullptr;
     QShortcut *m_event_state_tab_shortcut = nullptr;
+    QShortcut *m_gfxr_vulkan_command_tab_shortcut = nullptr;
+    QShortcut *m_gfxr_vulkan_command_arguments_tab_shortcut = nullptr;
 
     std::string m_unsaved_capture_path;
     bool        m_capture_saved = false;
     int         m_capture_num = 0;
+    int         m_previous_tab_index = -1;
     bool        m_gfxr_capture_loaded = false;
 
     EventSelection *m_event_selection;
@@ -232,4 +249,8 @@ private:
 
     std::unique_ptr<Dive::PluginLoader>         m_plugin_manager;
     GfxrVulkanCommandArgumentsFilterProxyModel *m_gfxr_vulkan_commands_arguments_filter_proxy_model;
+    QModelIndex                                 findSourceIndexFromNode(QAbstractItemModel *model,
+                                                                        uint64_t            target_node_index,
+                                                                        const QModelIndex  &parent = QModelIndex());
+    Dive::SelectedCaptureFiles                 *m_selected_capture_files;
 };
