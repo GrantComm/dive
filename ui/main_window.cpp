@@ -47,6 +47,7 @@
 #include "settings.h"
 #include "trace_window.h"
 #include "analyze_window.h"
+#include "dive_analyze_window.h"
 #ifndef NDEBUG
 #    include "event_timing/event_timing_view.h"
 #endif
@@ -284,8 +285,6 @@ MainWindow::MainWindow()
 
     m_trace_dig = new TraceDialog(this);
 
-    m_analyze_dig = new AnalyzeDialog(this);
-
     // Main Window requires a central widget.
     // Make the horizontal splitter that central widget so it takes up the whole area.
     setCentralWidget(horizontal_splitter);
@@ -370,11 +369,6 @@ MainWindow::MainWindow()
                      this,
                      SLOT(OnTabViewChange()));
 
-    QObject::connect(m_analyze_dig,
-                     &AnalyzeDialog::OnNewFileOpened,
-                     this,
-                     &MainWindow::OnOpenFileFromAnalyzeDialog);
-
     CreateActions();
     CreateMenus();
     CreateStatusBar();
@@ -422,6 +416,15 @@ bool MainWindow::InitializePlugins()
         return false;
     }
     return true;
+}
+
+void MainWindow::InitializeAnalyzeDialog(AnalyzeDialog *dialog)
+{
+    m_analyze_dig = dialog;
+    QObject::connect(m_analyze_dig,
+                     &AnalyzeDialog::OnNewFileOpened,
+                     this,
+                     &MainWindow::OnOpenFileFromAnalyzeDialog);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -828,6 +831,11 @@ void MainWindow::OnNormalCapture()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnAnalyzeCapture()
 {
+    if (m_analyze_dig == nullptr)
+    {
+        m_analyze_dig = new DiveAnalyzeDialog(this);
+    }
+
     if (!m_gfxr_capture_loaded)
     {
         OnOpenFile();

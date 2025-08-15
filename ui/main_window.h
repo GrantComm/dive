@@ -79,6 +79,8 @@ public:
     bool LoadDiveFile(const char *file_name);
     bool LoadGfxrFile(const char *file_name);
     bool InitializePlugins();
+    void InitializeAnalyzeDialog(AnalyzeDialog *dialog);
+    void InitializeDefaultAnalyzeDialog(AnalyzeDialog *dialog);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
