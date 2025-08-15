@@ -57,3 +57,4 @@ target_link_libraries(dive_plugin_loader PRIVATE
 
 # For each new plugin, you can add an add_subdirectory call here.
 add_subdirectory(plugin_test)
+add_subdirectory(perf_counter)

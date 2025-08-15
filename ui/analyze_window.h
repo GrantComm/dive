@@ -33,31 +33,17 @@ class QSpinBox;
 class QTextEdit;
 class MainWindow;
 
-namespace Dive
-{
-class SelectedCaptureFiles;
-}  // namespace Dive
-
 class AnalyzeDialog : public QDialog
 {
-    // Data structure to hold a single item from the CSV
-    struct CsvItem
-    {
-        QString id;
-        QString type;
-        QString key;
-        QString name;
-        QString description;
-    };
 
     Q_OBJECT
 
 public:
-    AnalyzeDialog(QWidget *parent = 0);
+    explicit AnalyzeDialog(QWidget *parent = 0);
     ~AnalyzeDialog();
-    void UpdateDeviceList(bool isInitialized);
-    void setSelectedCaptureFile(const QString &filePath);
-private slots:
+    virtual void UpdateDeviceList(bool isInitialized);
+    virtual void setSelectedCaptureFile(const QString &filePath);
+protected slots:
     void OnDeviceSelected(const QString &);
     void OnDeviceListRefresh();
     void OnOpenFile();
@@ -65,22 +51,11 @@ private slots:
 signals:
     void OnNewFileOpened(const QString &file_path);
 
-private:
+protected:
     void                        ShowErrorMessage(const std::string &message);
-    void                        PopulateSettings();
-    void                        UpdateSelectedSettingsList();
     absl::StatusOr<std::string> GetAssetFile();
     absl::StatusOr<std::string> PushFilesToDevice(Dive::AndroidDevice *device,
                                                   const std::string   &local_asset_file_path);
-
-    QLabel      *m_settings_list_label;
-    QListWidget *m_settings_list;
-
-    QLabel    *selected_setting_description_label;
-    QTextEdit *selected_setting_description;
-
-    QLabel      *m_enabled_settings_list_label;
-    QListWidget *m_enabled_settings_list;
 
     QHBoxLayout        *m_device_layout;
     QLabel             *m_device_label;
@@ -103,14 +78,12 @@ private:
     QSpinBox    *m_frame_count_box;
 
     QHBoxLayout *m_button_layout;
-    QPushButton *m_load_settings_button;
     QPushButton *m_replay_button;
 
-    QHBoxLayout                  *m_main_layout;
-    QVBoxLayout                  *m_left_panel_layout;
-    QVBoxLayout                  *m_right_panel_layout;
     std::vector<Dive::DeviceInfo> m_devices;
     std::string                   m_cur_device;
     QString                       m_selected_capture_file_string;
-    QVector<CsvItem>             *m_csv_items;
+
+private:
+    QVBoxLayout *m_main_layout;
 };
