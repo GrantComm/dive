@@ -58,6 +58,7 @@ class TextFileView;
 class TraceDialog;
 class TreeViewComboBox;
 class AnalyzeDialog;
+class TabSelector;
 
 enum class EventMode;
 
@@ -80,6 +81,7 @@ public:
     bool LoadGfxrFile(const char *file_name);
     bool InitializePlugins();
     void InitializeAnalyzeDialog(AnalyzeDialog *dialog = 0);
+    void InitializeTabSelector(TabSelector *tab_selector = 0);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
@@ -161,6 +163,7 @@ private:
     QToolBar                      *m_file_tool_bar;
     TraceDialog                   *m_trace_dig;
     std::unique_ptr<AnalyzeDialog> m_analyze_dig;
+    std::unique_ptr<TabSelector>   m_tab_selector;
 
     enum
     {

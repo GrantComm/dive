@@ -48,6 +48,7 @@
 #include "trace_window.h"
 #include "analyze_window.h"
 #include "dive_analyze_window.h"
+#include "tab_selector.h"
 #ifndef NDEBUG
 #    include "event_timing/event_timing_view.h"
 #endif
