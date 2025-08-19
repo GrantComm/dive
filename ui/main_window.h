@@ -81,6 +81,7 @@ public:
     bool LoadDiveFile(const char *file_name);
     bool LoadGfxrFile(const char *file_name);
     bool InitializePlugins();
+    void InitializeAnalyzeDialog(AnalyzeDialog *dialog = 0);
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
@@ -125,6 +126,7 @@ private slots:
     void ConnectSearchBar();
     void DisconnectSearchBar();
     void DisconnectAllTabs();
+    void OnAnalyzeDialogDestroyed();
 
 private:
     void    CreateActions();
@@ -141,26 +143,26 @@ private:
     void    UpdateTabAvailability();
     void    ResetTabWidget();
 
-    QMenu         *m_file_menu;
-    QMenu         *m_recent_captures_menu;
-    QAction       *m_open_action;
-    QAction       *m_save_action;
-    QAction       *m_save_as_action;
-    QAction       *m_exit_action;
-    QMenu         *m_capture_menu;
-    QAction       *m_gfxr_capture_action;
-    QAction       *m_pm4_capture_action;
-    QAction       *m_capture_action;
-    QAction       *m_capture_delay_action;
-    QAction       *m_capture_setting_action;
-    QMenu         *m_analyze_menu;
-    QAction       *m_analyze_action;
-    QMenu         *m_help_menu;
-    QAction       *m_about_action;
-    QAction       *m_shortcuts_action;
-    QToolBar      *m_file_tool_bar;
-    TraceDialog   *m_trace_dig;
-    AnalyzeDialog *m_analyze_dig;
+    QMenu                         *m_file_menu;
+    QMenu                         *m_recent_captures_menu;
+    QAction                       *m_open_action;
+    QAction                       *m_save_action;
+    QAction                       *m_save_as_action;
+    QAction                       *m_exit_action;
+    QMenu                         *m_capture_menu;
+    QAction                       *m_gfxr_capture_action;
+    QAction                       *m_pm4_capture_action;
+    QAction                       *m_capture_action;
+    QAction                       *m_capture_delay_action;
+    QAction                       *m_capture_setting_action;
+    QMenu                         *m_analyze_menu;
+    QAction                       *m_analyze_action;
+    QMenu                         *m_help_menu;
+    QAction                       *m_about_action;
+    QAction                       *m_shortcuts_action;
+    QToolBar                      *m_file_tool_bar;
+    TraceDialog                   *m_trace_dig;
+    std::unique_ptr<AnalyzeDialog> m_analyze_dig;
 
     enum
     {

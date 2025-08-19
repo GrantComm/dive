@@ -47,6 +47,7 @@
 #include "settings.h"
 #include "trace_window.h"
 #include "analyze_window.h"
+#include "dive_analyze_window.h"
 #ifndef NDEBUG
 #    include "event_timing/event_timing_view.h"
 #endif
@@ -289,8 +290,6 @@ MainWindow::MainWindow()
 
     m_trace_dig = new TraceDialog(this);
 
-    m_analyze_dig = new AnalyzeDialog(this);
-
     // Main Window requires a central widget.
     // Make the horizontal splitter that central widget so it takes up the whole area.
     setCentralWidget(horizontal_splitter);
@@ -375,11 +374,6 @@ MainWindow::MainWindow()
                      this,
                      SLOT(OnTabViewChange()));
 
-    QObject::connect(m_analyze_dig,
-                     &AnalyzeDialog::OnNewFileOpened,
-                     this,
-                     &MainWindow::OnOpenFileFromAnalyzeDialog);
-
     CreateActions();
     CreateMenus();
     CreateStatusBar();
@@ -427,6 +421,29 @@ bool MainWindow::InitializePlugins()
         return false;
     }
     return true;
+}
+
+void MainWindow::InitializeAnalyzeDialog(AnalyzeDialog *dialog)
+{
+    if (dialog)
+    {
+        m_analyze_dig.reset(dialog);
+    }
+    else
+    {
+        m_analyze_dig = std::make_unique<DiveAnalyzeDialog>(this);
+    }
+
+    QObject::connect(m_analyze_dig.get(),
+                     &AnalyzeDialog::OnNewFileOpened,
+                     this,
+                     &MainWindow::OnOpenFileFromAnalyzeDialog);
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnAnalyzeDialogDestroyed()
+{
+    m_analyze_dig = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -841,6 +858,10 @@ void MainWindow::OnAnalyzeCapture()
     // If the a .gfxr file is still unsuccessfully loaded, do not open the analyze dialog.
     if (m_gfxr_capture_loaded)
     {
+        if (m_analyze_dig == nullptr)
+        {
+            InitializeAnalyzeDialog();
+        }
         OnAnalyze(m_gfxr_capture_loaded, m_capture_file.toStdString());
     }
 }
