@@ -511,7 +511,8 @@ absl::Status DeviceManager::RunReplayApk(const std::string &capture_path,
                                                           kEnableReplayPm4DumpPropertyName);
         m_device->Adb().Run(enable_pm4_dump_cmd).IgnoreError();
 
-        std::string dump_pm4_file_name = std::filesystem::path(capture_path).filename().string();
+        std::string
+        dump_pm4_file_name = std::filesystem::path(capture_path).filename().stem().string() + ".rd";
         LOGD("Enable pm4 capture file name is %s\n", dump_pm4_file_name.c_str());
         std::string set_pm4_dump_file_name_cmd = absl::StrFormat("shell setprop %s \"%s\"",
                                                                  kReplayPm4DumpFileNamePropertyName,
@@ -548,6 +549,7 @@ absl::Status DeviceManager::RunReplayApk(const std::string &capture_path,
                                                            kDeviceCapturePath,
                                                            std::filesystem::path(capture_path)
                                                            .filename()
+                                                           .stem()
                                                            .string()
                                                            .c_str());
         auto status = m_device->RetrieveTrace(on_device_trace_path, pm4_capture_download_path);
