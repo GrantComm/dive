@@ -37,7 +37,7 @@ public:
             m_args(),
             m_name(name),
             m_index(index),
-            m_cmd_count(0)
+            m_draw_call_count(0)
         {
         }
 
@@ -45,7 +45,7 @@ public:
             m_args(data.GetArgs()),
             m_name(data.GetFunctionName()),
             m_index(data.GetCmdBufferIndex()),
-            m_cmd_count(0)
+            m_draw_call_count(0)
         {
         }
 
@@ -53,20 +53,20 @@ public:
             m_args({}),
             m_name(""),
             m_index(0),
-            m_cmd_count(0)
+            m_draw_call_count(0)
         {
         }
         const std::string&            GetVkCmdName() const { return m_name; }
         uint32_t                      GetVkCmdIndex() const { return m_index; }
-        void                          SetCmdCount(uint32_t cmd_count) { m_cmd_count = cmd_count; }
-        uint32_t                      GetCmdCount() const { return m_cmd_count; }
+        void                          SetDrawCallCount(uint32_t cmd_count) { m_draw_call_count = cmd_count; }
+        uint32_t                      GetDrawCallCount() const { return m_draw_call_count; }
         const nlohmann::ordered_json& GetArgs() const { return m_args; }
 
     private:
         nlohmann::ordered_json m_args;
         std::string            m_name;
         uint32_t               m_index;
-        uint32_t               m_cmd_count;  // Only used by vkBeginCommandBuffers
+        uint32_t               m_draw_call_count;  // Only used by vkBeginCommandBuffers
     };
 
     struct SubmitInfo
@@ -127,5 +127,8 @@ private:
     std::vector<VulkanCommandInfo>
     m_current_submit_commands;  // Buffer for commands before a submit
     std::vector<std::unique_ptr<SubmitInfo>> m_submits;
+    VulkanCommandInfo* m_current_begin_command_buffer = nullptr;
     uint32_t                                 m_current_submit_command_buffer_count = 0;
+    uint32_t                                 m_current_command_buffer_draw_count = 0;
+    uint32_t                                 m_begin_command_buffer_index = 0;
 };

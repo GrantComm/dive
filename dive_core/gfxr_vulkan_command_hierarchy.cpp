@@ -57,6 +57,7 @@ DiveAnnotationProcessor::VulkanCommandInfo vk_cmd_info)
     vk_cmd_string_stream << vulkan_cmd_name;
     if (vulkan_cmd_name == "vkBeginCommandBuffer")
     {
+        vk_cmd_string_stream << ", Draw Call Count: " << std::to_string(vk_cmd_info.GetDrawCallCount());
         uint64_t cmd_buffer_index = AddNode(NodeType::kGfxrVulkanCommandBufferNode,
                                             vk_cmd_string_stream.str());
         m_cur_command_buffer_node_index = cmd_buffer_index;
