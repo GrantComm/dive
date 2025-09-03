@@ -721,13 +721,23 @@ void AndroidDevice::EnableGfxr(bool enable_gfxr)
 
 bool AndroidDevice::IsProcessRunning(absl::string_view process_name) const
 {
-    auto res = Adb().RunAndGetResult(absl::StrCat("shell pidof ", process_name));
+    // A more robust method is to use the 'ps' command, which is universally
+    // supported and its output can be filtered.
+    auto res = Adb().RunAndGetResult("shell ps -A");
+
     if (!res.ok())
+    {
+        // If 'ps' command itself fails (e.g., adb is not available),
+        // we can't reliably check for the process.
         return false;
-    std::string pid = *res;
-    if (pid.empty())
-        return false;
-    return true;
+    }
+
+    std::string output = *res;
+
+    // Check if the output string contains the process name.
+    // The 'ps' output format is well-defined, and the process name
+    // is always present.
+    return output.find(process_name) != std::string::npos;
 }
 
 bool AndroidDevice::FileExists(const std::string &file_path)
