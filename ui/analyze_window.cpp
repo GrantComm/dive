@@ -65,6 +65,18 @@ AnalyzeDialog::AnalyzeDialog(QWidget *parent)
     m_enabled_settings_list_label = new QLabel(tr("Enabled Settings:"));
     m_enabled_settings_list = new QListWidget();
 
+    // Replay Button
+    m_button_layout = new QHBoxLayout();
+    m_replay_button = new QPushButton("&Replay", this);
+    m_replay_button->setEnabled(false);
+    m_button_layout->addWidget(m_replay_button);
+
+    // Stop Replay Button (Used for infinite replay)
+    m_stop_replay_button = new QPushButton("&Stop Replay", this);
+    m_stop_replay_button->setEnabled(false);
+    m_stop_replay_button->hide();
+    m_button_layout->addWidget(m_stop_replay_button);
+
     // Device Selector
     m_device_layout = new QHBoxLayout();
     m_device_label = new QLabel(tr("Devices:"));
@@ -146,12 +158,6 @@ AnalyzeDialog::AnalyzeDialog(QWidget *parent)
     m_frame_count_layout->addWidget(m_frame_count_label);
     m_frame_count_layout->addWidget(m_frame_count_box);
 
-    // Replay Button
-    m_button_layout = new QHBoxLayout();
-    m_replay_button = new QPushButton("&Replay", this);
-    m_replay_button->setEnabled(true);
-    m_button_layout->addWidget(m_replay_button);
-
     // Left Panel Layout
     m_left_panel_layout = new QVBoxLayout();
     m_left_panel_layout->addWidget(m_settings_list_label);
@@ -209,6 +215,7 @@ AnalyzeDialog::AnalyzeDialog(QWidget *parent)
                      &AnalyzeDialog::OnDeviceListRefresh);
     QObject::connect(m_open_files_button, &QPushButton::clicked, this, &AnalyzeDialog::OnOpenFile);
     QObject::connect(m_replay_button, &QPushButton::clicked, this, &AnalyzeDialog::OnReplay);
+    QObject::connect(m_stop_replay_button, &QPushButton::clicked, this, &AnalyzeDialog::OnStopReplay);
 
     QObject::connect(m_dump_pm4_box,
                      SIGNAL(currentIndexChanged(const QString &)),
@@ -332,6 +339,8 @@ void AnalyzeDialog::UpdateDeviceList(bool isInitialized)
 
     m_devices = cur_list;
     m_device_model->clear();
+    // Replay button should only be enabled when a device is selected.
+    m_replay_button->setEnabled(false);
 
     if (m_devices.empty())
     {
@@ -378,6 +387,8 @@ void AnalyzeDialog::OnDeviceSelected(const QString &s)
              << ", m_devices[device_index].m_serial " << m_devices[device_index].m_serial.c_str();
     if (m_cur_device == m_devices[device_index].m_serial)
     {
+        // Enable the replay button as soon as a device is selected.
+        m_replay_button->setEnabled(true);
         return;
     }
 
@@ -391,8 +402,13 @@ void AnalyzeDialog::OnDeviceSelected(const QString &s)
                                            dev_ret.status().message());
         qDebug() << err_msg.c_str();
         ShowErrorMessage(err_msg);
+        OnDeviceListRefresh();
         return;
     }
+
+    // Enable the replay button as soon as a device is selected.
+    m_replay_button->setEnabled(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -483,14 +499,12 @@ absl::StatusOr<std::string> AnalyzeDialog::GetAssetFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-absl::StatusOr<std::string> AnalyzeDialog::PushFilesToDevice(
-Dive::AndroidDevice *device,
-const std::string   &local_asset_file_path)
+absl::StatusOr<std::string> AnalyzeDialog::PushFilesToDevice(const std::string   &local_asset_file_path)
 {
     const std::string remote_dir = "/sdcard/gfxr_captures_for_replay";
 
     // Create the remote directory on the device.
-    RETURN_IF_ERROR(device->Adb().Run(absl::StrFormat("shell mkdir -p %s", remote_dir)));
+    RETURN_IF_ERROR(m_device->Adb().Run(absl::StrFormat("shell mkdir -p %s", remote_dir)));
 
     // Push the .gfxr file.
     std::string           local_gfxr_path = m_selected_capture_file_string.toStdString();
@@ -498,12 +512,12 @@ const std::string   &local_asset_file_path)
     std::string           gfxr_filename = gfxr_path.filename().string();
     std::string           remote_gfxr_path = absl::StrFormat("%s/%s", remote_dir, gfxr_filename);
     RETURN_IF_ERROR(
-    device->Adb().Run(absl::StrFormat("push %s %s", local_gfxr_path, remote_gfxr_path)));
+    m_device->Adb().Run(absl::StrFormat("push %s %s", local_gfxr_path, remote_gfxr_path)));
 
     // Push the .gfxa file.
     std::filesystem::path asset_file_path(local_asset_file_path);
     std::string           asset_file_name = asset_file_path.filename().string();
-    RETURN_IF_ERROR(device->Adb().Run(
+    RETURN_IF_ERROR(m_device->Adb().Run(
     absl::StrFormat("push %s %s/%s", local_asset_file_path, remote_dir, asset_file_name)));
 
     return remote_gfxr_path;
@@ -535,8 +549,15 @@ std::string AnalyzeDialog::GetReplayArgs()
     std::string args = "--loop-single-frame";
     if (frame_count > 0)
     {
-
         args += " --loop-single-frame-count " + std::to_string(frame_count);
+    }
+    else
+    {
+        // Only show the stop replay button if an infinite replay is run.
+        m_stop_replay_button->show();
+        m_stop_replay_button->setEnabled(true);
+        m_replay_button->setEnabled(false);
+        QApplication::processEvents();
     }
 
     if (m_gpu_time_enabled)
@@ -672,30 +693,48 @@ absl::Status AnalyzeDialog::GpuTimeReplay(Dive::DeviceManager &device_manager,
 }
 
 //--------------------------------------------------------------------------------------------------
-void AnalyzeDialog::WaitForReplay(Dive::AndroidDevice &device)
+void AnalyzeDialog::WaitForReplay()
 {
-    while (device.IsProcessRunning(Dive::kGfxrReplayAppName))
+    while (m_device->IsProcessRunning(Dive::kGfxrReplayAppName))
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
 //--------------------------------------------------------------------------------------------------
+void AnalyzeDialog::OnStopReplay()
+{
+    absl::Status ret = m_device->Adb().Run(absl::StrFormat("shell am force-stop %s", Dive::kGfxrReplayAppName));
+    if (!ret.ok())
+    {
+        std::string err_msg = absl::StrCat("Failed to stop replay: ", ret.message());
+        qDebug() << err_msg.c_str();
+        ShowErrorMessage(err_msg);
+        SetReplayButton(kDefaultReplayButtonText, true);
+        return;
+    }
+    m_stop_replay_button->hide();
+    m_stop_replay_button->setEnabled(false);
+
+}
+
+//--------------------------------------------------------------------------------------------------
 void AnalyzeDialog::OnReplay()
 {
     Dive::DeviceManager &device_manager = Dive::GetDeviceManager();
-    auto                 device = device_manager.GetDevice();
+    m_device = device_manager.GetDevice();
 
     SetReplayButton("Setting up replay...", false);
 
     // Setup the device
-    absl::Status ret = device->SetupDevice();
+    absl::Status ret = m_device->SetupDevice();
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Fail to setup device: ", ret.message());
         qDebug() << err_msg.c_str();
         ShowErrorMessage(err_msg);
         SetReplayButton(kDefaultReplayButtonText, true);
+        OnDeviceListRefresh();
         return;
     }
 
@@ -710,7 +749,7 @@ void AnalyzeDialog::OnReplay()
         return;
     }
 
-    absl::StatusOr<std::string> remote_file = PushFilesToDevice(device, asset_file.value());
+    absl::StatusOr<std::string> remote_file = PushFilesToDevice(asset_file.value());
     if (!remote_file.ok())
     {
         std::string err_msg = absl::StrCat("Failed to deploy replay apk: ", ret.message());
@@ -747,10 +786,12 @@ void AnalyzeDialog::OnReplay()
             qDebug() << err_msg.c_str();
             ShowErrorMessage(err_msg);
             SetReplayButton(kDefaultReplayButtonText, true);
+            m_stop_replay_button->hide();
+            m_stop_replay_button->setEnabled(false);
             return;
         }
 
-        WaitForReplay(*device);
+        WaitForReplay();
     }
 
     // Run the perf counter replay
@@ -768,7 +809,7 @@ void AnalyzeDialog::OnReplay()
         }
 
         UpdatePerfTabView(remote_file.value());
-        WaitForReplay(*device);
+        WaitForReplay();
     }
 
     // Run the gpu_time replay
@@ -781,10 +822,12 @@ void AnalyzeDialog::OnReplay()
             qDebug() << err_msg.c_str();
             ShowErrorMessage(err_msg);
             SetReplayButton(kDefaultReplayButtonText, true);
+            m_stop_replay_button->hide();
+            m_stop_replay_button->setEnabled(false);
             return;
         }
 
-        WaitForReplay(*device);
+        WaitForReplay();
     }
 
     SetReplayButton(kDefaultReplayButtonText, true);

@@ -15,6 +15,7 @@
 */
 
 #include <QDialog>
+#include <future>
 #include "capture_service/device_mgr.h"
 #include "package_filter.h"
 
@@ -63,9 +64,11 @@ private slots:
     void OnOpenFile();
     void OnReplay();
     void OnSettingChanged();
+    void OnStopReplay();
 signals:
     void OnNewFileOpened(const QString &file_path);
     void OnDisplayPerfCounterResults(const QString &file_path);
+    void ReplayFinished();
 
 private:
     void                        ShowErrorMessage(const std::string &message);
@@ -74,10 +77,9 @@ private:
     void                        PopulateSettings();
     void                        UpdateSelectedSettingsList();
     void                        UpdatePerfTabView(const std::string remote_file_name);
-    void                        WaitForReplay(Dive::AndroidDevice &device);
+    void                        WaitForReplay();
     absl::StatusOr<std::string> GetAssetFile();
-    absl::StatusOr<std::string> PushFilesToDevice(Dive::AndroidDevice *device,
-                                                  const std::string   &local_asset_file_path);
+    absl::StatusOr<std::string> PushFilesToDevice(const std::string   &local_asset_file_path);
     std::string                 GetReplayArgs();
     absl::Status                Pm4Replay(Dive::DeviceManager &device_manager,
                                           const std::string   &remote_gfxr_file);
@@ -127,6 +129,7 @@ private:
     QHBoxLayout *m_button_layout;
     QPushButton *m_load_settings_button;
     QPushButton *m_replay_button;
+    QPushButton *m_stop_replay_button;
 
     QHBoxLayout                  *m_main_layout;
     QVBoxLayout                  *m_left_panel_layout;
@@ -143,4 +146,5 @@ private:
 
     bool m_dump_pm4_enabled;
     bool m_gpu_time_enabled;
+    Dive::AndroidDevice *m_device;
 };
