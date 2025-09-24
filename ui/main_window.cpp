@@ -3091,6 +3091,8 @@ CorrelationTarget            target)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnCorrelateVulkanDrawCall(const QModelIndex &index)
 {
+    m_perf_counter_tab_view->ClearSelection();
+
     if (m_pm4_filter_mode_combo_box->currentIndex() != Dive::kBinningPassOnly &&
         m_pm4_filter_mode_combo_box->currentIndex() != Dive::kFirstTilePassOnly)
     {
