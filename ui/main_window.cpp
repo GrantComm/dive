@@ -689,19 +689,30 @@ void MainWindow::OnFilterModeChange(const QString &filter_mode)
     if (m_command_hierarchy_view)
     {
         m_command_hierarchy_view->scrollToTop();
+        QAbstractItemModel* model = m_command_hierarchy_view->model();
+        if (model) {
+            auto* new_selection_model = new QItemSelectionModel(model, m_command_hierarchy_view);
+            m_command_hierarchy_view->setSelectionModel(new_selection_model);
+        }
+        m_command_hierarchy_view->setCurrentIndex(QModelIndex());
     }
 
     if (m_correlated_capture_loaded)
     {
-        ClearViewModelSelection(*m_command_hierarchy_view, true);
-        ClearViewModelSelection(*m_pm4_command_hierarchy_view, false);
+        if (m_pm4_command_hierarchy_view) {
+            QAbstractItemModel* pm4_model = m_pm4_command_hierarchy_view->model();
+            if (pm4_model) {
+                auto* new_selection_model = new QItemSelectionModel(pm4_model, m_pm4_command_hierarchy_view);
+                m_pm4_command_hierarchy_view->setSelectionModel(new_selection_model);
+            }
+            m_pm4_command_hierarchy_view->setCurrentIndex(QModelIndex());
+        }
         m_perf_counter_tab_view->ClearSelection();
         m_gpu_timing_tab_view->ClearSelection();
         ExpandResizeHierarchyView(*m_pm4_command_hierarchy_view, *m_filter_model);
     }
     else
     {
-        ClearViewModelSelection(*m_command_hierarchy_view, true);
         ExpandResizeHierarchyView(*m_command_hierarchy_view, *m_filter_model);
     }
 }
@@ -709,13 +720,24 @@ void MainWindow::OnFilterModeChange(const QString &filter_mode)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnGfxrFilterModeChange()
 {
-    ClearViewModelSelection(*m_command_hierarchy_view, true);
+    QAbstractItemModel* model = m_command_hierarchy_view->model();
+    if (model) {
+        auto* new_selection_model = new QItemSelectionModel(model, m_command_hierarchy_view);
+        m_command_hierarchy_view->setSelectionModel(new_selection_model);
+    }
+    m_command_hierarchy_view->setCurrentIndex(QModelIndex());
+
+    m_perf_counter_tab_view->ClearSelection();
+    m_gpu_timing_tab_view->ClearSelection();
 
     if (m_correlated_capture_loaded)
     {
-        ClearViewModelSelection(*m_pm4_command_hierarchy_view, false);
-        m_perf_counter_tab_view->ClearSelection();
-        m_gpu_timing_tab_view->ClearSelection();
+        QAbstractItemModel* pm4_model = m_pm4_command_hierarchy_view->model();
+        if (pm4_model) {
+            auto* new_selection_model = new QItemSelectionModel(pm4_model, m_pm4_command_hierarchy_view);
+            m_pm4_command_hierarchy_view->setSelectionModel(new_selection_model);
+        }
+        m_pm4_command_hierarchy_view->setCurrentIndex(QModelIndex());
     }
 }
 
@@ -2974,6 +2996,8 @@ void MainWindow::OnCorrelationFilterApplied(uint64_t           gfxr_draw_call_in
     gfxr_selection_model->setCurrentIndex(vulkan_draw_call_model_index, flags);
     gfxr_selection_model->blockSignals(gfxr_old_state);
 
+    QModelIndex source_index_for_args = m_gfxr_vulkan_commands_filter_proxy_model->mapToSource(vulkan_draw_call_model_index);
+    m_gfxr_vulkan_command_arguments_tab_view->OnSelectionChanged(source_index_for_args); 
     OnCorrelateCounter(vulkan_draw_call_model_index);
 }
 
