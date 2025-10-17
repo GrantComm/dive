@@ -809,29 +809,48 @@ void GfxrCaptureWorker::SetGfxrTargetCaptureDir(const std::string &target_captur
 bool GfxrCaptureWorker::areTimestampsCurrent(Dive::AndroidDevice     *device,
                                              std::vector<std::string> previous_timestamps)
 {
-    std::vector<std::string> current_time_stamps;
-    std::string              get_first_current_timestamp_command = absl::StrCat("shell stat -c %Y ",
-                                                                   m_source_capture_dir,
-                                                                   "/",
-                                                                   m_file_list[0].data());
-    std::string get_second_current_timestamp_command = absl::StrCat("shell stat -c %Y ",
-                                                                    m_source_capture_dir,
-                                                                    "/",
-                                                                    m_file_list[1].data());
-    std::string get_third_current_timestamp_command = absl::StrCat("shell stat -c %Y ",
-                                                                   m_source_capture_dir,
-                                                                   "/",
-                                                                   m_file_list[2].data());
-    absl::StatusOr<std::string> first_current_timestamp = device->Adb().RunAndGetResult(
-    get_first_current_timestamp_command);
-    absl::StatusOr<std::string> second_current_timestamp = device->Adb().RunAndGetResult(
-    get_second_current_timestamp_command);
-    absl::StatusOr<std::string> third_current_timestamp = device->Adb().RunAndGetResult(
-    get_third_current_timestamp_command);
+    std::string err_msg;
+    // Ensure we have enough previous timestamps to compare
+    if (previous_timestamps.size() < 3)
+    {
+        err_msg = std::string("Insufficient previous timestamps provided (expected 3, got ") +
+                  std::to_string(previous_timestamps.size()) + ")";
+        emit ErrorMessage(QString::fromStdString(err_msg));
+        return false;
+    }
 
-    current_time_stamps.push_back(first_current_timestamp->data());
-    current_time_stamps.push_back(second_current_timestamp->data());
-    current_time_stamps.push_back(third_current_timestamp->data());
+    std::vector<std::string> current_time_stamps;
+    if (m_file_list.size() < 3)
+    {
+        err_msg = "Directory does not contain 3 files. Cannot check timestamps.";
+        emit ErrorMessage(QString::fromStdString(err_msg));
+        return false;
+    }
+
+    const std::string file_names[] = { m_file_list[0].data(),
+                                       m_file_list[1].data(),
+                                       m_file_list[2].data() };
+
+    for (int i = 0; i < 3; ++i)
+    {
+        std::string command = absl::StrCat("shell stat -c %Y ",
+                                           m_source_capture_dir,
+                                           "/",
+                                           file_names[i]);
+
+        absl::StatusOr<std::string> timestamp_result = device->Adb().RunAndGetResult(command);
+
+        if (!timestamp_result.ok())
+        {
+            err_msg = "Failed to get timestamp for file " + file_names[i] +
+                      ". Error: " + timestamp_result.status().ToString();
+            emit ErrorMessage(QString::fromStdString(err_msg));
+            return false;
+        }
+
+        current_time_stamps.push_back(std::move(timestamp_result.value()));
+    }
+
     return (current_time_stamps[0] == previous_timestamps[0] &&
             current_time_stamps[1] == previous_timestamps[1] &&
             current_time_stamps[2] == previous_timestamps[2]);
@@ -850,6 +869,17 @@ absl::StatusOr<int64_t> GfxrCaptureWorker::getGfxrCaptureDirectorySize(Dive::And
     }
 
     m_file_list = absl::StrSplit(std::string(ls_output->data()), '\n');
+
+    if (m_file_list.size() < 3)
+    {
+        std::string
+        err_msg = absl::StrCat("Required capture files not found. Expected at 3 files, but found ",
+                               m_file_list.size(),
+                               " in directory ",
+                               m_source_capture_dir,
+                               ".");
+        return absl::NotFoundError(err_msg);
+    }
 
     for (std::string &file_with_trailing : m_file_list)
     {
