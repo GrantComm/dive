@@ -102,6 +102,20 @@ std::vector<uint64_t>                            &render_pass_draw_call_counts)
     else if (vulkan_cmd_name.find("vkCmdDraw") != std::string::npos ||
              vulkan_cmd_name.find("vkCmdDispatch") != std::string::npos)
     {
+        if (vulkan_cmd_args.contains("indexCount"))
+        {
+            vk_cmd_string_stream << ", Index Count: " << vulkan_cmd_args["indexCount"];
+        }
+        else if (vulkan_cmd_args.contains("vertexCount"))
+        {
+            vk_cmd_string_stream << ", Vertex Count: " << vulkan_cmd_args["vertexCount"];
+        }
+        else if (vulkan_cmd_args.contains("groupCountX") && vulkan_cmd_args.contains("groupCountY") &&
+                 vulkan_cmd_args.contains("groupCountZ"))
+        {
+            vk_cmd_string_stream << ", Group Count(X: " << vulkan_cmd_args["groupCountX"] << ", Y: " << vulkan_cmd_args["groupCountY"] << ", Z: " << vulkan_cmd_args["groupCountZ"] << ")";
+        }
+
         uint64_t vk_cmd_index = AddNode(NodeType::kGfxrVulkanDrawCommandNode,
                                         vk_cmd_string_stream.str());
         GetArgs(vulkan_cmd_args, vk_cmd_index, "");

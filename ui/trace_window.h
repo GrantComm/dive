@@ -14,11 +14,13 @@
  limitations under the License.
 */
 
+#include <qradiobutton.h>
 #include <qspinbox.h>
 #include <QDialog>
 #include <QThread>
 #include <cstdint>
 
+#include "capture_service/android_application.h"
 #include "capture_service/device_mgr.h"
 #include "package_filter.h"
 
@@ -138,6 +140,7 @@ public:
     void HideGfxrFields();
     void EnableCaptureTypeButtons(bool enable);
     void RetrieveGfxrCapture();
+    Dive::AndroidDevice &GetDevice() { return *m_device; }
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -162,10 +165,13 @@ private slots:
 
 signals:
     void TraceAvailable(const QString &);
+    void SetupSystemApplication(const QString &, const QString &);
+    void CleanupSystemApplication(const QString &);
 
 private:
     bool StartPackage(Dive::AndroidDevice *device, const std::string &app_type);
     void RetrieveGfxrCapture(Dive::AndroidDevice *device, const std::string &capture_directory);
+    bool IsSystemApplication(const std::string&);
 
     const QString kStart_Application = "&Start Application";
     const QString kStart_Gfxr_Runtime_Capture = "&Start GFXR Capture";
@@ -230,4 +236,5 @@ private:
     std::string                   m_executable;
     std::string                   m_command_args;
     bool                          m_gfxr_capture = false;
+    Dive::AndroidDevice           *m_device;
 };

@@ -42,6 +42,25 @@ class QCheckBox;
 namespace Dive
 {
 class AvailableMetrics;
+
+enum class ReplayStatusUpdateCode : int
+{
+    // This signals the async process is finished:
+    kDone,
+
+    // End of task status:
+    kSuccess,
+    kFailure,
+    kSetupDeviceFailure,  // Special case where we disable replay button.
+
+    // Individual step of replay:
+    kSetup,
+    kStartNormalReplay,
+    kStartPm4Replay,
+    kStartGpuTimeReplay,
+    //kStartPerfCounterReplay,
+    kDeletingReplayArtifacts,
+};
 }  // namespace Dive
 
 class AnalyzeDialog : public QDialog
@@ -96,12 +115,24 @@ public:
     QWidget                                                            *parent = nullptr);
     ~AnalyzeDialog();
     void UpdateDeviceList(bool isInitialized);
+    void SetSelectedCaptureFile(const QString &filePath);
+    void AddLeftLayoutWidget(int index, QWidget &widget);
+    void AddRightLayoutWidget(int index, QWidget &widget);
+    Dive::DeviceManager &GetDeviceManager() {return *m_device_manager; }
+    std::filesystem::path GetFullLocalPath(const std::string &gfxr_stem,
+                                                 const std::string &suffix) const;
+    void SetReplayButton(const std::string &message, bool is_enabled);
+    void ResetReplayButton(bool is_enabled);
+    void SetNormalReplayEnabled(bool enabled) {m_normal_run_enabled = enabled;}
+    bool NormalReplayEnabled() {return m_normal_run_enabled;}
+    void AttemptDeletingTemporaryLocalFile(const std::filesystem::path &file_path);
+public  slots:
+    void OnOverlayMessage(const QString &message);
 private slots:
     void OnReplayStatusUpdate(int status_code, const QString &error_message);
     void OnDeviceSelected(const QString &);
     void OnDeviceListRefresh();
     void OnReplay();
-    void OnOverlayMessage(const QString &message);
     void OnDisableOverlay();
     void OnDeleteReplayArtifacts();
 
@@ -115,12 +146,14 @@ signals:
     void CaptureUpdated(const QString &file_path);
     void OverlayMessage(const QString &message);
     void DisableOverlay();
+    void ReplayRun(const QString &remote_file_path, const QString &local_capture_file_directory);
+    void ReplayStarted();
 
 private:
     void                        ShowMessage(const std::string &message);
-    void                        SetReplayButton(const std::string &message, bool is_enabled);
     void                        PopulateMetrics();
     void                        UpdateSelectedMetricsList();
+    absl::StatusOr<std::string> GetCaptureFileDirectory();
     absl::StatusOr<std::string> PushFilesToDevice(Dive::AndroidDevice *device,
                                                   const std::string   &local_asset_file_path);
     absl::Status                NormalReplay(Dive::DeviceManager &device_manager,
@@ -134,7 +167,7 @@ private:
     absl::Status                RenderDocReplay(Dive::DeviceManager &device_manager,
                                                 const std::string   &remote_gfxr_file);
 
-    void UpdateReplayStatus(ReplayStatusUpdateCode status, const std::string &messge = "");
+    void UpdateReplayStatus(Dive::ReplayStatusUpdateCode status, const std::string &messge = "");
     void ExecuteStatusUpdate();
 
     void ReplayImpl();
@@ -207,16 +240,18 @@ private:
     std::vector<std::string>                                           *m_enabled_metrics_vector;
     std::optional<std::reference_wrapper<const Dive::AvailableMetrics>> m_available_metrics;
     // Used to store a csv item's key in the enabled metrics vector.
-    const int         kDataRole = Qt::UserRole + 1;
-    const int         kDefaultFrameCount = 3;
-    const std::string kDefaultReplayButtonText = "Replay";
-    std::future<void> m_replay_active;
-    OverlayHelper    *m_overlay;
+    const int             kDataRole = Qt::UserRole + 1;
+    const int             kDefaultFrameCount = 3;
+    const std::string     kDefaultReplayButtonText = "Replay";
+    std::future<void>     m_replay_active;
+    OverlayHelper        *m_overlay;
+    Dive::DeviceManager  *m_device_manager;
+    bool m_normal_run_enabled = false;
 
     struct StatusUpdateQueueItem
     {
-        ReplayStatusUpdateCode status;
-        QString                message;
+        Dive::ReplayStatusUpdateCode status;
+        QString                error_message;
     };
     std::vector<StatusUpdateQueueItem> m_status_update_queue;
 };

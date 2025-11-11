@@ -37,6 +37,7 @@
 #include <optional>
 #include <qapplication.h>
 #include <qtemporarydir.h>
+#include <qwidget.h>
 #include <string>
 
 #include "absl/status/status.h"
@@ -46,19 +47,6 @@
 #include "settings.h"
 #include "overlay.h"
 #include "common/macros.h"
-
-//--------------------------------------------------------------------------------------------------
-void AttemptDeletingTemporaryLocalFile(const std::filesystem::path &file_path)
-{
-    if (std::filesystem::remove(file_path))
-    {
-        qDebug() << "Successfully deleted: " << file_path.string().c_str();
-    }
-    else
-    {
-        qDebug() << "Was not present: " << file_path.string().c_str();
-    }
-}
 
 // =================================================================================================
 // AnalyzeDialog
@@ -172,11 +160,17 @@ QWidget                                                            *parent) :
 
     // Left Panel Layout
     m_left_panel_layout = new QVBoxLayout();
+    m_metrics_list_label->hide();
+    m_metrics_list->hide();
     m_left_panel_layout->addWidget(m_metrics_list_label);
     m_left_panel_layout->addWidget(m_metrics_list);
 
     // Right Panel Layout
     m_right_panel_layout = new QVBoxLayout();
+    m_selected_metrics_description_label->hide();
+    m_selected_metrics_description->hide();
+    m_enabled_metrics_list_label->hide();
+    m_enabled_metrics_list->hide();
     m_right_panel_layout->addWidget(m_selected_metrics_description_label);
     m_right_panel_layout->addWidget(m_selected_metrics_description);
     m_right_panel_layout->addWidget(m_enabled_metrics_list_label);
@@ -255,6 +249,25 @@ void AnalyzeDialog::OnOverlayMessage(const QString &message)
 {
     m_overlay->SetMessage(message);
     m_overlay->SetMessageIsTimed();
+    /*if (m_overlay->isHidden())
+    {
+        m_overlay->raise();
+        m_overlay->show();
+    }*/
+}
+
+//--------------------------------------------------------------------------------------------------
+void AnalyzeDialog::AddLeftLayoutWidget(int index, QWidget &widget)
+{
+    qDebug() << "AddLeftLayoutWidget.";
+    m_left_panel_layout->insertWidget(index, &widget);
+}
+
+//--------------------------------------------------------------------------------------------------
+void AnalyzeDialog::AddRightLayoutWidget(int index, QWidget &widget)
+{
+    qDebug() << "AddRightLayoutWidget.";
+    m_right_panel_layout->insertWidget(index, &widget);
 }
 
 void AnalyzeDialog::OnDisableOverlay()
@@ -524,13 +537,35 @@ void AnalyzeDialog::SetReplayButton(const std::string &message, bool is_enabled)
 {
     m_replay_button->setEnabled(is_enabled);
     m_replay_button->setText(message.c_str());
+    QApplication::processEvents();
+}
+
+//--------------------------------------------------------------------------------------------------
+void AnalyzeDialog::ResetReplayButton(bool is_enabled)
+{
+    m_replay_button->setEnabled(is_enabled);
+    m_replay_button->setText(kDefaultReplayButtonText.c_str());
+    QApplication::processEvents();
+}
+
+//--------------------------------------------------------------------------------------------------
+std::filesystem::path AnalyzeDialog::GetFullLocalPath(const std::string &gfxr_stem,
+                                                      const std::string &suffix) const
+{
+    if (m_local_capture_file_directory.empty())
+    {
+        return "";
+    }
+
+    std::filesystem::path full_path = m_local_capture_file_directory / (gfxr_stem + suffix);
+    return full_path;
 }
 
 //--------------------------------------------------------------------------------------------------
 absl::Status AnalyzeDialog::NormalReplay(Dive::DeviceManager &device_manager,
                                          const std::string   &remote_gfxr_file)
 {
-    UpdateReplayStatus(ReplayStatusUpdateCode::kStartNormalReplay);
+    UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kStartNormalReplay);
     Dive::GfxrReplaySettings replay_settings;
     replay_settings.remote_capture_path = remote_gfxr_file;
     replay_settings.local_download_dir = m_local_capture_file_directory.string();
@@ -546,7 +581,7 @@ absl::Status AnalyzeDialog::NormalReplay(Dive::DeviceManager &device_manager,
 absl::Status AnalyzeDialog::Pm4Replay(Dive::DeviceManager &device_manager,
                                       const std::string   &remote_gfxr_file)
 {
-    UpdateReplayStatus(ReplayStatusUpdateCode::kStartPm4Replay);
+    UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kStartPm4Replay);
     Dive::GfxrReplaySettings replay_settings;
     replay_settings.remote_capture_path = remote_gfxr_file;
     replay_settings.local_download_dir = m_local_capture_file_directory.string();
@@ -559,7 +594,7 @@ absl::Status AnalyzeDialog::Pm4Replay(Dive::DeviceManager &device_manager,
 absl::Status AnalyzeDialog::PerfCounterReplay(Dive::DeviceManager &device_manager,
                                               const std::string   &remote_gfxr_file)
 {
-    UpdateReplayStatus(ReplayStatusUpdateCode::kStartPerfCounterReplay);
+    /*UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kStartPerfCounterReplay);
     Dive::GfxrReplaySettings replay_settings;
     replay_settings.remote_capture_path = remote_gfxr_file;
     replay_settings.local_download_dir = m_local_capture_file_directory.string();
@@ -568,14 +603,15 @@ absl::Status AnalyzeDialog::PerfCounterReplay(Dive::DeviceManager &device_manage
     // Variant-specific config
     replay_settings.metrics = *m_enabled_metrics_vector;
 
-    return device_manager.RunReplayApk(replay_settings);
+    return device_manager.RunReplayApk(replay_settings);*/
+    return absl::OkStatus();
 }
 
 //--------------------------------------------------------------------------------------------------
 absl::Status AnalyzeDialog::GpuTimeReplay(Dive::DeviceManager &device_manager,
                                           const std::string   &remote_gfxr_file)
 {
-    UpdateReplayStatus(ReplayStatusUpdateCode::kStartGpuTimeReplay);
+    UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kStartGpuTimeReplay);
     Dive::GfxrReplaySettings replay_settings;
     replay_settings.remote_capture_path = remote_gfxr_file;
     replay_settings.local_download_dir = m_local_capture_file_directory.string();
@@ -615,7 +651,7 @@ void AnalyzeDialog::OnReplay()
 
     m_replay_active = std::async([=, this]() {
         ReplayImpl();
-        UpdateReplayStatus(ReplayStatusUpdateCode::kDone);
+        UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kDone);
     });
 }
 
@@ -630,7 +666,7 @@ void AnalyzeDialog::OnDeleteReplayArtifacts()
 
     m_replay_active = std::async([=, this]() {
         DeleteReplayArtifactsImpl();
-        UpdateReplayStatus(ReplayStatusUpdateCode::kDone);
+        UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kDone);
     });
 }
 
@@ -638,7 +674,7 @@ void AnalyzeDialog::OnDeleteReplayArtifacts()
 void AnalyzeDialog::OnReplayStatusUpdate(int status_code_int, const QString &message)
 {
     // Cast from qt known type.
-    auto status_code = static_cast<ReplayStatusUpdateCode>(status_code_int);
+    auto status_code = static_cast<Dive::ReplayStatusUpdateCode>(status_code_int);
     bool execute_update = m_status_update_queue.empty();
     m_status_update_queue.push_back({ status_code, message });
     if (!execute_update)
@@ -657,76 +693,90 @@ void AnalyzeDialog::ExecuteStatusUpdate()
         StatusUpdateQueueItem item = m_status_update_queue[index];
         switch (item.status)
         {
-        case ReplayStatusUpdateCode::kDone:
+        case Dive::ReplayStatusUpdateCode::kDone:
             if (m_replay_active.valid())
             {
                 m_replay_active.get();
             }
             DisableOverlay();
             break;
-        case ReplayStatusUpdateCode::kSuccess:
-            ShowMessage(item.message.toStdString());
+        case Dive::ReplayStatusUpdateCode::kSuccess:
             SetReplayButton(kDefaultReplayButtonText, true);
             OverlayMessage("Replay done.");
             break;
-        case ReplayStatusUpdateCode::kFailure:
-            ShowMessage(item.message.toStdString());
+        case Dive::ReplayStatusUpdateCode::kFailure:
+            ShowMessage(item.error_message.toStdString());
             SetReplayButton(kDefaultReplayButtonText, true);
             OverlayMessage("Replay failed.");
             break;
-        case ReplayStatusUpdateCode::kSetup:
+        case Dive::ReplayStatusUpdateCode::kSetup:
             SetReplayButton("Setting up replay...", false);
             OverlayMessage("Setting up replay...");
             break;
-        case ReplayStatusUpdateCode::kSetupDeviceFailure:
-            ShowMessage(item.message.toStdString());
+        case Dive::ReplayStatusUpdateCode::kSetupDeviceFailure:
+            ShowMessage(item.error_message.toStdString());
             SetReplayButton(kDefaultReplayButtonText, false);
             OnDeviceListRefresh();
             break;
-        case ReplayStatusUpdateCode::kStartNormalReplay:
+        case Dive::ReplayStatusUpdateCode::kStartNormalReplay:
             SetReplayButton("Replaying...", false);
             OverlayMessage("Replaying...");
             break;
-        case ReplayStatusUpdateCode::kStartPm4Replay:
+        case Dive::ReplayStatusUpdateCode::kStartPm4Replay:
             SetReplayButton("Replaying with PM4 dump enabled...", false);
             OverlayMessage("Replaying with PM4 dump enabled...");
             break;
-        case ReplayStatusUpdateCode::kStartGpuTimeReplay:
+        case Dive::ReplayStatusUpdateCode::kStartGpuTimeReplay:
             SetReplayButton("Replaying with GPU timing enabled...", false);
             OverlayMessage("Replaying with GPU timing enabled...");
             break;
-        case ReplayStatusUpdateCode::kStartPerfCounterReplay:
+        /*case Dive::ReplayStatusUpdateCode::kStartPerfCounterReplay:
             SetReplayButton("Replaying with perf counter settings...", false);
             OverlayMessage("Replaying with perf counter settings...");
             break;
-        case ReplayStatusUpdateCode::kDeletingReplayArtifacts:
+            */
+        case Dive::ReplayStatusUpdateCode::kDeletingReplayArtifacts:
             OverlayMessage("Deleting temporary artifacts...");
+            break;
             break;
         }
     }
     m_status_update_queue.clear();
 }
 
-void AnalyzeDialog::UpdateReplayStatus(ReplayStatusUpdateCode status, const std::string &message)
+void AnalyzeDialog::UpdateReplayStatus(Dive::ReplayStatusUpdateCode status, const std::string &message)
 {
     qDebug() << message.c_str();
     ReplayStatusUpdated(static_cast<int>(status), QString::fromStdString(message));
 }
 
 //--------------------------------------------------------------------------------------------------
+void AnalyzeDialog::AttemptDeletingTemporaryLocalFile(const std::filesystem::path &file_path)
+{
+    if (std::filesystem::remove(file_path))
+    {
+        qDebug() << "Successfully deleted: " << file_path.string().c_str();
+    }
+    else
+    {
+        qDebug() << "Was not present: " << file_path.string().c_str();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 void AnalyzeDialog::ReplayImpl()
 {
-    Dive::DeviceManager &device_manager = Dive::GetDeviceManager();
-    auto                 device = device_manager.GetDevice();
+    m_device_manager = &Dive::GetDeviceManager();
+    auto                 device = m_device_manager->GetDevice();
 
-    UpdateReplayStatus(ReplayStatusUpdateCode::kSetup);
+    UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kSetup);
 
     // Setup the device
     absl::Status ret = device->SetupDevice();
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Fail to setup device: ", ret.message());
-        UpdateReplayStatus(ReplayStatusUpdateCode::kSetupDeviceFailure, err_msg);
+        UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kSetupDeviceFailure, err_msg);
         return;
     }
 
@@ -737,16 +787,16 @@ void AnalyzeDialog::ReplayImpl()
     {
         std::string err_msg = absl::StrCat("Failed to deploy replay apk: ",
                                            remote_file.status().message());
-        UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+        UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
         return;
     }
 
     // Deploying install/gfxr-replay.apk
-    ret = device_manager.DeployReplayApk(m_cur_device);
+    ret = m_device_manager->DeployReplayApk(m_cur_device);
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Failed to push files to device: ", ret.message());
-        UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+        UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
         return;
     }
 
@@ -754,25 +804,25 @@ void AnalyzeDialog::ReplayImpl()
     bool dump_pm4_run_enabled = m_dump_pm4_box->isChecked();
     bool gpu_time_run_enabled = m_gpu_time_box->isChecked();
     bool renderdoc_run_enabled = m_renderdoc_capture_box->isChecked();
-    bool perf_counter_run_enabled = !m_enabled_metrics_vector->empty();
-    bool normal_run_enabled = (!dump_pm4_run_enabled) && (!gpu_time_run_enabled) &&
-                              (!perf_counter_run_enabled) && (!renderdoc_run_enabled);
+    // bool perf_counter_run_enabled = !m_enabled_metrics_vector->empty();
+    m_normal_run_enabled = (!dump_pm4_run_enabled) && (!gpu_time_run_enabled) &&
+    (!renderdoc_run_enabled);
+
+    emit ReplayStarted();
 
     // Run only replay with default settings
-    if (normal_run_enabled)
+    if (m_normal_run_enabled)
     {
-        ret = NormalReplay(device_manager, remote_file.value());
+        ret = NormalReplay(*m_device_manager, remote_file.value());
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to run normal replay: ", ret.message());
-            UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+            UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
             return;
         }
 
-        UpdateReplayStatus(ReplayStatusUpdateCode::kSuccess,
-                           "Normal Replay completed successfully.");
-        // MainWindow needs to reload the capture so the correct PM4 data (or absence thereof) is
-        // displayed
+        UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kSuccess);
+        // Reload the capture so the correct PM4 data (or absence thereof) is displayed
         emit CaptureUpdated(m_selected_capture_file_string);
         return;
     }
@@ -780,11 +830,11 @@ void AnalyzeDialog::ReplayImpl()
     // Run the pm4 replay
     if (dump_pm4_run_enabled)
     {
-        ret = Pm4Replay(device_manager, remote_file.value());
+        ret = Pm4Replay(*m_device_manager, remote_file.value());
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to run pm4 replay: ", ret.message());
-            UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+            UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
             return;
         }
         // MainWindow needs to reload the capture so the correct PM4 data (or absence thereof) is
@@ -793,14 +843,14 @@ void AnalyzeDialog::ReplayImpl()
     }
 
     // Run the perf counter replay
-    if (perf_counter_run_enabled)
+    /*if (perf_counter_run_enabled)
     {
         ret = PerfCounterReplay(device_manager, remote_file.value());
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to run perf counter replay: ",
                                                ret.message());
-            UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+            UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
             return;
         }
     }
@@ -816,17 +866,17 @@ void AnalyzeDialog::ReplayImpl()
     else
     {
         qDebug() << "Cleared perf counter data";
-        emit DisplayPerfCounterResults("");
-    }
+        emit OnDisplayPerfCounterResults("");
+    }*/
 
     // Run the gpu_time replay
     if (gpu_time_run_enabled)
     {
-        ret = GpuTimeReplay(device_manager, remote_file.value());
+        ret = GpuTimeReplay(*m_device_manager, remote_file.value());
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to run gpu_time replay: ", ret.message());
-            UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+            UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
             return;
         }
     }
@@ -847,26 +897,28 @@ void AnalyzeDialog::ReplayImpl()
 
     if (renderdoc_run_enabled)
     {
-        ret = RenderDocReplay(device_manager, remote_file.value());
+        ret = RenderDocReplay(*m_device_manager, remote_file.value());
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to run replay with RenderDoc Capture: ",
                                                ret.message());
-            UpdateReplayStatus(ReplayStatusUpdateCode::kFailure, err_msg);
+            UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kFailure, err_msg);
             return;
         }
         qDebug() << "RenderDoc capture saved to: "
                  << m_local_capture_files.renderdoc_rdc.string().c_str();
     }
 
-    UpdateReplayStatus(ReplayStatusUpdateCode::kSuccess, "Replay completed successfully.");
+    emit ReplayRun(remote_file->c_str(), m_local_capture_file_directory.c_str());
+
+    UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kSuccess);
 }
 
 //--------------------------------------------------------------------------------------------------
 void AnalyzeDialog::DeleteReplayArtifactsImpl()
 {
     qDebug() << "Attempting to delete replay artifacts from previous runs...";
-    UpdateReplayStatus(ReplayStatusUpdateCode::kDeletingReplayArtifacts);
+    UpdateReplayStatus(Dive::ReplayStatusUpdateCode::kDeletingReplayArtifacts);
 
     AttemptDeletingTemporaryLocalFile(m_local_capture_files.perf_counter_csv);
     AttemptDeletingTemporaryLocalFile(m_local_capture_files.gpu_timing_csv);
