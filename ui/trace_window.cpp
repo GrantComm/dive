@@ -19,6 +19,7 @@
 #include <qboxlayout.h>
 #include <qspinbox.h>
 #include <QCheckBox>
+#include <QCloseEvent>
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
@@ -94,13 +95,7 @@ TraceDialog::TraceDialog(QWidget *parent) :
 
     m_dev_refresh_button = new QPushButton("&Refresh", this);
     m_pkg_refresh_button = new QPushButton("&Refresh", this);
-    m_pkg_filter_button = new QPushButton(this);
-    m_pkg_filter = new PackageFilter(this);
-    m_pkg_filter_button->setIcon(QIcon(":/images/filter.png"));
     m_pkg_refresh_button->setDisabled(true);
-    m_pkg_filter_button->setDisabled(true);
-    m_pkg_filter_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_pkg_filter->hide();
     m_pkg_list_options = Dive::AndroidDevice::PackageListOptions::kDebuggableOnly;
 
     m_main_layout = new QVBoxLayout();
@@ -129,6 +124,13 @@ TraceDialog::TraceDialog(QWidget *parent) :
     QCompleter *completer = new QCompleter(filterModel, m_pkg_box);
     completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
     m_pkg_box->setCompleter(completer);
+
+    // Capture Debuggable Applications Only Warning
+    m_capture_warning_layout = new QHBoxLayout();
+    m_capture_warning_label = new QLabel(
+    tr("⚠ The list below displays debuggable APKs available for capture on the selected device."));
+    m_capture_warning_label->setWordWrap(true);
+    m_capture_warning_layout->addWidget(m_capture_warning_label);
 
     m_app_type_box->setModel(m_app_type_model);
 
@@ -164,17 +166,10 @@ TraceDialog::TraceDialog(QWidget *parent) :
     m_capture_layout->addWidget(m_dev_box, 1);
     m_capture_layout->addWidget(m_dev_refresh_button);
 
-    m_pkg_filter_layout = new QHBoxLayout();
-    m_pkg_filter_label = new QLabel("Package Filters:");
-    m_pkg_filter_label->hide();
-    m_pkg_filter_layout->addWidget(m_pkg_filter_label);
-    m_pkg_filter_layout->addWidget(m_pkg_filter);
-
     m_pkg_layout = new QHBoxLayout();
     m_pkg_layout->addWidget(m_pkg_label);
     m_pkg_layout->addWidget(m_pkg_box, 1);
     m_pkg_layout->addWidget(m_pkg_refresh_button);
-    m_pkg_layout->addWidget(m_pkg_filter_button);
 
     m_type_layout = new QHBoxLayout();
     m_type_layout->addWidget(m_app_type_label);
@@ -207,7 +202,7 @@ TraceDialog::TraceDialog(QWidget *parent) :
     m_main_layout->addLayout(m_capture_layout);
     m_main_layout->addLayout(m_capture_type_layout);
     m_main_layout->addLayout(m_cmd_layout);
-    m_main_layout->addLayout(m_pkg_filter_layout);
+    m_main_layout->addLayout(m_capture_warning_layout);
     m_main_layout->addLayout(m_pkg_layout);
     m_main_layout->addLayout(m_gfxr_capture_file_directory_layout);
     m_main_layout->addLayout(m_gfxr_capture_file_local_directory_layout);
@@ -246,16 +241,8 @@ TraceDialog::TraceDialog(QWidget *parent) :
                      &QPushButton::clicked,
                      this,
                      &TraceDialog::OnAppListRefresh);
-    QObject::connect(m_pkg_filter_button,
-                     &QPushButton::clicked,
-                     this,
-                     &TraceDialog::OnPackageListFilter);
     QObject::connect(m_cmd_input_box, &QLineEdit::textEdited, this, &TraceDialog::OnInputCommand);
     QObject::connect(m_args_input_box, &QLineEdit::textEdited, this, &TraceDialog::OnInputArgs);
-    QObject::connect(m_pkg_filter,
-                     &PackageFilter::FiltersApplied,
-                     this,
-                     &TraceDialog::OnPackageListFilterApplied);
 
     QObject::connect(m_capture_type_button_group,
                      QOverload<int>::of(&QButtonGroup::buttonClicked),
@@ -1136,40 +1123,6 @@ void TraceDialog::UpdatePackageList()
     }
     m_pkg_box->setCurrentIndex(-1);
     m_pkg_refresh_button->setDisabled(false);
-    m_pkg_filter_button->setDisabled(false);
-}
-
-void TraceDialog::OnPackageListFilter()
-{
-    if (m_pkg_filter->isHidden())
-    {
-        m_pkg_filter_label->show();
-        m_pkg_filter->show();
-    }
-    else
-    {
-        m_pkg_filter_label->hide();
-        m_pkg_filter->hide();
-    }
-}
-
-void TraceDialog::OnPackageListFilterApplied(const QString &filter)
-{
-    if (filter == "All")
-    {
-        m_pkg_list_options = Dive::AndroidDevice::PackageListOptions::kAll;
-    }
-    else if (filter == "Debuggable")
-    {
-        m_pkg_list_options = Dive::AndroidDevice::PackageListOptions::kDebuggableOnly;
-    }
-    else if (filter == "Non-Debuggable")
-    {
-        m_pkg_list_options = Dive::AndroidDevice::PackageListOptions::kNonDebuggableOnly;
-    }
-    UpdatePackageList();
-    m_pkg_filter_label->hide();
-    m_pkg_filter->hide();
 }
 
 void TraceDialog::ShowGfxrFields()

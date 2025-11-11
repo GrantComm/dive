@@ -20,7 +20,6 @@
 #include <cstdint>
 
 #include "capture_service/device_mgr.h"
-#include "package_filter.h"
 
 #pragma once
 
@@ -152,8 +151,6 @@ private slots:
     void         OnAppListRefresh();
     void         OnInputCommand(const QString &);
     void         OnInputArgs(const QString &);
-    void         OnPackageListFilter();
-    void         OnPackageListFilterApplied(const QString &filter);
     void         OnGfxrCaptureClicked();
     void         ShowErrorMessage(const QString &err_msg);
     absl::Status StopPackageAndCleanup();
@@ -182,15 +179,14 @@ private:
     QRadioButton *m_gfxr_capture_type_button;
     QRadioButton *m_pm4_capture_type_button;
 
-    QHBoxLayout                            *m_pkg_filter_layout;
-    QLabel                                 *m_pkg_filter_label;
-    PackageFilter                          *m_pkg_filter;
+    QHBoxLayout *m_capture_warning_layout;
+    QLabel      *m_capture_warning_label;
+
     QHBoxLayout                            *m_pkg_layout;
     QLabel                                 *m_pkg_label;
     QStandardItemModel                     *m_pkg_model;
     QComboBox                              *m_pkg_box;
     QPushButton                            *m_pkg_refresh_button;
-    QPushButton                            *m_pkg_filter_button;
     Dive::AndroidDevice::PackageListOptions m_pkg_list_options;
 
     QHBoxLayout        *m_type_layout;
