@@ -30,6 +30,7 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QSizePolicy>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
@@ -58,6 +59,7 @@ namespace
 const std::vector<std::string> kAppTypes{ "Vulkan APK", "OpenXR APK", "Command Line Application" };
 const int                      kGfxrCaptureButtonId = 1;
 const int                      kPm4CaptureButtonId = 2;
+const std::vector<std::string> kSystemApplications{ "com.android.systemui", "compositor" };
 }  // namespace
 
 // =================================================================================================
@@ -159,6 +161,15 @@ TraceDialog::TraceDialog(QWidget *parent) :
     m_args_input_box = new QLineEdit();
     m_args_layout->addWidget(m_args_label);
     m_args_layout->addWidget(m_args_input_box);
+
+    m_capture_type_layout  = new QHBoxLayout();
+    m_capture_type_label = new QLabel("Capture Type:");
+    m_gfxr_capture_type_button = new QRadioButton(tr("GFXR"));
+    m_pm4_capture_type_button = new QRadioButton(tr("PM4"));
+    m_gfxr_capture_type_button->setChecked(true);
+    m_capture_type_layout->addWidget(m_capture_type_label);
+    m_capture_type_layout->addWidget(m_gfxr_capture_type_button);
+    m_capture_type_layout->addWidget(m_pm4_capture_type_button);
 
     m_capture_layout->addWidget(m_dev_label);
     m_capture_layout->addWidget(m_dev_box, 1);
@@ -332,7 +343,10 @@ void TraceDialog::closeEvent(QCloseEvent *event)
     // The operation was successful, close normally.
     if (status.ok())
     {
-        m_run_button->setEnabled(true);
+        if (!IsSystemApplication(m_cur_pkg))
+        {
+            m_run_button->setEnabled(true);
+        }
         m_run_button->setText(kStart_Application);
         EnableCaptureTypeButtons(true);
         m_pm4_capture_type_button->setChecked(true);
@@ -456,13 +470,41 @@ void TraceDialog::OnPackageSelected(const QString &s)
     {
         return;
     }
+
+    std::string prev_pkg;
     if (m_cur_pkg != m_pkg_list[cur_index])
     {
+        prev_pkg = m_cur_pkg;
         m_cur_pkg = m_pkg_list[cur_index];
         m_app_type_box->setCurrentIndex(-1);
     }
     m_run_button->setEnabled(true);
-    m_cmd_input_box->setText(m_cur_pkg.c_str());
+
+    if (IsSystemApplication(prev_pkg))
+    {
+        emit CleanupSystemApplication(QString(m_cur_pkg.c_str()));
+        m_run_button->setText(kStart_Application);
+    }
+
+    if (IsSystemApplication(m_cur_pkg))
+    {
+        m_file_label->hide();
+        m_cmd_input_box->hide();
+        m_args_label->hide();
+        m_args_input_box->hide();
+        m_app_type_label->hide();
+        m_app_type_box->hide();
+    }
+    else
+    {
+        m_file_label->show();
+        m_cmd_input_box->show();
+        m_args_label->show();
+        m_args_input_box->show();
+        m_app_type_label->show();
+        m_app_type_box->show();
+        m_cmd_input_box->setText(m_cur_pkg.c_str());
+    }
 }
 
 void TraceDialog::OnInputCommand(const QString &text)
@@ -595,10 +637,36 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     return true;
 }
 
+bool TraceDialog::IsSystemApplication(const std::string &pkg_name)
+{
+    auto it = std::find(
+        kSystemApplications.begin(),
+        kSystemApplications.end(),
+        pkg_name
+    );
+
+    return it != kSystemApplications.end();
+}
+
 void TraceDialog::OnStartClicked()
 {
     qDebug() << "Command: " << m_cmd_input_box->text();
     auto device = Dive::GetDeviceManager().GetDevice();
+    m_device = device;
+    if (IsSystemApplication(m_cur_pkg))
+    {
+        m_file_label->hide();
+        m_cmd_input_box->hide();
+        QString run_button_text = m_run_button->text();
+        if (run_button_text == QString(kStart_Application))
+        {
+            m_run_button->setDisabled(true);
+            m_gfxr_capture_button->setEnabled(true);
+            emit SetupSystemApplication(QString(m_cur_pkg.c_str()), m_gfxr_capture_file_directory_input_box->text());
+        }
+        return;
+    }
+
     if (!device)
     {
         std::string
@@ -1220,7 +1288,10 @@ void TraceDialog::OnGfxrCaptureClicked()
 
         m_gfxr_capture_button->setText(kStart_Gfxr_Runtime_Capture);
         m_gfxr_capture_button->setEnabled(true);
-        m_run_button->setEnabled(true);
+        if (!IsSystemApplication(m_cur_pkg))
+        {
+            m_run_button->setEnabled(true);
+        }
     }
     else if (m_gfxr_capture_button->text() == kStart_Gfxr_Runtime_Capture)
     {

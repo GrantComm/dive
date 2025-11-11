@@ -117,6 +117,12 @@ public:
     ~MainWindow();
     bool LoadFile(const std::string &file_name, bool is_temp_file = false, bool async = true);
     bool InitializePlugins();
+    void AddCaptureMenuAction(QAction *capture_menu_action);
+    TraceDialog& GetTraceDialog();
+    AnalyzeDialog& GetAnalyzeDialog();
+    QTabWidget& GetTabWidget();
+
+    ProgressTrackerCallback         m_progress_tracker;
 
 protected:
     virtual void closeEvent(QCloseEvent *closeEvent) Q_DECL_OVERRIDE;
@@ -147,6 +153,8 @@ public slots:
     void OnPendingPerfCounterResults(const QString &file_name);
     void OnPendingGpuTimingResults(const QString &file_name);
     void OnPendingScreenshot(const QString &file_name);
+    void OnHideOverlay();
+    void OnTraceAvailable(const QString &);
 
 private slots:
     void OnCommandViewModeChange(const QString &string);
@@ -165,10 +173,8 @@ private slots:
     void OnSearchTrigger();
     void OpenRecentFile();
     void UpdateOverlay(const QString &);
-    void OnHideOverlay();
     void OnCrossReference(Dive::CrossRef);
     void OnFileLoaded();
-    void OnTraceAvailable(const QString &);
     void OnTabViewSearchBarVisibilityChange(bool isHidden);
     void OnTabViewChange();
     void ConnectDiveFileTabs();
@@ -275,7 +281,6 @@ private:
 
     std::unique_ptr<Worker> m_worker;
 
-    ProgressTrackerCallback         m_progress_tracker;
     QReadWriteLock                  m_data_core_lock;
     std::unique_ptr<Dive::DataCore> m_data_core;
     QString                         m_capture_file;

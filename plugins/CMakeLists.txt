@@ -66,5 +66,7 @@ target_link_libraries(
 
 # For each new plugin, you can add an add_subdirectory call here.
 add_subdirectory(plugin_sample)
+add_subdirectory(system_trace)
+# add_subdirectory(dive_profiling_plugin_ui)
 
 install(CODE "file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/plugins)")

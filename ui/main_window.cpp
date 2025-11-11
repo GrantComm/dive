@@ -616,6 +616,9 @@ MainWindow::MainWindow()
     UpdateRecentFileActions(Settings::Get()->ReadRecentFiles());
 
     // Capture overlay widget
+    m_overlay = new OverlayHelper(this);
+    m_overlay->Initialize(horizontal_splitter);
+    // m_overlay->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     QObject::connect(&m_progress_tracker,
                      SIGNAL(sendMessageSignal(const QString &)),
                      this,
@@ -2139,6 +2142,13 @@ void MainWindow::CreateMenus()
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::AddCaptureMenuAction(QAction *capture_menu_action)
+{
+    capture_menu_action->setParent(this); 
+    m_capture_menu->addAction(capture_menu_action);
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::CreateToolBars()
 {
     QToolButton *open_button = new QToolButton(this);
@@ -2232,6 +2242,12 @@ void MainWindow::CreateStatusBar()
 void MainWindow::UpdateOverlay(const QString &message)
 {
     m_overlay->SetMessage(message);
+    /*if (m_overlay->isHidden())
+    {
+        m_overlay->raise();
+        m_overlay->show();
+    }
+    m_overlay->repaint();*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3756,4 +3772,19 @@ void MainWindow::OnGpuTimingDataSelected(uint64_t node_index)
 
         m_command_hierarchy_view->viewport()->update();
     }
+}
+
+TraceDialog& MainWindow::GetTraceDialog()
+{
+    return *m_trace_dig;
+}
+
+AnalyzeDialog& MainWindow::GetAnalyzeDialog()
+{
+    return *m_analyze_dig;
+}
+
+QTabWidget& MainWindow::GetTabWidget()
+{
+    return *m_tab_widget;
 }
