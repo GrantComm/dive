@@ -454,6 +454,8 @@ absl::StatusOr<std::vector<std::string>> AndroidDevice::ListPackage(PackageListO
         cmd += " -3";
     }
 
+    std::cout << "LISTPACKAGE CALLED" << std::endl;
+
     absl::StatusOr<std::string> list_packages_output = Adb().RunAndGetResult(cmd);
     if (!list_packages_output.ok())
     {

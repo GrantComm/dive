@@ -295,6 +295,7 @@ absl::Status AndroidApplication::CreateGfxrDirectory(const std::string directory
 
 absl::Status AndroidApplication::GfxrSetup()
 {
+    std::cout << "GFXR SETUP (SHOULD NOT HAPPEN FOR SYSTEM PACKAGES): " << std::endl;
     RETURN_IF_ERROR(m_dev.Adb().Run(
     absl::StrFormat(R"(push "%s" "%s")",
                     ResolveAndroidLibPath(kVkGfxrLayerLibName, m_device_architecture)

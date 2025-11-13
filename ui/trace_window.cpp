@@ -232,7 +232,7 @@ TraceDialog::TraceDialog(QWidget *parent) :
                      &QLineEdit::textEdited,
                      filterModel,
                      &QSortFilterProxyModel::setFilterFixedString);
-    QObject::connect(m_run_button, &QPushButton::clicked, this, &TraceDialog::OnStartClicked);
+    QObject::connect(m_run_button, &QPushButton::clicked, this, &TraceDialog::OnRunButtonClicked);
     QObject::connect(m_capture_button, &QPushButton::clicked, this, &TraceDialog::OnTraceClicked);
     QObject::connect(m_gfxr_capture_button,
                      &QPushButton::clicked,
@@ -261,6 +261,8 @@ TraceDialog::TraceDialog(QWidget *parent) :
                      QOverload<int>::of(&QButtonGroup::buttonClicked),
                      this,
                      &TraceDialog::OnCaptureTypeChanged);
+    QObject::connect(this, &TraceDialog::StartPackageClicked, this, &TraceDialog::OnStartPackage);
+    QObject::connect(this, &TraceDialog::StopPackageClicked, this, &TraceDialog::OnStopPackage);
 }
 
 TraceDialog::~TraceDialog()
@@ -327,6 +329,13 @@ absl::Status TraceDialog::StopPackageAndCleanup()
 
 void TraceDialog::closeEvent(QCloseEvent *event)
 {
+
+    if (!m_dialog_reset_on_close)
+    {
+        event->accept();
+        return;
+    }
+
     absl::Status status = StopPackageAndCleanup();
 
     // The operation was successful, close normally.
@@ -456,20 +465,24 @@ void TraceDialog::OnPackageSelected(const QString &s)
     {
         return;
     }
-    if (m_cur_pkg != m_pkg_list[cur_index])
+
+    QString prev_pkg;
+    if (m_cur_pkg.toStdString() != m_pkg_list[cur_index])
     {
-        m_cur_pkg = m_pkg_list[cur_index];
+        prev_pkg = m_cur_pkg;
+        m_cur_pkg = m_pkg_list[cur_index].c_str();
         m_app_type_box->setCurrentIndex(-1);
     }
     m_run_button->setEnabled(true);
-    m_cmd_input_box->setText(m_cur_pkg.c_str());
+    m_cmd_input_box->setText(m_cur_pkg);
+    emit PackageSelected(m_cur_pkg, prev_pkg);
 }
 
 void TraceDialog::OnInputCommand(const QString &text)
 {
     qDebug() << "Input changed to " << text;
     m_run_button->setEnabled(true);
-    m_cur_pkg = text.toStdString();
+    m_cur_pkg = text;
     m_pkg_box->setCurrentIndex(-1);
     m_app_type_box->setCurrentIndex(-1);
 }
@@ -493,7 +506,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     EnableCaptureTypeButtons(false);
 
     absl::Status ret;
-    qDebug() << "Start app on dev: " << m_cur_dev.c_str() << ", package: " << m_cur_pkg.c_str()
+    qDebug() << "Start app on dev: " << m_cur_dev.c_str() << ", package: " << m_cur_pkg
              << ", type: " << app_type.c_str() << ", args: " << m_command_args.c_str();
 
     std::string device_architecture = "";
@@ -514,7 +527,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
 
     if (app_type == "OpenXR APK")
     {
-        ret = device->SetupApp(m_cur_pkg,
+        ret = device->SetupApp(m_cur_pkg.toStdString(),
                                Dive::ApplicationType::OPENXR_APK,
                                m_command_args,
                                device_architecture,
@@ -522,7 +535,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     }
     else if (app_type == "Vulkan APK")
     {
-        ret = device->SetupApp(m_cur_pkg,
+        ret = device->SetupApp(m_cur_pkg.toStdString(),
                                Dive::ApplicationType::VULKAN_APK,
                                m_command_args,
                                device_architecture,
@@ -548,7 +561,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Fail to setup for package ",
-                                           m_cur_pkg,
+                                           m_cur_pkg.toStdString(),
                                            " error: ",
                                            ret.message());
         qDebug() << err_msg.c_str();
@@ -559,7 +572,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Fail to start package ",
-                                           m_cur_pkg,
+                                           m_cur_pkg.toStdString(),
                                            " error: ",
                                            ret.message());
         qDebug() << err_msg.c_str();
@@ -571,7 +584,7 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
     if (!cur_app->IsRunning())
     {
         std::string err_msg = absl::StrCat("Process for package ",
-                                           m_cur_pkg,
+                                           m_cur_pkg.toStdString(),
                                            " not found, possibly crashed.");
         qDebug() << err_msg.c_str();
         ShowErrorMessage(QString::fromStdString(err_msg));
@@ -580,26 +593,14 @@ bool TraceDialog::StartPackage(Dive::AndroidDevice *device, const std::string &a
 
     if (cur_app)
     {
-        m_run_button->setDisabled(false);
-        if (m_gfxr_capture)
-        {
-            m_run_button->setText("&Stop Application");
-            m_gfxr_capture_button->setEnabled(true);
-        }
-        else
-        {
-            m_run_button->setText("&Stop");
-            m_capture_button->setEnabled(true);
-        }
+        SetTraceDialogForCapture();
     }
     return true;
 }
 
-void TraceDialog::OnStartClicked()
+void TraceDialog::OnStartPackage()
 {
-    qDebug() << "Command: " << m_cmd_input_box->text();
-    auto device = Dive::GetDeviceManager().GetDevice();
-    if (!device)
+    if (!m_device)
     {
         std::string
         err_msg = "No device/application selected. Please select a device and application and "
@@ -607,8 +608,8 @@ void TraceDialog::OnStartClicked()
         ShowErrorMessage(QString::fromStdString(err_msg));
         return;
     }
-    device->EnableGfxr(m_gfxr_capture);
-    absl::Status ret = device->SetupDevice();
+    m_device->EnableGfxr(m_gfxr_capture);
+    absl::Status ret = m_device->SetupDevice();
     if (!ret.ok())
     {
         std::string err_msg = absl::StrCat("Fail to setup device: ", ret.message());
@@ -626,7 +627,7 @@ void TraceDialog::OnStartClicked()
 
     if (m_run_button->text() == QString(kStart_Application))
     {
-        if (!StartPackage(device, ty_str))
+        if (!StartPackage(m_device, ty_str))
         {
             m_run_button->setDisabled(false);
             m_run_button->setText(kStart_Application);
@@ -635,7 +636,7 @@ void TraceDialog::OnStartClicked()
     }
     else
     {
-        qDebug() << "Stop package and cleanup: " << m_cur_pkg.c_str();
+        qDebug() << "Stop package and cleanup: " << m_cur_pkg;
         absl::Status status = StopPackageAndCleanup();
         if (!status.ok())
         {
@@ -654,6 +655,50 @@ void TraceDialog::OnStartClicked()
         m_run_button->setEnabled(true);
         m_run_button->setText(kStart_Application);
         EnableCaptureTypeButtons(true);
+    }
+}
+
+void TraceDialog::OnStopPackage()
+{
+    if (!m_device)
+    {
+        std::string
+        err_msg = "No device/application selected. Please select a device and application and "
+                  "then try again.";
+        ShowErrorMessage(QString::fromStdString(err_msg));
+        return;
+    }
+
+    qDebug() << "Stop package and cleanup: " << m_cur_pkg;
+    absl::Status status = StopPackageAndCleanup();
+    if (!status.ok())
+    {
+        qDebug() << "Failed to stop package or cleanup: " << status.ToString().c_str();
+        ShowErrorMessage(QString::fromUtf8(status.message().data(), (int)status.message().size()));
+
+        // Only exit without resetting the button if the error is a precondition
+        // failure (GFXR capture in progress). For other cleanup errors, we still
+        // want to reset the UI to a "startable" state.
+        if (status.code() == absl::StatusCode::kFailedPrecondition)
+        {
+            return;
+        }
+    }
+    ResetTraceDialogOnAppStop();
+}
+
+void TraceDialog::OnRunButtonClicked()
+{
+    qDebug() << "Command: " << m_cmd_input_box->text();
+    auto device = Dive::GetDeviceManager().GetDevice();
+    m_device = device;
+    if (m_run_button->text() == QString(kStart_Application))
+    {
+        emit StartPackageClicked(m_gfxr_capture_file_directory_input_box->text(), m_gfxr_capture);
+    }
+    else
+    {
+        emit StopPackageClicked(m_gfxr_capture);
     }
 }
 
@@ -1101,6 +1146,12 @@ void TraceDialog::OnAppListRefresh()
     UpdatePackageList();
 }
 
+void TraceDialog::OnPackageListSet(QList<std::string> package_list)
+{
+    m_pkg_list = std::vector<std::string>(package_list.begin(), package_list.end());
+    ;
+}
+
 void TraceDialog::UpdatePackageList()
 {
     auto device = Dive::GetDeviceManager().GetDevice();
@@ -1121,6 +1172,8 @@ void TraceDialog::UpdatePackageList()
         return;
     }
     m_pkg_list = *ret;
+    emit PackageListAvailable(m_gfxr_capture,
+                              QList<std::string>(m_pkg_list.begin(), m_pkg_list.end()));
 
     const QSignalBlocker blocker(
     m_pkg_box);  // Do not emit index changed event when update the model
@@ -1204,7 +1257,7 @@ void TraceDialog::OnGfxrCaptureClicked()
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to stop runtime gfxr capture ",
-                                               m_cur_pkg,
+                                               m_cur_pkg.toStdString(),
                                                " error: ",
                                                ret.message());
             qDebug() << err_msg.c_str();
@@ -1224,7 +1277,7 @@ void TraceDialog::OnGfxrCaptureClicked()
         if (!ret.ok())
         {
             std::string err_msg = absl::StrCat("Failed to start runtime gfxr capture ",
-                                               m_cur_pkg,
+                                               m_cur_pkg.toStdString(),
                                                " error: ",
                                                ret.message());
             qDebug() << err_msg.c_str();
@@ -1297,6 +1350,30 @@ void TraceDialog::RetrieveGfxrCapture()
     workerThread->start();
 
     m_gfxr_capture_button->setEnabled(false);
+}
+
+void TraceDialog::SetTraceDialogForCapture()
+{
+    m_run_button->setDisabled(false);
+    EnableCaptureTypeButtons(false);
+    if (m_gfxr_capture)
+    {
+        m_run_button->setText("&Stop Application");
+        m_gfxr_capture_button->setEnabled(true);
+    }
+    else
+    {
+        m_run_button->setText("&Stop");
+        m_capture_button->setEnabled(true);
+    }
+}
+
+void TraceDialog::ResetTraceDialogOnAppStop()
+{
+    m_run_button->setEnabled(true);
+    m_run_button->setText(kStart_Application);
+    m_gfxr_capture_button->setEnabled(false);
+    EnableCaptureTypeButtons(true);
 }
 
 void TraceDialog::OnGFXRCaptureAvailable(QString const &capture_path)

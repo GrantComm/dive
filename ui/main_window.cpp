@@ -663,6 +663,19 @@ bool MainWindow::InitializePlugins()
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::AddCaptureMenuAction(QAction *capture_menu_action)
+{
+    capture_menu_action->setParent(this);
+    m_capture_menu->addAction(capture_menu_action);
+}
+
+//--------------------------------------------------------------------------------------------------
+TraceDialog &MainWindow::GetTraceDialog()
+{
+    return *m_trace_dig;
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::OnTraceAvailable(const QString &path)
 {
     qDebug() << "Trace is at " << path;
