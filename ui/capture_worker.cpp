@@ -88,6 +88,9 @@ void CaptureWorker::run()
     const std::string  host = "127.0.0.1";
     int                port = device->Port();
     auto               status = client.Connect(host, port);
+    int               *x = nullptr;
+    *x = 10;
+
     if (!status.ok())
     {
         std::string err_msg(status.message());

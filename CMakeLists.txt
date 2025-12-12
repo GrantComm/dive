@@ -109,6 +109,14 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/dive_core)
 # Determine if third-party libraries should be built for the current target
 
 if(NOT ANDROID)
+    if(APPLE)
+        execute_process(
+            COMMAND xcrun --show-sdk-path
+            OUTPUT_VARIABLE CMAKE_OSX_SYSROOT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
+
     # Include gtest before Abseil so we can use ABSL_BUILD_TEST_HELPERS for status_matchers
     # Ask gtest to use /MD or /MDd since it matches the CMake defaults that we use.
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -139,6 +147,17 @@ if(NOT ANDROID)
     add_subdirectory(third_party/gfxreconstruct)
     list(POP_BACK CMAKE_MESSAGE_INDENT)
     message(CHECK_PASS "done")
+
+    message(CHECK_START "Generate build files for third_party/crashpad")
+    list(APPEND CMAKE_MESSAGE_INDENT "  ")
+    # Disable Crashpad tests/examples to speed up build
+    set(CRASHPAD_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(CRASHPAD_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory(third_party/crashpad)
+    list(POP_BACK CMAKE_MESSAGE_INDENT)
+    message(CHECK_PASS "done")
+    add_library(crashpad_client ALIAS client)
+    set_target_properties(handler PROPERTIES OUTPUT_NAME "crashpad_handler")
 else()
     message(
         CHECK_START
@@ -325,6 +344,12 @@ if(NOT ANDROID)
             ${DIVE_EXECUTABLE_PATH} --maximize --native_style ${DIVE_TEST_TRACE}
             --test_scenario=screenshot --test_output=${DIVE_TEST_OUTPUT_PATH}
             --test_prefix=screenshot-native_style-
+    )
+    set_tests_properties(
+        Regression_StackOverflow_MacOS
+        DiveUI_Screenshot
+        DiveUI_Screenshot_NativeStyle
+        PROPERTIES TIMEOUT 60
     )
     if(DIVE_BUILD_WITH_SANITIZER)
         set_tests_properties(
