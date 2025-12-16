@@ -327,6 +327,7 @@ jobs:
       - name: Generate build files with cmake
         run: |
           time cmake -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install" \
             -DCMAKE_C_COMPILER_LAUNCHER="cmake;-E;time;ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="cmake;-E;time;ccache" \
             -DCMAKE_C_LINKER_LAUNCHER="cmake;-E;time" \
@@ -339,11 +340,22 @@ jobs:
       - name: Build and Install
         run: |
           ninja -C build install
+      - name: Debug File Paths
+        run: |
+          echo "Current Workspace: ${{ github.workspace }}"
+          echo "Searching for CSV..."
+          find ${{ github.workspace }} -name "DEVICE_LIBRARIES_VERSION.csv"
+          echo "Checking install directory content:"
+          ls -R ${{ github.workspace }}/install || echo "Install dir not found!"
       - name: Show ccache stats
         run: ccache -s
       - name: Ninja log
         run: |
           cat build/.ninja_log
+      - name: List Install Directory
+        run: |
+          echo "Listing contents of the install directory:"
+          ls -R /Users/runner/work/dive/dive/install
       - name: Run tests
         run: |
           ctest --output-on-failure -C Debug --test-dir build
@@ -383,6 +395,7 @@ jobs:
       - name: Generate build files with cmake
         run: |
           time cmake -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install" \
             -DCMAKE_C_COMPILER_LAUNCHER="cmake;-E;time;ccache" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="cmake;-E;time;ccache" \
             -DCMAKE_C_LINKER_LAUNCHER="cmake;-E;time" \
@@ -395,11 +408,22 @@ jobs:
       - name: Build and Install
         run: |
           ninja -C build install
+      - name: Debug File Paths
+        run: |
+          echo "Current Workspace: ${{ github.workspace }}"
+          echo "Searching for CSV..."
+          find ${{ github.workspace }} -name "DEVICE_LIBRARIES_VERSION.csv"
+          echo "Checking install directory content:"
+          ls -R ${{ github.workspace }}/install || echo "Install dir not found!"
       - name: Show ccache stats
         run: ccache -s
       - name: Ninja log
         run: |
           cat build/.ninja_log
+      - name: List Install Directory
+        run: |
+          echo "Listing contents of the install directory:"
+          ls -R /Users/runner/work/dive/dive/install
       - name: Run tests
         run: |
           ctest --output-on-failure -C Release --test-dir build
