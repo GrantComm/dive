@@ -40,6 +40,12 @@
 #include "absl/flags/usage.h"
 #include "absl/flags/usage_config.h"
 #include "dive/os/terminal.h"
+
+#include "client/crashpad_client.h"
+#include "base/files/file_path.h"
+#include "dive/os/command_utils.h"
+#include "dive/utils/string_utils.h"
+
 #ifdef __linux__
 #    include <dlfcn.h>
 #endif
@@ -69,6 +75,57 @@ ABSL_RETIRED_FLAG(bool, reverse, false, "Qt flag reverse");
 ABSL_RETIRED_FLAG(std::string, qmljsdebugger, "", "Qt flag qmljsdebugger");
 
 //--------------------------------------------------------------------------------------------------
+
+absl::Status InitializeCrashpad()
+{
+    static constexpr char kHandlerBinary[] = "crashpad_handler";
+    static constexpr char kDbDirectory[] = "crash_db";
+    static constexpr char kMetricsDirectory[] = "crash_metrics";
+    static constexpr char kCrashReportUrl[] = "https://clients2.google.com/cr/staging_report";
+    static constexpr char kProductName[] = "Dive";
+    static constexpr char kFormat[] = "minidump";
+    static constexpr char kNoRateLimitFlag[] = "--no-rate-limit";
+
+    absl::StatusOr<std::filesystem::path> exe_dir = Dive::GetExecutableDirectory();
+    if (!exe_dir.ok())
+    {
+        return exe_dir.status();
+    }
+
+    std::filesystem::path handler_path = *exe_dir / kHandlerBinary;
+#ifdef _WIN32
+    handler_path.replace_extension(".exe");
+#endif
+
+    std::filesystem::path database_path = *exe_dir / kDbDirectory;
+    std::filesystem::path metrics_path = *exe_dir / kMetricsDirectory;
+
+    std::map<std::string, std::string> annotations = {
+        { "product", kProductName },
+        { "format", kFormat },
+        { "version", Dive::GetCompleteVersionString() },
+    };
+
+    std::vector<std::string> arguments = { kNoRateLimitFlag };
+
+    static crashpad::CrashpadClient *client = new crashpad::CrashpadClient();
+
+    bool success = client->StartHandler(base::FilePath(handler_path.native()),
+                                        base::FilePath(database_path.native()),
+                                        base::FilePath(metrics_path.native()),
+                                        kCrashReportUrl,
+                                        annotations,
+                                        arguments,
+                                        /*restartable=*/true,
+                                        /*asynchronous_start=*/false);
+
+    if (!success)
+    {
+        return absl::InternalError("Failed to start Crashpad handler.");
+    }
+    return absl::OkStatus();
+}
+
 class CrashHandler
 {
 public:
@@ -300,11 +357,20 @@ int main(int argc, char *argv[])
 
     absl::InitializeSymbolizer(argv[0]);
 
-    CrashHandler::Initialize(argv[0]);
+    if (auto ret = InitializeCrashpad(); ret.ok())
+    {
+        std::cout << "Crashpad initialized successfully.\n";
+    }
+    else
+    {
+        std::cout << "Crashpad initialization failed: " << ret.message() << "\n";
+    }
 
-    absl::FailureSignalHandlerOptions options;
-    options.writerfn = CrashHandler::Writer;
-    absl::InstallFailureSignalHandler(options);
+    // CrashHandler::Initialize(argv[0]);
+
+    // absl::FailureSignalHandlerOptions options;
+    // options.writerfn = CrashHandler::Writer;
+    // absl::InstallFailureSignalHandler(options);
 
     const bool native_style = absl::GetFlag(FLAGS_native_style);
     if (!native_style)
