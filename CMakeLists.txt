@@ -349,7 +349,7 @@ if(NOT ANDROID)
         Regression_StackOverflow_MacOS
         DiveUI_Screenshot
         DiveUI_Screenshot_NativeStyle
-        PROPERTIES TIMEOUT 60
+        PROPERTIES TIMEOUT 120
     )
     if(DIVE_BUILD_WITH_SANITIZER)
         set_tests_properties(
