@@ -66,23 +66,9 @@ QVariant GfxrVulkanCommandArgumentsFilterProxyModel::data(const QModelIndex& ind
 {
     QVariant value = QSortFilterProxyModel::data(index, role);
 
-    if (role == Qt::ForegroundRole)
+    if (role == Qt::ForegroundRole) 
     {
-        QModelIndex sourceIndex = mapToSource(index);
-
-        if (!m_targetParentSourceIndex.isValid())
-        {
-            return QVariant(QColor(Qt::gray));
-        }
-
-        if (IsDescendant(sourceIndex, m_targetParentSourceIndex))
-        {
-            return QVariant(QColor(Qt::white));
-        }
-        else
-        {
-            return QVariant(QColor(Qt::gray));
-        }
+        return QVariant(); 
     }
 
     return value;

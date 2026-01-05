@@ -48,7 +48,10 @@
 #include "ui/dive_application.h"
 #include "ui/main_window.h"
 #include "utils/version_info.h"
+#include "theme_manager.h"
 #ifdef __linux__
+#include <QtDBus/QDBusInterface>
+#include <QtDBus/QDBusReply>
 #include <dlfcn.h>
 #endif
 
@@ -264,6 +267,35 @@ bool ExecuteScenario(std::string_view scenario, MainWindow* main_window)
     return false;
 }
 
+#if defined(__linux__)
+//--------------------------------------------------------------------------------------------------
+bool IsLinuxSystemDark() {
+    qRegisterMetaType<QDBusVariant>("QDBusVariant");
+
+    QDBusInterface portal("org.freedesktop.portal.Desktop",
+                         "/org/freedesktop/portal/desktop",
+                         "org.freedesktop.portal.Settings",
+                         QDBusConnection::sessionBus());
+
+    if (portal.isValid()) {
+        QDBusMessage reply = portal.call("Read", "org.freedesktop.appearance", "color-scheme");
+        
+        if (reply.type() != QDBusMessage::ErrorMessage && !reply.arguments().isEmpty()) {
+            QVariant v = reply.arguments().at(0);
+            
+            while (v.canConvert<QDBusVariant>()) {
+                v = v.value<QDBusVariant>().variant();
+            }
+            
+            uint32_t value = v.toUInt();
+            return (value == 1);
+        }
+    }
+    
+    return qgetenv("GTK_THEME").toLower().contains("-dark");
+}
+#endif
+
 //--------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
@@ -305,9 +337,30 @@ int main(int argc, char* argv[])
     QScopedPointer<DiveApplication> app{new DiveApplication(argc, argv)};
     app->setWindowIcon(QIcon(":/images/dive.ico"));
 
-    if (!native_style)
+    ThemeManager theme_manager(&app);
+
+    bool is_system_dark = false;
+#if defined(__linux__)
+    is_system_dark = IsLinuxSystemDark();
+#else
+    is_system_dark = (app.palette().color(QPalette::Window).value() < 128);
+#endif
+
+    if (native_style) {
+        theme_manager.SetTheme(ThemeManager::Theme::Native);
+    } else {
+        theme_manager.SetTheme(is_system_dark ? ThemeManager::Theme::Dark 
+                                              : ThemeManager::Theme::Light);
+    }
+
+    if (native_style)
     {
-        app->ApplyCustomStyle();
+        theme_manager.SetTheme(ThemeManager::Theme::Native);
+    }
+    else
+    {
+        theme_manager.SetTheme(is_system_dark ? ThemeManager::Theme::Dark 
+                                             : ThemeManager::Theme::Light);
     }
 
     // Display splash screen
@@ -318,7 +371,8 @@ int main(int argc, char* argv[])
     // Initialize packet info query data structures needed for parsing
     Pm4InfoInit();
 
-    QScopedPointer<MainWindow> main_window{new MainWindow(app->GetController())};
+    ApplicationController controller;
+    MainWindow *main_window = new MainWindow(controller, theme_manager);
 
     if (auto scenario = absl::GetFlag(FLAGS_test_scenario); !scenario.empty())
     {

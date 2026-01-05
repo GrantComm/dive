@@ -179,7 +179,7 @@ void SetTabAvailable(QTabWidget* widget, int index, bool available)
 // =================================================================================================
 // MainWindow
 // =================================================================================================
-MainWindow::MainWindow(ApplicationController& controller) : m_controller(controller)
+MainWindow::MainWindow(ApplicationController &controller, ThemeManager& theme_manager) : m_controller(controller), m_theme_manager(theme_manager)
 {
     controller.Register(*this);
 
@@ -1315,6 +1315,23 @@ void MainWindow::closeEvent(QCloseEvent* closeEvent)
     }
     if (m_trace_dig) m_trace_dig->Cleanup();
     closeEvent->accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::PaletteChange) 
+    {
+        int lightness = qApp->palette().color(QPalette::Window).value();
+        bool is_dark = (lightness < 128);
+
+        if (m_theme_manager.CurrentTheme() != ThemeManager::Theme::Native)
+        {
+            m_theme_manager.SetTheme(is_dark ? ThemeManager::Theme::Dark 
+                                              : ThemeManager::Theme::Light);
+        }
+    }
+    return QMainWindow::event(event);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -45,6 +45,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
+find_package(Qt5DBus CONFIG REQUIRED)
 
 if(APPLE)
     set_source_files_properties(
@@ -157,6 +158,8 @@ add_executable(
     shortcuts.h
     text_file_view.cpp
     text_file_view.h
+    theme_manager.cpp
+    theme_manager.h
     tile_stats_tab_view.cpp
     tile_stats_tab_view.h
     tool_tip_summaries.cpp
@@ -205,6 +208,7 @@ endif()
 target_link_libraries(
     ${PROJECT_NAME}
     Qt5::Widgets
+    $<$<PLATFORM_ID:Linux>:Qt5::DBus>
     absl::flags
     absl::flags_parse
     absl::failure_signal_handler

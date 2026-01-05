@@ -16,7 +16,8 @@
         <file>images/arrow_down.png</file>
         <file>images/dive.png</file>
         <file>images/dive.ico</file>
-        <file>stylesheet.qss</file>
+        <file>stylesheet_dark.qss</file>
+        <file>stylesheet_light.qss</file>
         <file>images/filter.png</file>
         <file>images/analyze.png</file>
         <file>images/copy.png</file>
