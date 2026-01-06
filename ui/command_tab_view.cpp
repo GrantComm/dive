@@ -50,7 +50,6 @@ CommandTabView::CommandTabView(const Dive::CommandHierarchy& command_hierarchy, 
 
     m_search_trigger_button = new QPushButton;
     m_search_trigger_button->setObjectName(kCommandBufferSearchButtonName);
-    m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
 
     QHBoxLayout* options_layout = new QHBoxLayout();
     options_layout->addWidget(m_search_trigger_button);

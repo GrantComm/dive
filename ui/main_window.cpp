@@ -179,7 +179,7 @@ void SetTabAvailable(QTabWidget* widget, int index, bool available)
 // =================================================================================================
 // MainWindow
 // =================================================================================================
-MainWindow::MainWindow(ApplicationController &controller, ThemeManager& theme_manager) : m_controller(controller), m_theme_manager(theme_manager)
+MainWindow::MainWindow(ApplicationController& controller) : m_controller(controller)
 {
     controller.Register(*this);
 
@@ -293,7 +293,7 @@ MainWindow::MainWindow(ApplicationController &controller, ThemeManager& theme_ma
         m_filter_gfxr_commands_combo_box->hide();
 
         m_search_trigger_button = new QPushButton;
-        m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
+        m_search_trigger_button->setObjectName(kSearchTriggerButtonName);
         text_combo_box_layout->addWidget(m_search_trigger_button);
 
         text_combo_box_layout->addStretch();
@@ -389,7 +389,7 @@ MainWindow::MainWindow(ApplicationController &controller, ThemeManager& theme_ma
         text_combo_box_layout->addWidget(m_pm4_filter_mode_combo_box, 1);
 
         m_pm4_search_trigger_button = new QPushButton;
-        m_pm4_search_trigger_button->setIcon(QIcon(":/images/search.png"));
+        m_pm4_search_trigger_button->setObjectName(kSearchTriggerButtonName);
         text_combo_box_layout->addWidget(m_pm4_search_trigger_button);
 
         text_combo_box_layout->addStretch();
@@ -550,6 +550,9 @@ MainWindow::MainWindow(ApplicationController &controller, ThemeManager& theme_ma
     QObject::connect(this, &MainWindow::PendingPerfCounterResults, this,
                      &MainWindow::OnPendingPerfCounterResults);
     QObject::connect(this, &MainWindow::PendingScreenshot, this, &MainWindow::OnPendingScreenshot);
+
+    QObject::connect(&m_controller, &ApplicationController::ThemeChanged, this,
+                     &MainWindow::OnThemeChanged);
 
     // Filter mode change connections
     QObject::connect(m_filter_model, &DiveFilterModel::FilterModeChanged,
@@ -939,6 +942,14 @@ void MainWindow::OnTraceStatsUpdated()
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::OnThemeChanged()
+{
+    m_analyze_action->setIcon(m_controller.GetMenuItemIcon(kAnalyzeMenuItemIconName));
+    m_capture_action->setIcon(m_controller.GetMenuItemIcon(kCaptureMenuItemIconName));
+    m_exit_action->setIcon(m_controller.GetMenuItemIcon(kExitMenuItemIconName));
+}
+
+//--------------------------------------------------------------------------------------------------
 bool MainWindow::LoadFile(const std::string& file_name, bool is_temp_file, bool async)
 {
     bool release_capture = m_capture_acquired;
@@ -1318,23 +1329,6 @@ void MainWindow::closeEvent(QCloseEvent* closeEvent)
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::event(QEvent *event)
-{
-    if (event->type() == QEvent::PaletteChange) 
-    {
-        int lightness = qApp->palette().color(QPalette::Window).value();
-        bool is_dark = (lightness < 128);
-
-        if (m_theme_manager.CurrentTheme() != ThemeManager::Theme::Native)
-        {
-            m_theme_manager.SetTheme(is_dark ? ThemeManager::Theme::Dark 
-                                              : ThemeManager::Theme::Light);
-        }
-    }
-    return QMainWindow::event(event);
-}
-
-//--------------------------------------------------------------------------------------------------
 void MainWindow::OpenRecentFile()
 {
     QAction* action = qobject_cast<QAction*>(sender());
@@ -1563,6 +1557,19 @@ void MainWindow::LoadAvailableMetrics()
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::SetActionProxyObjectName(QAction* action, const QString& name)
+{
+    if (action && m_file_tool_bar)
+    {
+        QWidget* proxy_btn = m_file_tool_bar->widgetForAction(action);
+        if (proxy_btn)
+        {
+            proxy_btn->setObjectName(name);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::CreateActions()
 {
     // Open file action
@@ -1608,7 +1615,7 @@ void MainWindow::CreateActions()
     // Capture action
     m_capture_action = new QAction(tr("&Capture"), this);
     m_capture_action->setStatusTip(tr("Capture a Dive trace"));
-    m_capture_action->setIcon(QIcon(":/images/capture.png"));
+    m_capture_action->setObjectName(kCaptureActionName);
     m_capture_action->setShortcut(QKeySequence("f5"));
     connect(m_capture_action, &QAction::triggered, this, &MainWindow::OnNormalCapture);
 
@@ -1621,7 +1628,8 @@ void MainWindow::CreateActions()
     // Analyze action
     m_analyze_action = new QAction(tr("Analyze Capture"), this);
     m_analyze_action->setStatusTip(tr("Analyze a Capture"));
-    m_analyze_action->setIcon(QIcon(":/images/analyze.png"));
+    m_analyze_action->setObjectName(kAnalyzeActionName);
+
     m_analyze_action->setShortcut(QKeySequence("f7"));
     connect(m_analyze_action, &QAction::triggered, this, &MainWindow::OnAnalyzeCapture);
 
@@ -1650,12 +1658,16 @@ void MainWindow::CreateMenus()
     m_recent_captures_menu = m_file_menu->addMenu(tr("Recent captures"));
     for (auto action : m_recent_file_actions) m_recent_captures_menu->addAction(action);
     m_file_menu->addSeparator();
+
+    m_exit_action->setIcon(m_controller.GetMenuItemIcon(kExitMenuItemIconName));
     m_file_menu->addAction(m_exit_action);
 
     m_capture_menu = menuBar()->addMenu(tr("&Capture"));
+    m_capture_action->setIcon(m_controller.GetMenuItemIcon(kCaptureMenuItemIconName));
     m_capture_menu->addAction(m_capture_action);
 
     m_analyze_menu = menuBar()->addMenu(tr("&Analyze"));
+    m_analyze_action->setIcon(m_controller.GetMenuItemIcon(kAnalyzeMenuItemIconName));
     m_analyze_menu->addAction(m_analyze_action);
 
     m_help_menu = menuBar()->addMenu(tr("&Help"));
@@ -1676,6 +1688,10 @@ void MainWindow::CreateToolBars()
     m_file_tool_bar->addAction(m_save_action);
     m_file_tool_bar->addAction(m_capture_action);
     m_file_tool_bar->addAction(m_analyze_action);
+
+    // Sync toolbar action names for QSS
+    SetActionProxyObjectName(m_analyze_action, kAnalyzeActionName);
+    SetActionProxyObjectName(m_capture_action, kCaptureActionName);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <QObject>
+#include <QtDBus/QDBusVariant>
 
 #include "dive/ui/types/impl_pointer.h"
 
@@ -39,9 +40,20 @@ class ApplicationController : public QObject
     bool InitializePlugins();
 
     bool AdvancedOptionEnabled() const;
+
+    void SetTheme(bool dark_mode_enabled);
+    QIcon GetMenuItemIcon(const QString& base_icon_name) const;
+    std::optional<QString> GetStyleSheet() const;
+    bool IsDarkModeEnabled() const;
+ public slots:
+    void OnSystemSettingChanged(QString group, QString key, QDBusVariant value);
  signals:
     void AdvancedOptionToggled(bool enabled);
+    void ThemeChanged();
 
  private:
+#if defined(__linux__)
+    bool IsLinuxSystemDark();
+#endif
     ImplPointer<Impl> m_impl;
 };

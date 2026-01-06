@@ -21,47 +21,13 @@
 #include <QPalette>
 #include <QScopedValueRollback>
 #include <QString>
+#include <QStyle>
+#ifdef __linux__
+#include <QtDBus/QDBusInterface>
+#include <QtDBus/QDBusReply>
+#endif
 
 #include "ui/application_controller.h"
-
-namespace
-{
-
-QPalette GetDarkPalette()
-{
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(40, 40, 40));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-
-    darkPalette.setColor(QPalette::Disabled, QPalette::Window, QColor(90, 90, 90));
-    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Base, QColor(80, 80, 80));
-    darkPalette.setColor(QPalette::Disabled, QPalette::AlternateBase, QColor(90, 90, 90));
-    darkPalette.setColor(QPalette::Disabled, QPalette::ToolTipBase, QColor(90, 90, 90));
-    darkPalette.setColor(QPalette::Disabled, QPalette::ToolTipText, QColor(160, 160, 160));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Button, QColor(80, 80, 80));
-    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::Disabled, QPalette::BrightText, QColor(160, 160, 160));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Link, QColor(160, 160, 160));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(90, 90, 90));
-    darkPalette.setColor(QPalette::Disabled, QPalette::Light, QColor(53, 53, 53));
-
-    return darkPalette;
-}
-
-}  // namespace
 
 struct DiveApplication::Impl
 {
@@ -79,13 +45,48 @@ DiveApplication::~DiveApplication()
 
 ApplicationController& DiveApplication::GetController() { return m_impl->m_controller; }
 
+#if defined(__linux__)
+bool DiveApplication::IsLinuxSystemDark()
+{
+    qRegisterMetaType<QDBusVariant>("QDBusVariant");
+
+    QDBusInterface portal("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
+                          "org.freedesktop.portal.Settings", QDBusConnection::sessionBus());
+
+    if (portal.isValid())
+    {
+        QDBusMessage reply = portal.call("Read", "org.freedesktop.appearance", "color-scheme");
+
+        if (reply.type() != QDBusMessage::ErrorMessage && !reply.arguments().isEmpty())
+        {
+            QVariant v = reply.arguments().at(0);
+
+            while (v.canConvert<QDBusVariant>())
+            {
+                v = v.value<QDBusVariant>().variant();
+            }
+
+            uint32_t value = v.toUInt();
+            return (value == 1);
+        }
+    }
+
+    return qgetenv("GTK_THEME").toLower().contains("-dark");
+}
+#endif
+
 void DiveApplication::ApplyCustomStyle()
 {
-    QApplication::setPalette(GetDarkPalette());
+    bool is_system_dark = false;
+#if defined(__linux__)
+    is_system_dark = IsLinuxSystemDark();
+#else
+    is_system_dark = (app.palette().color(QPalette::Window).value() < 128);
+#endif
 
-    QFile style_sheet(":/stylesheet.qss");
-    style_sheet.open(QFile::ReadOnly);
-    m_impl->m_style_sheet = style_sheet.readAll();
+    m_impl->m_controller.SetTheme(is_system_dark);
+    m_impl->m_style_sheet = m_impl->m_controller.GetStyleSheet();
+
     setStyleSheet(*m_impl->m_style_sheet);
 }
 
@@ -100,8 +101,7 @@ bool DiveApplication::event(QEvent* e)
         {
             QScopedValueRollback guard_scope(guard, true);
             // Re-apply custom style.
-            QApplication::setPalette(GetDarkPalette());
-            setStyleSheet(*m_impl->m_style_sheet);
+            ApplyCustomStyle();
         }
     }
     return QApplication::event(e);

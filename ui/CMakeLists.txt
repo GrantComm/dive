@@ -158,8 +158,6 @@ add_executable(
     shortcuts.h
     text_file_view.cpp
     text_file_view.h
-    theme_manager.cpp
-    theme_manager.h
     tile_stats_tab_view.cpp
     tile_stats_tab_view.h
     tool_tip_summaries.cpp

@@ -38,5 +38,8 @@ class DiveApplication : public QApplication
     bool event(QEvent* e) Q_DECL_OVERRIDE;
 
  private:
+#if defined(__linux__)
+    bool IsLinuxSystemDark();
+#endif
     ImplPointer<Impl> m_impl;
 };

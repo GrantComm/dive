@@ -50,7 +50,6 @@ GfxrVulkanCommandArgumentsTabView::GfxrVulkanCommandArgumentsTabView(
 
     m_search_trigger_button = new QPushButton;
     m_search_trigger_button->setObjectName(kGfxrVulkanCommandArgumentsSearchButtonName);
-    m_search_trigger_button->setIcon(QIcon(":/images/search.png"));
 
     QHBoxLayout* options_layout = new QHBoxLayout();
     options_layout->addWidget(m_search_trigger_button);

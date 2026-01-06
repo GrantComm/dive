@@ -54,3 +54,52 @@ QLabel#hoverHelpLabel {
 QLabel#propertyPanelLabel {
     font - family : Arial, Helvetica, sans - serif;
 }
+
+/* Style for the icon buttons*/
+QToolButton#analyze_action {
+    qproperty-icon: url(\":/images/analyze_icon_dark_mode.png\");
+}
+
+QToolButton#capture_action {
+    qproperty-icon: url(\":/images/capture_icon_dark_mode.png\");
+}
+
+QPushButton#search_trigger_button {
+    qproperty-icon: url(\":/images/search_icon_dark_mode.png\");
+}
+
+QLabel#search_icon_label {
+    qproperty-pixmap: url(\":/images/search_icon_dark_mode.png\");
+}
+
+QPushButton#command_buffer_search_button {
+    qproperty-icon: url(\":/images/search_icon_dark_mode.png\");
+}
+
+QPushButton#gfxr_vulkan_command_arguments_search_button {
+    qproperty-icon: url(\":/images/search_icon_dark_mode.png\");
+}
+
+QPushButton#gfxr_vulkan_command_search_button {
+    qproperty-icon: url(\":/images/search_icon_dark_mode.png\");
+}
+
+QPushButton#perf_counter_search_button {
+    qproperty-icon: url(\":/images/search_icon_dark_mode.png\");
+}
+
+QPushButton#clipboardButton {
+    qproperty-icon: url(\":/images/copy_icon_dark_mode.png\");
+}
+
+QPushButton#prev_search_button {
+    qproperty-icon: url(\":/images/arrow_down_icon_dark_mode.png\");
+}
+
+QPushButton#next_search_button {
+    qproperty-icon: url(\":/images/arrow_up_icon_dark_mode.png\");
+}
+
+QPushButton#cancel_search_button {
+    qproperty-icon: url(\":/images/cancel_icon_dark_mode.png\");
+}

@@ -17,12 +17,58 @@
 #include "ui/application_controller.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QCoreApplication>
+#include <QFile>
 #include <QMenu>
 #include <QMessageBox>
+#include <QStyle>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusMessage>
 
 #include "dive/plugin/loader/plugin_loader.h"
 #include "ui/main_window.h"
+
+namespace
+{
+
+QPalette GetDarkPalette()
+{
+    QPalette darkPalette;
+    darkPalette.setColor(QPalette::Window, QColor(40, 40, 40));
+    darkPalette.setColor(QPalette::WindowText, Qt::white);
+    darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
+    darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+    darkPalette.setColor(QPalette::Text, Qt::white);
+    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::ButtonText, Qt::white);
+    darkPalette.setColor(QPalette::BrightText, Qt::red);
+    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+    darkPalette.setColor(QPalette::Disabled, QPalette::Window, QColor(90, 90, 90));
+    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Base, QColor(80, 80, 80));
+    darkPalette.setColor(QPalette::Disabled, QPalette::AlternateBase, QColor(90, 90, 90));
+    darkPalette.setColor(QPalette::Disabled, QPalette::ToolTipBase, QColor(90, 90, 90));
+    darkPalette.setColor(QPalette::Disabled, QPalette::ToolTipText, QColor(160, 160, 160));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Button, QColor(80, 80, 80));
+    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(53, 53, 53));
+    darkPalette.setColor(QPalette::Disabled, QPalette::BrightText, QColor(160, 160, 160));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Link, QColor(160, 160, 160));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(90, 90, 90));
+    darkPalette.setColor(QPalette::Disabled, QPalette::Light, QColor(53, 53, 53));
+
+    return darkPalette;
+}
+
+QPalette GetStandardPalette() { return QApplication::style()->standardPalette(); }
+
+}  // namespace
 
 struct ApplicationController::Impl
 {
@@ -30,9 +76,20 @@ struct ApplicationController::Impl
     QAction* m_advanced_option = nullptr;
 
     Dive::PluginLoader m_plugin_manager;
+
+    std::optional<QString> m_style_sheet;
+    bool m_dark_mode_enabled = false;
 };
 
-ApplicationController::ApplicationController() {}
+ApplicationController::ApplicationController()
+{
+    qRegisterMetaType<QDBusVariant>("QDBusVariant");
+
+    QDBusConnection::sessionBus().connect(
+        "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
+        "org.freedesktop.portal.Settings", "SettingChanged", this,
+        SLOT(OnSystemSettingChanged(QString, QString, QDBusVariant)));
+}
 
 ApplicationController::~ApplicationController() {}
 
@@ -84,4 +141,57 @@ bool ApplicationController::InitializePlugins()
         return false;
     }
     return true;
+}
+
+void ApplicationController::SetTheme(bool dark_mode_enabled)
+{
+    QFile style_sheet;
+
+    if (dark_mode_enabled)
+    {
+        QApplication::setPalette(GetDarkPalette());
+        style_sheet.setFileName(":/stylesheet_dark.qss");
+    }
+    else
+    {
+        QApplication::setPalette(GetStandardPalette());
+        style_sheet.setFileName(":/stylesheet_light.qss");
+    }
+
+    style_sheet.open(QFile::ReadOnly);
+    m_impl->m_style_sheet = style_sheet.readAll();
+    m_impl->m_dark_mode_enabled = dark_mode_enabled;
+    emit ThemeChanged();
+}
+
+QIcon ApplicationController::GetMenuItemIcon(const QString& base_icon_name) const
+{
+    QString suffix = m_impl->m_dark_mode_enabled ? "_icon_dark_mode.png" : "_icon_light_mode.png";
+    return QIcon(":/images/" + base_icon_name + suffix);
+}
+
+std::optional<QString> ApplicationController::GetStyleSheet() const
+{
+    return m_impl->m_style_sheet;
+}
+
+bool ApplicationController::IsDarkModeEnabled() const { return m_impl->m_dark_mode_enabled; }
+
+void ApplicationController::OnSystemSettingChanged(QString group, QString key, QDBusVariant value)
+{
+    std::cout << "ApplicationController::OnSystemSettingChanged, group: " << group.toStdString()
+              << ", key: " << key.toStdString() << std::endl;
+    if (group == "org.freedesktop.appearance" && key == "color-scheme")
+    {
+        QVariant v = value.variant();
+
+        // Handle cases where the variant is nested
+        while (v.canConvert<QDBusVariant>())
+        {
+            v = v.value<QDBusVariant>().variant();
+        }
+
+        bool is_dark = (v.toUInt() == 1);
+        SetTheme(is_dark);
+    }
 }

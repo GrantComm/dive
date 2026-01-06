@@ -25,14 +25,14 @@
 #include "QShortcut"
 #include "QVBoxLayout"
 #include "dive_tree_view.h"
+#include "object_names.h"
 #include "shortcuts.h"
 
 //--------------------------------------------------------------------------------------------------
 SearchBar::SearchBar(QWidget* parent) : QWidget(parent)
 {
     QLabel* searchlabel = new QLabel(this);
-    QPixmap pixmap(":/images/search.png");
-    searchlabel->setPixmap(pixmap);
+    searchlabel->setObjectName(kSearchIconLabelName);
 
     m_input = new QLineEdit(this);
     QPalette palette = m_input->palette();
@@ -41,13 +41,13 @@ SearchBar::SearchBar(QWidget* parent) : QWidget(parent)
     m_input->setPalette(palette);
 
     m_prev = new QPushButton(this);
-    m_prev->setIcon(QIcon(":/images/arrow_up.png"));
+    m_prev->setObjectName("prev_search_button");
 
     m_next = new QPushButton(this);
-    m_next->setIcon(QIcon(":/images/arrow_down.png"));
+    m_next->setObjectName("next_search_button");
 
     m_cancel = new QPushButton(this);
-    m_cancel->setIcon(QIcon(":/images/cancel.png"));
+    m_cancel->setObjectName("cancel_search_button");
 
     m_search_results = new QLabel(this);
     m_search_results->hide();

@@ -27,7 +27,6 @@
 #include "dive_core/cross_ref.h"
 #include "dive_core/log.h"
 #include "ui/progress_tracker_callback.h"
-#include "ui/theme_manager.h"
 
 class MainWindow : public QMainWindow
 {
@@ -36,7 +35,7 @@ class MainWindow : public QMainWindow
     friend class ApplicationController;
 
  public:
-    explicit MainWindow(ApplicationController &controller, ThemeManager& theme_manager);
+    explicit MainWindow(ApplicationController& controller);
     ~MainWindow() override;
 
     MainWindow(const MainWindow&) = delete;
@@ -47,8 +46,7 @@ class MainWindow : public QMainWindow
     bool LoadFile(const std::string& file_name, bool is_temp_file = false, bool async = true);
 
  protected:
-    void closeEvent(QCloseEvent *closeEvent) Q_DECL_OVERRIDE;
-    bool event(QEvent* event) Q_DECL_OVERRIDE;
+    void closeEvent(QCloseEvent* closeEvent) Q_DECL_OVERRIDE;
 
  signals:
     void HideOverlay();
@@ -109,6 +107,7 @@ class MainWindow : public QMainWindow
     void DisconnectPm4SearchBar();
     void DisconnectAllTabs();
     void OnTraceStatsUpdated();
+    void OnThemeChanged();
 
  private:
     struct LastRequest
@@ -129,6 +128,7 @@ class MainWindow : public QMainWindow
 
     void StartTraceStats();
 
+    void SetActionProxyObjectName(QAction* action, const QString& name);
     void CreateActions();
     void CreateMenus();
     void CreateToolBars();
@@ -159,8 +159,7 @@ class MainWindow : public QMainWindow
         const QModelIndex& proxy_index, const QAbstractProxyModel& proxy_model,
         const std::vector<uint64_t>& draw_call_indices, CorrelationTarget target);
 
-    ApplicationController &m_controller;
-    ThemeManager          &m_theme_manager;
+    ApplicationController& m_controller;
 
     QMenu* m_file_menu;
     QMenu* m_recent_captures_menu;

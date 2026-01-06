@@ -66,9 +66,9 @@ QVariant GfxrVulkanCommandArgumentsFilterProxyModel::data(const QModelIndex& ind
 {
     QVariant value = QSortFilterProxyModel::data(index, role);
 
-    if (role == Qt::ForegroundRole) 
+    if (role == Qt::ForegroundRole)
     {
-        return QVariant(); 
+        return QVariant();
     }
 
     return value;

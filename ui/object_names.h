@@ -18,8 +18,13 @@
 
 #include <QString>
 
+const QString kAnalyzeMenuItemIconName = "analyze";
+const QString kAnalyzeActionName = "analyze_action";
+const QString kCaptureActionName = "capture_action";
+const QString kCaptureMenuItemIconName = "capture";
 const QString kCommandBufferSearchBarName = "command_buffer_search_bar";
 const QString kCommandBufferSearchButtonName = "command_buffer_search_button";
+const QString kExitMenuItemIconName = "exit";
 const QString kGfxrVulkanCommandSearchBarName = "gfxr_vulkan_command_search_bar";
 const QString kGfxrVulkanCommandSearchButtonName = "gfxr_vulkan_command_search_button";
 const QString kGfxrVulkanCommandArgumentsSearchBarName = "gfxr_vulkan_command_arguments_search_bar";
@@ -27,3 +32,5 @@ const QString kGfxrVulkanCommandArgumentsSearchButtonName =
     "gfxr_vulkan_command_arguments_search_button";
 const QString kPerfCounterSearchBarName = "perf_counter_search_bar";
 const QString kPerfCounterSearchButtonName = "perf_counter_search_button";
+const QString kSearchTriggerButtonName = "search_trigger_button";
+const QString kSearchIconLabelName = "search_icon_label";

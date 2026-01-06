@@ -39,7 +39,7 @@ OverviewTabView::OverviewTabView(const Dive::CaptureMetadata& capture_metadata,
     : m_stats(stats)
 {
     m_clipboard_button = new QPushButton();
-    m_clipboard_button->setIcon(QIcon(":/images/copy.png"));
+    m_clipboard_button->setObjectName("clipboardButton");
     m_clipboard_button->setToolTip("Copy all trace stats to clipboard");
 
     m_draw_dispatch_statistics_view = new DrawDispatchStatsTabView(stats);
