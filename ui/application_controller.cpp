@@ -83,12 +83,14 @@ struct ApplicationController::Impl
 
 ApplicationController::ApplicationController()
 {
+#if defined(__linux__)
     qRegisterMetaType<QDBusVariant>("QDBusVariant");
 
     QDBusConnection::sessionBus().connect(
         "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
         "org.freedesktop.portal.Settings", "SettingChanged", this,
         SLOT(OnSystemSettingChanged(QString, QString, QDBusVariant)));
+#endif
 }
 
 ApplicationController::~ApplicationController() {}

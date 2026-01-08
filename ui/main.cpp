@@ -287,15 +287,25 @@ int main(int argc, char* argv[])
 
         // Try setting "Fusion" style. If not found, set "Windows".
         // And if that's not found, default to whatever style the factory provides.
-        if (!SetApplicationStyle("Fusion"))
+        bool style_set = false;
+        if (SetApplicationStyle("Fusion"))
         {
-            if (!SetApplicationStyle("Windows"))
-            {
-                if (!QStyleFactory::keys().empty())
-                {
-                    SetApplicationStyle(QStyleFactory::keys()[0]);
-                }
-            }
+            style_set = true;
+        }
+        else if (SetApplicationStyle("Windows"))
+        {
+            style_set = true;
+        }
+        else if (!QStyleFactory::keys().empty())
+        {
+            SetApplicationStyle(QStyleFactory::keys()[0]);
+            style_set = true;
+        }
+
+        // If we set a non-native style, reset the palette.
+        if (style_set)
+        {
+            QApplication::setPalette(QPalette());
         }
     }
 
@@ -305,10 +315,8 @@ int main(int argc, char* argv[])
     QScopedPointer<DiveApplication> app{new DiveApplication(argc, argv)};
     app->setWindowIcon(QIcon(":/images/dive.ico"));
 
-    if (!native_style)
-    {
-        app->ApplyCustomStyle();
-    }
+    // Apply css for icons and tree view elements
+    app->ApplyCustomStyle();
 
     // Display splash screen
     QSplashScreen* splash_screen = new QSplashScreen();

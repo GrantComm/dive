@@ -25,6 +25,8 @@
 #ifdef __linux__
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
+#elif __APPLE__
+#include <QProcess>
 #endif
 
 #include "ui/application_controller.h"
@@ -75,13 +77,26 @@ bool DiveApplication::IsLinuxSystemDark()
 }
 #endif
 
+#if defined(__APPLE__)
+bool DiveApplication::IsMacSystemDark()
+{
+    QProcess process;
+    process.start("defaults", {"read", "-g", "AppleInterfaceStyle"});
+    process.waitForFinished();
+    QString output = process.readAllStandardOutput().trimmed();
+    return output == "Dark";
+}
+#endif
+
 void DiveApplication::ApplyCustomStyle()
 {
     bool is_system_dark = false;
 #if defined(__linux__)
     is_system_dark = IsLinuxSystemDark();
+#elif defined(__APPLE__)
+    is_system_dark = IsMacSystemDark();
 #else
-    is_system_dark = (app.palette().color(QPalette::Window).value() < 128);
+    is_system_dark = (QGuiApplication::palette().color(QPalette::Window).value() < 128);
 #endif
 
     m_impl->m_controller.SetTheme(is_system_dark);
@@ -92,7 +107,7 @@ void DiveApplication::ApplyCustomStyle()
 
 bool DiveApplication::event(QEvent* e)
 {
-    if (e->type() == QEvent::ApplicationPaletteChange)
+    if (e->type() == QEvent::ApplicationPaletteChange || e->type() == QEvent::ThemeChange)
     {
         // Make sure we don't recursively calling setPalette.
         // Note event handling only happen on the UI thread.
@@ -101,7 +116,18 @@ bool DiveApplication::event(QEvent* e)
         {
             QScopedValueRollback guard_scope(guard, true);
             // Re-apply custom style.
-            ApplyCustomStyle();
+            bool is_dark = false;
+#if defined(__linux__)
+            is_dark = IsLinuxSystemDark();
+#elif defined(__APPLE__)
+            is_dark = IsMacSystemDark();
+#else
+            is_dark = (QGuiApplication::palette().color(QPalette::Window).value() < 128);
+#endif
+            if (is_dark != m_impl->m_controller.IsDarkModeEnabled())
+            {
+                ApplyCustomStyle();
+            }
         }
     }
     return QApplication::event(e);
