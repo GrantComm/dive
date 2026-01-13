@@ -314,6 +314,8 @@ int main(int argc, char* argv[])
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<DiveApplication> app{new DiveApplication(argc, argv)};
     app->setWindowIcon(QIcon(":/images/dive.ico"));
+    app->SetIsNativeStyle(native_style);
+    app->GetController().SetIsNativeStyle(native_style);
 
     // Apply css for icons and tree view elements
     app->ApplyCustomStyle();

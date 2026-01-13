@@ -78,6 +78,7 @@ struct ApplicationController::Impl
     Dive::PluginLoader m_plugin_manager;
 
     std::optional<QString> m_style_sheet;
+    bool m_is_native_style = false;
     bool m_dark_mode_enabled = false;
 };
 
@@ -179,8 +180,18 @@ std::optional<QString> ApplicationController::GetStyleSheet() const
 
 bool ApplicationController::IsDarkModeEnabled() const { return m_impl->m_dark_mode_enabled; }
 
+void ApplicationController::SetIsNativeStyle(bool is_native_style)
+{
+    m_impl->m_is_native_style = is_native_style;
+}
+
 void ApplicationController::OnSystemSettingChanged(QString group, QString key, QDBusVariant value)
 {
+    if (!m_impl->m_is_native_style)
+    {
+        return;
+    }
+
     std::cout << "ApplicationController::OnSystemSettingChanged, group: " << group.toStdString()
               << ", key: " << key.toStdString() << std::endl;
     if (group == "org.freedesktop.appearance" && key == "color-scheme")

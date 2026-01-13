@@ -36,6 +36,8 @@ struct DiveApplication::Impl
     ApplicationController m_controller;
 
     std::optional<QString> m_style_sheet;
+
+    bool m_is_native_style = false;
 };
 
 DiveApplication::DiveApplication(int& argc, char** argv) : QApplication(argc, argv) {}
@@ -88,9 +90,17 @@ bool DiveApplication::IsMacSystemDark()
 }
 #endif
 
+void DiveApplication::SetIsNativeStyle(bool is_native_style)
+{
+    m_impl->m_is_native_style = is_native_style;
+}
+
 void DiveApplication::ApplyCustomStyle()
 {
-    bool is_system_dark = false;
+    bool is_system_dark = true;
+
+    if (m_impl->m_is_native_style)
+    {
 #if defined(__linux__)
     is_system_dark = IsLinuxSystemDark();
 #elif defined(__APPLE__)
@@ -98,6 +108,7 @@ void DiveApplication::ApplyCustomStyle()
 #else
     is_system_dark = (QGuiApplication::palette().color(QPalette::Window).value() < 128);
 #endif
+    }
 
     m_impl->m_controller.SetTheme(is_system_dark);
     m_impl->m_style_sheet = m_impl->m_controller.GetStyleSheet();
@@ -107,7 +118,8 @@ void DiveApplication::ApplyCustomStyle()
 
 bool DiveApplication::event(QEvent* e)
 {
-    if (e->type() == QEvent::ApplicationPaletteChange || e->type() == QEvent::ThemeChange)
+    // Only process dynamic theme changes if we are in Native Mode
+    if (m_impl->m_is_native_style && (e->type() == QEvent::ApplicationPaletteChange || e->type() == QEvent::ThemeChange))
     {
         // Make sure we don't recursively calling setPalette.
         // Note event handling only happen on the UI thread.

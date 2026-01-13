@@ -33,6 +33,7 @@ class DiveApplication : public QApplication
     ApplicationController& GetController();
 
     void ApplyCustomStyle();
+    void SetIsNativeStyle(bool is_native_style);
 
  protected:
     bool event(QEvent* e) Q_DECL_OVERRIDE;

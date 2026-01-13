@@ -45,6 +45,7 @@ class ApplicationController : public QObject
     QIcon GetMenuItemIcon(const QString& base_icon_name) const;
     std::optional<QString> GetStyleSheet() const;
     bool IsDarkModeEnabled() const;
+    void SetIsNativeStyle(bool is_native_style);
  public slots:
     void OnSystemSettingChanged(QString group, QString key, QDBusVariant value);
  signals:
