@@ -43,6 +43,8 @@ class DiveApplication : public QApplication
     bool IsLinuxSystemDark();
 #elif defined(__APPLE__)
     bool IsMacSystemDark();
+#elif defined(_WIN32)
+    bool isWindowsSystemDark();
 #endif
     ImplPointer<Impl> m_impl;
 };

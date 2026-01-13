@@ -1,33 +1,33 @@
 <RCC>
     <qresource prefix="/">
+        <file>images/analyze_icon_dark_mode.png</file>
+        <file>images/analyze_icon_light_mode.png</file>
+        <file>images/arrow_down_icon_dark_mode.png</file>
+        <file>images/arrow_down_icon_light_mode.png</file>
+        <file>images/arrow_up_icon_dark_mode.png</file>
+        <file>images/arrow_up_icon_light_mode.png</file>
+        <file>images/back.png</file>
         <file>images/branch_closed.png</file>
         <file>images/branch_end.png</file>
         <file>images/branch_more.png</file>
         <file>images/branch_open.png</file>
-        <file>images/vline.png</file>
-        <file>images/open.png</file>
-        <file>images/save.png</file>
-        <file>images/exit_icon_light_mode.png</file>
-        <file>images/exit_icon_dark_mode.png</file>
-        <file>images/back.png</file>
-        <file>images/cancel_icon_light_mode.png</file>
         <file>images/cancel_icon_dark_mode.png</file>
-        <file>images/capture_icon_light_mode.png</file>
+        <file>images/cancel_icon_light_mode.png</file>
         <file>images/capture_icon_dark_mode.png</file>
-        <file>images/search_icon_light_mode.png</file>
-        <file>images/search_icon_dark_mode.png</file>
-        <file>images/arrow_up_icon_light_mode.png</file>
-        <file>images/arrow_up_icon_dark_mode.png</file>
-        <file>images/arrow_down_icon_light_mode.png</file>
-        <file>images/arrow_down_icon_dark_mode.png</file>
+        <file>images/capture_icon_light_mode.png</file>
+        <file>images/copy_icon_dark_mode.png</file>
+        <file>images/copy_icon_light_mode.png</file>
         <file>images/dive.png</file>
         <file>images/dive.ico</file>
+        <file>images/exit_icon_dark_mode.png</file>
+        <file>images/exit_icon_light_mode.png</file>
+        <file>images/filter.png</file>
+        <file>images/open.png</file>
+        <file>images/save.png</file>
+        <file>images/search_icon_dark_mode.png</file>
+        <file>images/search_icon_light_mode.png</file>
         <file>stylesheet_dark.qss</file>
         <file>stylesheet_light.qss</file>
-        <file>images/filter.png</file>
-        <file>images/analyze_icon_light_mode.png</file>
-        <file>images/analyze_icon_dark_mode.png</file>
-        <file>images/copy_icon_light_mode.png</file>
-        <file>images/copy_icon_dark_mode.png</file>
+        <file>images/vline.png</file>
     </qresource>
 </RCC>

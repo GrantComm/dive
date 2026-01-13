@@ -192,8 +192,6 @@ void ApplicationController::OnSystemSettingChanged(QString group, QString key, Q
         return;
     }
 
-    std::cout << "ApplicationController::OnSystemSettingChanged, group: " << group.toStdString()
-              << ", key: " << key.toStdString() << std::endl;
     if (group == "org.freedesktop.appearance" && key == "color-scheme")
     {
         QVariant v = value.variant();

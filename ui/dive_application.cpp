@@ -27,6 +27,8 @@
 #include <QtDBus/QDBusReply>
 #elif __APPLE__
 #include <QProcess>
+#elif _WIN32
+#include <QSettings>
 #endif
 
 #include "ui/application_controller.h"
@@ -90,6 +92,19 @@ bool DiveApplication::IsMacSystemDark()
 }
 #endif
 
+#if defined(_WIN32)
+bool IsWindowsSystemDark()
+{
+    QSettings settings(
+        "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+        QSettings::NativeFormat);
+    // Force QSettings to re-read from the registry hive
+    settings.sync();
+    // AppsUseLightTheme = 0 means Dark Mode
+    return settings.value("AppsUseLightTheme", 1).toUInt() == 0;
+}
+#endif
+
 void DiveApplication::SetIsNativeStyle(bool is_native_style)
 {
     m_impl->m_is_native_style = is_native_style;
@@ -102,15 +117,23 @@ void DiveApplication::ApplyCustomStyle()
     if (m_impl->m_is_native_style)
     {
 #if defined(__linux__)
-    is_system_dark = IsLinuxSystemDark();
+        is_system_dark = IsLinuxSystemDark();
 #elif defined(__APPLE__)
-    is_system_dark = IsMacSystemDark();
+        is_system_dark = IsMacSystemDark();
+#elif defined(_WIN32)
+        is_system_dark = IsWindowsSystemDark();
+
+        // Reset the palette, which allows
+        // the Windows DWM to correctly paint the native window
+        // background and title bar in Dark or Light mode.
+        QApplication::setPalette(QPalette());
 #else
-    is_system_dark = (QGuiApplication::palette().color(QPalette::Window).value() < 128);
+        is_system_dark = (QGuiApplication::palette().color(QPalette::Window).value() < 128);
 #endif
     }
 
     m_impl->m_controller.SetTheme(is_system_dark);
+
     m_impl->m_style_sheet = m_impl->m_controller.GetStyleSheet();
 
     setStyleSheet(*m_impl->m_style_sheet);
@@ -119,7 +142,8 @@ void DiveApplication::ApplyCustomStyle()
 bool DiveApplication::event(QEvent* e)
 {
     // Only process dynamic theme changes if we are in Native Mode
-    if (m_impl->m_is_native_style && (e->type() == QEvent::ApplicationPaletteChange || e->type() == QEvent::ThemeChange))
+    if (m_impl->m_is_native_style &&
+        (e->type() == QEvent::ApplicationPaletteChange || e->type() == QEvent::ThemeChange))
     {
         // Make sure we don't recursively calling setPalette.
         // Note event handling only happen on the UI thread.
@@ -133,6 +157,8 @@ bool DiveApplication::event(QEvent* e)
             is_dark = IsLinuxSystemDark();
 #elif defined(__APPLE__)
             is_dark = IsMacSystemDark();
+#elif defined(_WIN32)
+            is_dark = IsWindowsSystemDark();
 #else
             is_dark = (QGuiApplication::palette().color(QPalette::Window).value() < 128);
 #endif
