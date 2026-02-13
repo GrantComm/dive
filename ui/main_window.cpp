@@ -97,6 +97,8 @@
 #include "ui/shortcuts_window.h"
 #include "ui/text_file_view.h"
 #include "ui/trace_window.h"
+#include "ui/what_if_setup_dialog.h"
+#include "ui/what_if_configure_dialog.h"
 
 namespace
 {
@@ -210,6 +212,22 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
 
     {
         QVBoxLayout* left_vertical_layout = new QVBoxLayout();
+
+        QHBoxLayout* what_ifs_layout = new QHBoxLayout();
+        m_what_if_container = new QWidget();
+        m_what_if_container->setLayout(what_ifs_layout);
+        m_what_if_info_label = new QLabel(tr("What-If Analysis:"));
+        m_what_if_configure_button = new QPushButton(tr("Configure"));
+        m_what_if_run_time_stop_application_button = new QPushButton(tr("Stop Application"));
+        m_what_if_runtime_what_if_application_label = new QLabel(tr("Current Application: "));
+        m_what_if_runtime_what_if_application_name_label = new QLabel(tr("None"));
+        what_ifs_layout->addWidget(m_what_if_info_label);
+        what_ifs_layout->addWidget(m_what_if_configure_button);
+        what_ifs_layout->addWidget(m_what_if_run_time_stop_application_button);
+        what_ifs_layout->addStretch(1);
+        what_ifs_layout->addWidget(m_what_if_runtime_what_if_application_label);
+        what_ifs_layout->addWidget(m_what_if_runtime_what_if_application_name_label);
+        m_what_if_container->hide();
 
         QFrame* text_combo_box_frame = new QFrame();
 
@@ -326,6 +344,7 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
             expand_to_lvl_layout->addWidget(expand_to_lvl_button);
         expand_to_lvl_layout->addStretch();
 
+        left_vertical_layout->addWidget(m_what_if_container);
         left_vertical_layout->addWidget(m_event_search_bar);
         left_vertical_layout->addWidget(text_combo_box_frame);
         left_vertical_layout->addWidget(m_command_hierarchy_view);
@@ -463,6 +482,8 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
 
         m_text_file_view = new TextFileView(*m_data_core);
 
+        m_what_if_modification_tab_view = new WhatIfModificationTabView(this);
+
         m_tabs.gfxr_vulkan_command_arguments =
             m_tab_widget->addTab(m_gfxr_vulkan_command_arguments_tab_view, "Arguments");
         m_tabs.frame = m_tab_widget->addTab(m_frame_tab_view, "Frame View");
@@ -476,6 +497,8 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
         //       when widget width is smaller than required to show all tabs.
         //       Workaround: keep overview tab always visible.
         m_tabs.overview = m_tab_widget->addTab(m_overview_tab_view, "Overview");
+
+        m_tabs.modifications = m_tab_widget->addTab(m_what_if_modification_tab_view, "What-If Modifications");
 
         UpdateTabAvailability(TabMaskBits::kNone);
     }
@@ -508,6 +531,8 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
 
     m_trace_dig = new TraceDialog(m_controller, this);
     m_analyze_dig = new AnalyzeDialog(m_controller, m_available_metrics.get(), this);
+    m_what_if_setup_dig = new WhatIfSetupDialog(m_controller, this);
+    m_what_if_configure_dig = new WhatIfConfigureDialog(m_controller, this);
 
     m_overlay = new OverlayHelper(this);
     m_overlay->Initialize(horizontal_splitter);
@@ -557,6 +582,16 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
     QObject::connect(m_filter_model, &DiveFilterModel::FilterModeChanged, m_command_hierarchy_view,
                      &DiveTreeView::OnFilterModeChanged);
 
+    // What-If connections
+    QObject::connect(m_what_if_setup_dig, &WhatIfSetupDialog::RuntimeWhatIfEnabled, this,
+                     &MainWindow::OnWhatIfRuntimeEnabled);
+    QObject::connect(m_what_if_run_time_stop_application_button, &QPushButton::clicked, 
+                 m_what_if_setup_dig, &WhatIfSetupDialog::OnStopRuntimeWhatIf);
+    QObject::connect(m_what_if_configure_button, &QPushButton::clicked, 
+                 this, &MainWindow::OnAddWhatIfModifcation);
+
+    QObject::connect(m_what_if_configure_dig, &WhatIfConfigureDialog::AddModification, m_what_if_modification_tab_view, &WhatIfModificationTabView::OnModificationAdded);
+    
     CreateActions();
     CreateMenus();
     CreateStatusBar();
@@ -1238,6 +1273,51 @@ void MainWindow::OnCapture(bool is_capture_delayed)
 }
 
 //--------------------------------------------------------------------------------------------------
+void MainWindow::OnWhatIfSetupTrigger()
+{
+   m_what_if_setup_dig->UpdateDeviceList();
+   m_what_if_setup_dig->show();
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnWhatIfRuntimeEnabled(const QString& package_name, bool is_runtime_what_if_enabled)
+{
+    TabMask updatedMask;
+    if (is_runtime_what_if_enabled)
+    {
+        updatedMask = m_current_tab_mask | TabMaskBits::kModifications;
+        UpdateTabAvailability(updatedMask);
+
+        if (m_tabs.modifications >= 0)
+        {
+            m_tab_widget->setCurrentIndex(m_tabs.modifications);
+        }
+
+        m_what_if_runtime_what_if_application_name_label ->setText(package_name);
+        m_what_if_container->show();
+    }
+    else
+    {
+        // Ensures the modifications tab is not in view. Without this, there could be potential artifacts visible when disabling the tab.
+        if (m_tab_widget->currentIndex() == m_tabs.modifications)
+        {
+            m_tab_widget->setCurrentIndex(m_tabs.overview >= 0 ? m_tabs.overview : 0);
+        }
+
+        updatedMask = m_current_tab_mask & ~TabMaskBits::kModifications;
+        UpdateTabAvailability(updatedMask);
+        m_what_if_runtime_what_if_application_name_label ->setText("None");
+        m_what_if_container->hide();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+void MainWindow::OnAddWhatIfModifcation()
+{
+    m_what_if_configure_dig->show();
+}
+
+//--------------------------------------------------------------------------------------------------
 void MainWindow::OnExpandToLevel()
 {
     QObject* sender_obj = sender();
@@ -1311,6 +1391,7 @@ void MainWindow::closeEvent(QCloseEvent* closeEvent)
         }
     }
     if (m_trace_dig) m_trace_dig->Cleanup();
+    if (m_what_if_setup_dig) m_what_if_setup_dig->Cleanup();
     closeEvent->accept();
 }
 
@@ -1605,6 +1686,13 @@ void MainWindow::CreateActions()
     m_analyze_action->setShortcut(QKeySequence("f7"));
     connect(m_analyze_action, &QAction::triggered, this, &MainWindow::OnAnalyzeCapture);
 
+    // What If Setup action
+    m_what_if_setup_action = new QAction(tr("What Ifs"), this);
+    m_what_if_setup_action->setStatusTip(tr("Setup What If scenarios"));
+    m_what_if_setup_action->setIcon(QIcon(":/images/what-if-light-bulb.svg"));
+    m_what_if_setup_action->setShortcut(QKeySequence("Ctrl+f8"));
+    connect(m_what_if_setup_action, &QAction::triggered, this, &MainWindow::OnWhatIfSetupTrigger);
+
     // Shortcuts action
     m_shortcuts_action = new QAction(tr("&Shortcuts"), this);
     m_shortcuts_action->setStatusTip(tr("Display application keyboard shortcuts"));
@@ -1638,6 +1726,9 @@ void MainWindow::CreateMenus()
     m_analyze_menu = menuBar()->addMenu(tr("&Analyze"));
     m_analyze_menu->addAction(m_analyze_action);
 
+    m_what_if_menu = menuBar()->addMenu(tr("&What Ifs"));
+    m_what_if_menu->addAction(m_what_if_setup_action);
+
     m_help_menu = menuBar()->addMenu(tr("&Help"));
     m_help_menu->addAction(m_shortcuts_action);
     m_help_menu->addAction(m_about_action);
@@ -1656,6 +1747,7 @@ void MainWindow::CreateToolBars()
     m_file_tool_bar->addAction(m_save_action);
     m_file_tool_bar->addAction(m_capture_action);
     m_file_tool_bar->addAction(m_analyze_action);
+    m_file_tool_bar->addAction(m_what_if_setup_action);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1803,6 +1895,7 @@ QString MainWindow::StrippedName(const QString& fullFileName)
 //--------------------------------------------------------------------------------------------------
 void MainWindow::UpdateTabAvailability(TabMask mask)
 {
+    m_current_tab_mask = mask;
     m_tabs_updating = true;
     SetTabAvailable(m_tab_widget, m_tabs.command, mask & TabMaskBits::kCommand);
     SetTabAvailable(m_tab_widget, m_tabs.shader, mask & TabMaskBits::kShader);
@@ -1814,6 +1907,7 @@ void MainWindow::UpdateTabAvailability(TabMask mask)
     SetTabAvailable(m_tab_widget, m_tabs.frame, mask & TabMaskBits::kFrame);
     bool has_text = m_data_core->GetPm4CaptureData().GetNumText() > 0;
     SetTabAvailable(m_tab_widget, m_tabs.text_file, (mask & TabMaskBits::kTextFile) && has_text);
+    SetTabAvailable(m_tab_widget, m_tabs.modifications, (mask & TabMaskBits::kModifications));
     // Disable overview at the end, so qt end up with a disabled tab instead of invisible one.
     if (m_tabs.overview >= 0)
     {

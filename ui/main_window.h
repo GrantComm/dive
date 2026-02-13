@@ -27,6 +27,7 @@
 #include "dive_core/cross_ref.h"
 #include "dive_core/log.h"
 #include "ui/progress_tracker_callback.h"
+#include "what_if_modifications_tab_view.h"
 
 class MainWindow : public QMainWindow
 {
@@ -62,6 +63,9 @@ class MainWindow : public QMainWindow
 
  public slots:
     void OnCapture(bool is_capture_delayed = false);
+    void OnWhatIfSetupTrigger();
+    void OnWhatIfRuntimeEnabled(const QString& package_name, bool is_runtime_what_if_enabled);
+    void OnAddWhatIfModifcation();
     void OnCaptureUpdated(const QString& file_path);
     void OnSwitchToShaderTab();
     void OnOpenVulkanDrawCallMenu(const QPoint& pos);
@@ -171,12 +175,16 @@ class MainWindow : public QMainWindow
     QAction* m_capture_setting_action;
     QMenu* m_analyze_menu;
     QAction* m_analyze_action;
+    QMenu* m_what_if_menu;
+    QAction* m_what_if_setup_action;
     QMenu* m_help_menu;
     QAction* m_about_action;
     QAction* m_shortcuts_action;
     QToolBar* m_file_tool_bar;
     TraceDialog* m_trace_dig;
     AnalyzeDialog* m_analyze_dig;
+    WhatIfSetupDialog* m_what_if_setup_dig;
+    WhatIfConfigureDialog* m_what_if_configure_dig;
     ErrorDialog* m_error_dialog = nullptr;
 
     std::array<QAction*, 3> m_recent_file_actions = {};
@@ -200,6 +208,12 @@ class MainWindow : public QMainWindow
     CommandModel* m_command_hierarchy_model;
     QPushButton* m_search_trigger_button;
     SearchBar* m_event_search_bar = nullptr;
+    QWidget* m_what_if_container;
+    QLabel* m_what_if_info_label;
+    QPushButton* m_what_if_configure_button;
+    QPushButton* m_what_if_run_time_stop_application_button;
+    QLabel* m_what_if_runtime_what_if_application_label;
+    QLabel* m_what_if_runtime_what_if_application_name_label;
 
     TreeViewComboBox* m_view_mode_combo_box;
     TreeViewComboBox* m_filter_mode_combo_box;
@@ -226,6 +240,8 @@ class MainWindow : public QMainWindow
 
     struct TabMaskBits
     {
+        using TabMask = uint32_t;
+
         enum : TabMask
         {
             kOverview = 1u << 0,
@@ -237,6 +253,7 @@ class MainWindow : public QMainWindow
             kGpuTiming = 1u << 6,
             kFrame = 1u << 7,
             kTextFile = 1u << 8,
+            kModifications = 1u << 9,
             kNone = 0u,
             kAll = kOverview | kCommand | kShader | kEventState | kGfxrVulkanCommandArguments |
                    kPerfCounters | kGpuTiming | kFrame | kTextFile,
@@ -258,6 +275,7 @@ class MainWindow : public QMainWindow
         int frame = -1;
         int buffer = -1;
         int text_file = -1;
+        int modifications = -1;
     };
     // Right pane
     QTabWidget* m_tab_widget = nullptr;
@@ -271,6 +289,7 @@ class MainWindow : public QMainWindow
     GpuTimingTabView* m_gpu_timing_tab_view = nullptr;
     FrameTabView* m_frame_tab_view = nullptr;
     TextFileView* m_text_file_view;
+    WhatIfModificationTabView* m_what_if_modification_tab_view = nullptr;
     TabIndices m_tabs;
     bool m_tabs_updating = false;
 
@@ -298,6 +317,6 @@ class MainWindow : public QMainWindow
 
     bool m_capture_acquired = false;
     LastRequest m_last_request;
-
+    TabMaskBits::TabMask m_current_tab_mask = TabMaskBits::kNone;
     std::vector<std::function<void()>> m_loading_pending_task;
 };

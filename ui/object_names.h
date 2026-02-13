@@ -27,3 +27,5 @@ const QString kGfxrVulkanCommandArgumentsSearchButtonName =
     "gfxr_vulkan_command_arguments_search_button";
 const QString kPerfCounterSearchBarName = "perf_counter_search_bar";
 const QString kPerfCounterSearchButtonName = "perf_counter_search_button";
+const QString kModificationsSearchBarName = "modifications_search_bar";
+const QString kModificationsSearchButtonName = "modifications_search_button";

@@ -73,5 +73,8 @@ class SqttView;
 class TextFileView;
 class TraceDialog;
 class TreeViewComboBox;
+class WhatIfSetupDialog;
+class WhatIfConfigureDialog;
+class WhatIfModificationTabView;
 
 struct LoadFileResult;

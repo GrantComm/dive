@@ -38,9 +38,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 
-# Find the QtWidgets library
-find_package(Qt5Widgets CONFIG REQUIRED)
-
+# Find the QtWidgets and QtSvg libraries
+find_package(Qt5 COMPONENTS Widgets Svg REQUIRED)
+    
 if(APPLE)
     set_source_files_properties(
         dive.icns
@@ -166,6 +166,12 @@ add_executable(
     viewport_stats_model.h
     window_scissors_stats_model.cpp
     window_scissors_stats_model.h
+    what_if_configure_dialog.cpp
+    what_if_configure_dialog.h
+    what_if_setup_dialog.cpp
+    what_if_setup_dialog.h
+    what_if_modifications_tab_view.cpp
+    what_if_modifications_tab_view.h
 )
 
 target_include_directories(
@@ -200,6 +206,7 @@ endif()
 target_link_libraries(
     ${PROJECT_NAME}
     Qt5::Widgets
+    Qt5::Svg
     absl::flags
     absl::flags_parse
     absl::failure_signal_handler
