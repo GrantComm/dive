@@ -78,6 +78,8 @@ def check_cache(args, current_stamp):
 
 
 def setup_depot_tools():
+    # Force legacy symlink behavior to avoid Worktree migration overhead/errors
+    os.environ["GCLIENT_USE_SYMLINKS"] = "1"
     """Ensures depot_tools is installed and adds it to PATH."""
     if not DEPOT_TOOLS_DIR.exists():
         print("[Crash Report] Cloning depot_tools...")
@@ -105,7 +107,7 @@ def fetch_and_sync_crashpad(commit_hash):
     print(f"[Crash Report] Syncing Crashpad to {commit_hash}...")
     run_command(["git", "fetch", "origin"], cwd=CRASHPAD_DIR)
     run_command(["git", "checkout", commit_hash], cwd=CRASHPAD_DIR)
-    run_command(["gclient", "sync"], cwd=CRASHPAD_DIR, shell=(platform.system() == "Windows"))
+    run_command(["gclient", "--use-git-symlinks", "sync"], cwd=CRASHPAD_DIR, shell=(platform.system() == "Windows"))
 
 
 def build_crashpad(config):
