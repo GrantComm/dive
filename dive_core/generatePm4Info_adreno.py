@@ -78,7 +78,7 @@ constexpr uint32_t kInvalidRegOffset = UINT32_MAX;
 // be careful when increase this value
 // this is used in
 // - RegField::m_gpu_variants, so the unused bits needs to be adjusted
-// - key of g_sRegInfo, the register offset needs at least 16bits, so kGPUVariantsBits cannot be
+// - key of reg_table, the register offset needs at least 16bits, so kGPUVariantsBits cannot be
 // larger than 16
 constexpr uint32_t kGPUVariantsBits = 7;
 
@@ -168,6 +168,7 @@ static DiveVector<DiveVector<const char*>> g_sEnumReflection;
 static DiveVector<PacketInfo> g_sPacketInfo;
 static std::unordered_map<uint32_t, PacketInfo> g_sPacketInfoVariant;
 static std::multimap<uint32_t, PacketInfo> g_sPacketInfoMultiple;
+
 static GPUVariantType g_sGPU_variant = kGPUVariantNone;
 static uint32_t g_sGPU_id = 0;
 
@@ -205,12 +206,11 @@ def outputPm4InfoInitFunc(pm4_info_file, registers_et_root, opcode_dict):
   pm4_info_file.writelines('''
 void Pm4InfoInit()
 {
-    assert(g_sOpCodeToString.empty());
-    assert(g_sRegInfo.empty());
-    assert(g_sEnumReflection.empty());
-    assert(g_sPacketInfo.empty());
-    assert(g_sPacketInfoVariant.empty());
-''')
+  if (!g_sRegInfo.empty())
+  {
+    return;
+  }
+  ''')
   outputOpcodes(pm4_info_file, opcode_dict)
   pm4_info_file.write('\n')
   outputRegisterInfo(pm4_info_file, registers_et_root, enum_index_dict)
@@ -220,8 +220,6 @@ void Pm4InfoInit()
   outputPacketInfo(pm4_info_file, registers_et_root, enum_index_dict, opcode_dict)
   pm4_info_file.write('}\n')
   return
-
-valid_opcodes = {}
 # ---------------------------------------------------------------------------------------
 def outputOpcodes(pm4_info_file, opcode_dict):
   # Find max opcode first
@@ -230,7 +228,6 @@ def outputOpcodes(pm4_info_file, opcode_dict):
   pm4_info_file.write('    g_sOpCodeToString.resize(0x%x);\n' % (max_opcode+1))
   for opcode in opcode_dict:
     pm4_info_file.write('    g_sOpCodeToString[%s] = "%s";\n' % (hex(opcode), opcode_dict[opcode]))
-  return
 
 # ---------------------------------------------------------------------------------------
 def getTypeEnumString(type):
@@ -701,7 +698,7 @@ def outputPacketFields(pm4_info_file, enum_index_dict, reg_list):
 
 # ---------------------------------------------------------------------------------------
 def outputEnums(pm4_info_file, enum_list):
-  pm4_info_file.write('    g_sEnumReflection.resize(%d);\n' % (len(enum_list)+1));
+  pm4_info_file.write('    g_sEnumReflection.resize(%d);\n' % (len(enum_list)+1))
   # Output enum_list to file
   for idx, enum_info in enumerate(enum_list):
     # enum_list is an array of {string, dict()}, where the key of the dict() is
@@ -865,7 +862,7 @@ def outputPacketInfo(pm4_info_file, registers_et_root, enum_index_dict, opcode_d
         pm4_info_file.write(' } }));\n')
 
   # Not all pm4 packets are described via a 'domain'. These are usually packets (such as CP_WAIT_FOR_IDLE) which
-  # have no fields. In that case, add a corresponding g_sPacketInfo entry with no fields
+  # have no fields. In that case, add a corresponding packet_table entry with no fields
   pm4_type_packets_values = pm4_type_packets.findall('./{http://nouveau.freedesktop.org/}value')
   for pm4_type_packet_value in pm4_type_packets_values:
     # See if it shows up in the domains list
@@ -875,7 +872,7 @@ def outputPacketInfo(pm4_info_file, registers_et_root, enum_index_dict, opcode_d
     if domain is None:
       opcode = int(pm4_type_packet_value.attrib['value'],0)
 
-      # We need the g_sPacketInfoVariant because some PM4s share the same value
+      # We need the packet_variant_table because some PM4s share the same value
       # but with different variants (CP_THREAD_CONTROL (A7XX-) and IN_IB_PREFETCH_END (A2XX) both use 0x17)
       if 'variants' in pm4_type_packet_value.attrib:
         variants = pm4_type_packet_value.attrib['variants']
@@ -935,20 +932,27 @@ def outputFunctionsCpp(pm4_info_file):
   pm4_info_file.writelines('''
 const char *GetOpCodeString(uint32_t op_code)
 {
+    if (op_code >= g_sOpCodeToString.size())
+    {
+      return "UNKNOWN";
+    }
     return g_sOpCodeToString[op_code];
 }
 
 const RegInfo *GetRegInfo(uint32_t reg)
 {
-    // check without variant as key
+    if (reg >= g_sRegInfo.size())
+    {
+      return nullptr;
+    }
+
     if (g_sRegInfo[reg].m_name == nullptr)
     {
-        // check with variant as key
         uint32_t key = (reg << kGPUVariantsBits) | g_sGPU_variant;
         auto it = g_sRegInfoVariant.find(key);
         if (it == g_sRegInfoVariant.end())
         {
-            return nullptr;
+          return nullptr;
         }
         return &it->second;
     }
@@ -960,7 +964,7 @@ const RegInfo *GetRegByName(const char *name)
     uint32_t offset = GetRegOffsetByName(name);
     if(offset == kInvalidRegOffset)
     {
-        return nullptr;
+      return nullptr;
     }
     return GetRegInfo(offset);
 }
@@ -968,72 +972,92 @@ const RegInfo *GetRegByName(const char *name)
 const RegField *GetRegFieldByName(const char *name, const RegInfo *info)
 {
     if (info == nullptr)
-        return nullptr;
-
-    const DiveVector<RegField> &field = info->m_fields;
-    auto i = std::find_if(field.begin(), field.end(), [&](const RegField& f) {
+    {
+      return nullptr;
+    }
+    const DiveVector<RegField> &fields = info->m_fields;
+    auto i = std::find_if(fields.begin(), fields.end(), [&](const RegField& f) {
         return strcmp(name, f.m_name) == 0;
     });
-
-    if (i == info->m_fields.end())
-        return nullptr;
-    return &(*i);
+    return (i == fields.end()) ? nullptr : &(*i);
 }
 
 uint32_t GetRegOffsetByName(const char *name)
 {
-    DIVE_ASSERT(g_sGPU_variant != kGPUVariantNone);
-    std::string str = std::string(name);
-    auto i = g_sRegNameToIndex.find(str);
-    if (i == g_sRegNameToIndex.end())
+    Pm4InfoInit();
+
+    if (g_sGPU_variant == kGPUVariantNone)
     {
-        std::string name_with_variant = str + "_" + GetGPUStr(g_sGPU_variant);
-        i = g_sRegNameToIndex.find(name_with_variant);
-        if (i == g_sRegNameToIndex.end())
-        {
-            return kInvalidRegOffset;
-        }
+      return kInvalidRegOffset;
     }
-    return i->second;
+
+    std::string str = std::string(name);
+
+    auto i = g_sRegNameToIndex.find(str);
+    if (i != g_sRegNameToIndex.end())
+    {
+      return i->second;
+    }
+
+    std::string name_with_variant = str + "_" + GetGPUStr(g_sGPU_variant);
+    i = g_sRegNameToIndex.find(name_with_variant);
+    
+    if (i != g_sRegNameToIndex.end())
+    {
+      return i->second;
+    }
+
+    return kInvalidRegOffset;
 }
 
 const char *GetEnumString(uint32_t enum_handle, uint32_t val)
 {
     if (g_sEnumReflection.size() <= enum_handle)
-        return nullptr;
+    {
+      return nullptr;
+    }
     if (g_sEnumReflection[enum_handle].size() <= val)
-        return nullptr;
+    {
+      return nullptr;
+    }
     return g_sEnumReflection[enum_handle][val];
 }
 
 const PacketInfo *GetPacketInfo(uint32_t op_code)
 {
-    // check without variant as key
-    if (g_sPacketInfo[op_code].m_name == nullptr)
+    if (op_code >= g_sPacketInfo.size())
     {
-        // check with variant as key
-        uint32_t key = (op_code << kGPUVariantsBits) | g_sGPU_variant;
-        auto it = g_sPacketInfoVariant.find(key);
-        if (it == g_sPacketInfoVariant.end())
-        {
-            return nullptr;
-        }
-        return &it->second;
+      return nullptr;
     }
 
+    if (g_sPacketInfo[op_code].m_name == nullptr)
+    {
+        uint32_t key = (op_code << kGPUVariantsBits) | g_sGPU_variant;
+        auto it = g_sPacketInfoVariant.find(key);
+        return (it == g_sPacketInfoVariant.end()) ? nullptr : &it->second;
+    }
     return &g_sPacketInfo[op_code];
 }
 
 const PacketInfo *GetPacketInfo(uint32_t op_code, const char *name)
 {
-    if (g_sPacketInfo[op_code].m_name == nullptr)
-        return nullptr;
-    if (strcmp(g_sPacketInfo[op_code].m_name, name) == 0)
-        return &g_sPacketInfo[op_code];
+    if (op_code >= g_sPacketInfo.size())
+    {
+      return nullptr;
+    }
+
+    if (g_sPacketInfo[op_code].m_name != nullptr && strcmp(g_sPacketInfo[op_code].m_name, name) == 0)
+    {
+      return &g_sPacketInfo[op_code];
+    }
+
     auto ret_pair = g_sPacketInfoMultiple.equal_range(op_code);
-    for (auto it  = ret_pair.first; it != ret_pair.second; ++it) {
-        if (strcmp(it->second.m_name, name) == 0)
-            return &it->second;
+    for (auto it = ret_pair.first; it != ret_pair.second; ++it)
+    {
+      if (strcmp(it->second.m_name, name) == 0) 
+      {
+        return &it->second;
+      }
     }
     return nullptr;
 }
@@ -1042,7 +1066,7 @@ void SetGPUID(uint32_t gpu_id)
 {
     g_sGPU_id = gpu_id;
     uint32_t gpu_series = gpu_id / 100;
-    if((gpu_series >= 2) && (gpu_series <= 7))
+    if((gpu_series >= 2) && (gpu_series <= 8))
     {
         g_sGPU_variant = static_cast<GPUVariantType>(1 << (gpu_series - 2));
     }
