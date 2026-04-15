@@ -36,6 +36,57 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
+if(APPLE)
+    set_target_properties(
+        dive_plugin_sample
+        PROPERTIES
+            MACOSX_RPATH ON
+            # Look for frameworks relative to the executable.
+            INSTALL_RPATH "@loader_path/../../Frameworks"
+            BUILD_WITH_INSTALL_RPATH TRUE
+    )
+
+    # On macOS, libraries linked from package managers like Homebrew often have hardcoded
+    # absolute paths. To make the plugin portable, we need to modify these paths
+    # within the built binary to use @rpath, so they resolve using the RPATH settings above.
+
+    # Common base path for Qt 5 libraries installed via Homebrew.
+    set(MY_QT5_HOMEBREW_LIB_PATH "/opt/homebrew/opt/qt@5/lib")
+
+    # List of Qt frameworks to re-path.
+    set(QT_FRAMEWORKS "QtCore" "QtGui" "QtWidgets")
+
+    # Loop through the frameworks and add custom commands to update their paths.
+    foreach(FRAMEWORK ${QT_FRAMEWORKS})
+        set(ORIGINAL_FRAMEWORK_PATH
+            "${MY_QT5_HOMEBREW_LIB_PATH}/${FRAMEWORK}.framework/Versions/5/${FRAMEWORK}"
+        )
+        set(NEW_FRAMEWORK_PATH
+            "@rpath/${FRAMEWORK}.framework/Versions/5/${FRAMEWORK}"
+        )
+
+        add_custom_command(
+            TARGET dive_plugin_sample
+            POST_BUILD
+            COMMAND
+                ${CMAKE_INSTALL_NAME_TOOL} -change "${ORIGINAL_FRAMEWORK_PATH}"
+                "${NEW_FRAMEWORK_PATH}" "$<TARGET_FILE:dive_plugin_sample>"
+            COMMENT
+                "Updating ${FRAMEWORK} library path in $<TARGET_FILE_NAME:dive_plugin_sample>"
+            VERBATIM
+        )
+    endforeach()
+else()
+    set_target_properties(
+        dive_plugin_sample
+        PROPERTIES
+            INSTALL_RPATH "$ORIGIN/../../host"
+            BUILD_WITH_INSTALL_RPATH TRUE
+            CXX_EXTENSIONS ON
+            FOLDER "plugins"
+    )
+endif()
+
 install(
     TARGETS dive_plugin_sample
     DESTINATION "${DIVE_HOST_PLUGINS_INSTALL_DIR}"
