@@ -594,14 +594,14 @@ MainWindow::MainWindow(ApplicationController& controller) : m_controller(control
 MainWindow::~MainWindow() {}
 
 //--------------------------------------------------------------------------------------------------
-TraceDialog& MainWindow::GetTraceDialog()
+ITraceDialog& MainWindow::GetTraceDialog()
 {
     DIVE_ASSERT(m_trace_dig);
     return *m_trace_dig;
 }
 
 //--------------------------------------------------------------------------------------------------
-ProgressTrackerCallback& MainWindow::GetProgressTracker() { return m_progress_tracker; }
+Dive::ProgressTracker& MainWindow::GetProgressTracker() { return m_progress_tracker; }
 
 //--------------------------------------------------------------------------------------------------
 void MainWindow::OnTraceAvailable(const QString& path)
@@ -959,7 +959,7 @@ void MainWindow::OnTraceStatsUpdated()
 }
 
 //--------------------------------------------------------------------------------------------------
-bool MainWindow::LoadFile(const std::string& file_name, bool is_temp_file, bool async)
+bool MainWindow::LoadFile(const char* file_name, bool is_temp_file, bool async)
 {
     bool release_capture = m_capture_acquired;
     m_capture_acquired = false;
@@ -994,7 +994,7 @@ bool MainWindow::LoadFile(const std::string& file_name, bool is_temp_file, bool 
         m_overview_tab_view->LoadStatistics();
     }
 
-    m_progress_tracker.sendMessage("Loading " + file_name);
+    m_progress_tracker.sendMessage(std::string("Loading ") + file_name);
     m_last_request = LastRequest{.file_name = file_name, .is_temp_file = is_temp_file};
 
     auto reference = Dive::FilePath{file_name};

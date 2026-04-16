@@ -23,13 +23,14 @@
 #include <optional>
 #include <vector>
 
+#include "dive/plugin/abi/imain_window.h"
 #include "dive/ui/forward.h"
 #include "dive_core/cross_ref.h"
 #include "dive_core/log.h"
 #include "dive_ui_lib_export.h"
 #include "ui/progress_tracker_callback.h"
 
-class DIVE_UI_LIB_EXPORT MainWindow : public QMainWindow
+class DIVE_UI_LIB_EXPORT MainWindow : public QMainWindow, public IMainWindow
 {
     Q_OBJECT
 
@@ -44,9 +45,9 @@ class DIVE_UI_LIB_EXPORT MainWindow : public QMainWindow
     MainWindow& operator=(const MainWindow&) = delete;
     MainWindow& operator=(MainWindow&&) = delete;
 
-    bool LoadFile(const std::string& file_name, bool is_temp_file = false, bool async = true);
-    TraceDialog& GetTraceDialog();
-    ProgressTrackerCallback& GetProgressTracker();
+    bool LoadFile(const char* file_name, bool is_temp_file = false, bool async = true) override;
+    ITraceDialog& GetTraceDialog() override;
+    Dive::ProgressTracker& GetProgressTracker() override;
 
  protected:
     void closeEvent(QCloseEvent* closeEvent) Q_DECL_OVERRIDE;

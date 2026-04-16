@@ -23,6 +23,7 @@
 
 #include "capture_service/device_mgr.h"
 #include "device_dialog.h"
+#include "dive/plugin/abi/itrace_dialog.h"
 #include "dive_ui_lib_export.h"
 #include "package_filter.h"
 
@@ -61,7 +62,7 @@ class AppTypeFilterModel : public QSortFilterProxyModel
     bool m_filter_active = false;
 };
 
-class DIVE_UI_LIB_EXPORT TraceDialog : public DeviceDialog
+class DIVE_UI_LIB_EXPORT TraceDialog : public DeviceDialog, public ITraceDialog
 {
     Q_OBJECT
 
@@ -74,16 +75,16 @@ class DIVE_UI_LIB_EXPORT TraceDialog : public DeviceDialog
     void HideGfxrFields();
     void EnableDialogInputs(bool enable);
     void RetrieveGfxrCapture();
-    Dive::AndroidDevice* GetAndValidateDevice();
-    void SetResetDialogOnClose(bool reset) { m_dialog_reset_on_close = reset; }
-    void UpdateCaptureFileDirectories(std::string on_device_capture_file_directory = "");
-    void SetTraceDialogForCapture();
-    void ResetTraceDialogOnAppStop();
+    Dive::AndroidDevice* GetAndValidateDevice() override;
+    void SetResetDialogOnClose(bool reset) override { m_dialog_reset_on_close = reset; }
+    void UpdateCaptureFileDirectories(std::string on_device_capture_file_directory = "") override;
+    void SetTraceDialogForCapture() override;
+    void ResetTraceDialogOnAppStop() override;
 
  public slots:
     void OnPackageListSet(QStringList package_list);
-    void OnStartPackage();
-    void OnStopPackage();
+    void OnStartPackage() override;
+    void OnStopPackage() override;
 
  protected:
     void closeEvent(QCloseEvent* event) override;

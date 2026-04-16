@@ -16,3 +16,8 @@
 
 add_library(dive_plugin_abi_includes INTERFACE)
 target_link_libraries(dive_plugin_abi_includes INTERFACE dive_src_includes)
+
+target_sources(dive_plugin_abi_includes INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/imain_window.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/itrace_dialog.h
+)
