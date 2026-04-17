@@ -23,6 +23,7 @@
 
 #include "dive/plugin/loader/plugin_loader.h"
 #include "ui/main_window.h"
+#include "ui/main_window_p.h"
 
 struct ApplicationController::Impl
 {
@@ -54,8 +55,8 @@ void ApplicationController::MainWindowInitialized()
     m_impl->m_advanced_option->setCheckable(true);
     m_impl->m_advanced_option->setChecked(false);
 
-    m_impl->m_main_window->m_file_menu->insertAction(m_impl->m_main_window->m_exit_action,
-                                                     m_impl->m_advanced_option);
+    m_impl->m_main_window->m_impl->m_file_menu->insertAction(
+        m_impl->m_main_window->m_impl->m_exit_action, m_impl->m_advanced_option);
 
     QObject::connect(m_impl->m_advanced_option, &QAction::toggled, this,
                      &ApplicationController::AdvancedOptionToggled);
