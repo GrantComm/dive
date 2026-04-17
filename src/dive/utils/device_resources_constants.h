@@ -93,7 +93,7 @@ Profiling resources dir:    DIVE_ROOT/build/pkg/CMAKE_GENERATED_PROFILING_PLUGIN
     static constexpr size_t kMaxSetPropLength = 92;
 
     // The absolute path to the standard Download directory on Android.
-    static constexpr char kDeviceDownloadPath[] = "/sdcard/Download";
+    static constexpr char kDeviceDownloadPath[] = "/data/local/tmp/dive";
     // The name of the temporary staging directory created on the device.
     static constexpr char kDeviceStagingDirectoryName[] = "out";
     // The default name for GFXR capture files when the original name is too long.
