@@ -114,6 +114,7 @@ add_library(
     dive_ui_lib_export.h
     main_window.cpp
     main_window.h
+    main_window_p.h
     main.cpp
     main.h
     misc_stats_model.cpp
