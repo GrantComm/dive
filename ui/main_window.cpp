@@ -14,7 +14,6 @@
  limitations under the License.
 */
 #include "main_window.h"
-#include "main_window_p.h"
 
 #include <QApplication>
 #include <QCoreApplication>
@@ -46,6 +45,9 @@
 #include "dive/ui/types/file_path.h"
 #include "dive/utils/device_resources.h"
 #include "dive/utils/device_resources_constants.h"
+#include "dive_core/available_metrics.h"
+#include "dive_core/cross_ref.h"
+#include "main_window_p.h"
 #include "trace_stats/trace_stats.h"
 #include "ui/about_window.h"
 #include "ui/analyze_window.h"
@@ -81,9 +83,6 @@
 #include "ui/trace_window.h"
 #include "ui/what_if_configure_dialog.h"
 #include "ui/what_if_setup_dialog.h"
-#include "dive_core/cross_ref.h"
-#include "dive_core/available_metrics.h"
-#include "trace_stats/trace_stats.h"
 
 namespace
 {
@@ -170,48 +169,77 @@ MainWindow::MainWindow(ApplicationController& controller)
 }
 
 MainWindow::~MainWindow() = default;
- 
+
 MainWindowPrivate::MainWindowPrivate(MainWindow* host, ApplicationController& controller)
-    : m_main_window_ptr(host),
-      m_controller(controller)
+    : m_main_window_ptr(host), m_controller(controller)
 {
 }
 
 MainWindowPrivate::~MainWindowPrivate() = default;
- 
- void MainWindow::closeEvent(QCloseEvent* event)
- {
-     m_impl->OnCloseEvent(event);
- }
 
-TraceDialog& MainWindow::GetTraceDialog()
-{
-    return *m_impl->m_trace_dig;
-}
+void MainWindow::closeEvent(QCloseEvent* event) { m_impl->OnCloseEvent(event); }
+
+TraceDialog& MainWindow::GetTraceDialog() { return *m_impl->m_trace_dig; }
 
 ProgressTrackerCallback& MainWindow::GetProgressTracker() { return m_impl->m_progress_tracker; }
 
-bool MainWindow::LoadFile(const std::string& file_name, bool is_temp_file, bool async) { return m_impl->LoadFile(file_name, is_temp_file, async); }
+bool MainWindow::LoadFile(const std::string& file_name, bool is_temp_file, bool async)
+{
+    return m_impl->LoadFile(file_name, is_temp_file, async);
+}
 void MainWindow::OnCapture(bool is_capture_delayed) { m_impl->OnCapture(is_capture_delayed); }
 void MainWindow::OnCaptureUpdated(const QString& file_path) { m_impl->OnCaptureUpdated(file_path); }
 void MainWindow::OnSwitchToShaderTab() { m_impl->OnSwitchToShaderTab(); }
-void MainWindow::OnOpenVulkanDrawCallMenu(const QPoint& pos) { m_impl->OnOpenVulkanDrawCallMenu(pos); }
+void MainWindow::OnOpenVulkanDrawCallMenu(const QPoint& pos)
+{
+    m_impl->OnOpenVulkanDrawCallMenu(pos);
+}
 void MainWindow::OnOpenVulkanCallMenu(const QPoint& pos) { m_impl->OnOpenVulkanCallMenu(pos); }
-void MainWindow::OnCorrelateVulkanDrawCall(const QModelIndex& index) { m_impl->OnCorrelateVulkanDrawCall(index); }
-void MainWindow::OnCorrelatePm4DrawCall(const QModelIndex& index) { m_impl->OnCorrelatePm4DrawCall(index); }
+void MainWindow::OnCorrelateVulkanDrawCall(const QModelIndex& index)
+{
+    m_impl->OnCorrelateVulkanDrawCall(index);
+}
+void MainWindow::OnCorrelatePm4DrawCall(const QModelIndex& index)
+{
+    m_impl->OnCorrelatePm4DrawCall(index);
+}
 void MainWindow::OnCounterSelected(uint64_t row_index) { m_impl->OnCounterSelected(row_index); }
-void MainWindow::OnGpuTimingDataSelected(uint64_t node_index) { m_impl->OnGpuTimingDataSelected(node_index); }
-void MainWindow::OnCorrelationFilterApplied(uint64_t gfxr_draw_call_index, const QModelIndex& index) { m_impl->OnCorrelationFilterApplied(gfxr_draw_call_index, index); }
-void MainWindow::OnPendingPerfCounterResults(const QString& file_name) { m_impl->OnPendingPerfCounterResults(file_name); }
-void MainWindow::OnPendingGpuTimingResults(const QString& file_name) { m_impl->OnPendingGpuTimingResults(file_name); }
-void MainWindow::OnPendingScreenshot(const QString& file_name) { m_impl->OnPendingScreenshot(file_name); }
+void MainWindow::OnGpuTimingDataSelected(uint64_t node_index)
+{
+    m_impl->OnGpuTimingDataSelected(node_index);
+}
+void MainWindow::OnCorrelationFilterApplied(uint64_t gfxr_draw_call_index, const QModelIndex& index)
+{
+    m_impl->OnCorrelationFilterApplied(gfxr_draw_call_index, index);
+}
+void MainWindow::OnPendingPerfCounterResults(const QString& file_name)
+{
+    m_impl->OnPendingPerfCounterResults(file_name);
+}
+void MainWindow::OnPendingGpuTimingResults(const QString& file_name)
+{
+    m_impl->OnPendingGpuTimingResults(file_name);
+}
+void MainWindow::OnPendingScreenshot(const QString& file_name)
+{
+    m_impl->OnPendingScreenshot(file_name);
+}
 void MainWindow::OnHideOverlay() { m_impl->OnHideOverlay(); }
 void MainWindow::OnAddWhatIfModification() { m_impl->OnAddWhatIfModification(); }
 void MainWindow::OnWhatIfSetupTrigger() { m_impl->OnWhatIfSetupTrigger(); }
-void MainWindow::OnCommandViewModeChange(const QString& view_mode) { m_impl->OnCommandViewModeChange(view_mode); }
-void MainWindow::OnCommandViewModeComboBoxHover(const QString& view_mode) { m_impl->OnCommandViewModeComboBoxHover(view_mode); }
+void MainWindow::OnCommandViewModeChange(const QString& view_mode)
+{
+    m_impl->OnCommandViewModeChange(view_mode);
+}
+void MainWindow::OnCommandViewModeComboBoxHover(const QString& view_mode)
+{
+    m_impl->OnCommandViewModeComboBoxHover(view_mode);
+}
 void MainWindow::OnSelectionChanged(const QModelIndex& index) { m_impl->OnSelectionChanged(index); }
-void MainWindow::OnFilterModeChange(const QString& filter_mode) { m_impl->OnFilterModeChange(filter_mode); }
+void MainWindow::OnFilterModeChange(const QString& filter_mode)
+{
+    m_impl->OnFilterModeChange(filter_mode);
+}
 void MainWindow::OnGfxrFilterModeChange() { m_impl->OnGfxrFilterModeChange(); }
 void MainWindow::OnOpenFile() { m_impl->OnOpenFile(); }
 void MainWindow::OnNormalCapture() { m_impl->OnNormalCapture(); }
@@ -225,9 +253,12 @@ void MainWindow::OnSearchTrigger() { m_impl->OnSearchTrigger(); }
 void MainWindow::OpenRecentFile() { m_impl->OpenRecentFile(); }
 void MainWindow::UpdateOverlay(const QString& message) { m_impl->UpdateOverlay(message); }
 void MainWindow::OnCrossReference(Dive::CrossRef ref) { m_impl->OnCrossReference(ref); }
-void MainWindow::OnFileLoaded(const LoadFileResult& result) { m_impl->OnFileLoaded(result); }
+void MainWindow::OnFileLoaded(const LoadFileResult& loaded_file) { m_impl->OnFileLoaded(loaded_file); }
 void MainWindow::OnTraceAvailable(const QString& path) { m_impl->OnTraceAvailable(path); }
-void MainWindow::OnTabViewSearchBarVisibilityChange(bool isHidden) { m_impl->OnTabViewSearchBarVisibilityChange(isHidden); }
+void MainWindow::OnTabViewSearchBarVisibilityChange(bool isHidden)
+{
+    m_impl->OnTabViewSearchBarVisibilityChange(isHidden);
+}
 void MainWindow::OnTabViewChange() { m_impl->OnTabViewChange(); }
 void MainWindow::OnTraceStatsUpdated() { m_impl->OnTraceStatsUpdated(); }
 void MainWindow::ConnectDiveFileTabs() { m_impl->ConnectDiveFileTabs(); }
@@ -516,8 +547,8 @@ void MainWindowPrivate::Initialize()
         m_gfxr_vulkan_command_arguments_tab_view = new GfxrVulkanCommandArgumentsTabView(
             m_data_core->GetCommandHierarchy(), m_gfxr_vulkan_commands_arguments_filter_proxy_model,
             m_gfxr_vulkan_command_hierarchy_model);
-        m_gpu_timing_tab_view =
-            new GpuTimingTabView(*m_gpu_timing_model, m_data_core->GetCommandHierarchy(), m_main_window_ptr);
+        m_gpu_timing_tab_view = new GpuTimingTabView(
+            *m_gpu_timing_model, m_data_core->GetCommandHierarchy(), m_main_window_ptr);
 
         m_frame_tab_view = new FrameTabView(m_main_window_ptr);
 
@@ -590,13 +621,16 @@ void MainWindowPrivate::Initialize()
     QObject::connect(m_trace_dig, &TraceDialog::TraceAvailable, m_main_window_ptr,
                      &MainWindow::OnTraceAvailable);
 
-    QObject::connect(m_main_window_ptr, &MainWindow::FileLoaded, m_text_file_view, &TextFileView::OnFileLoaded);
-    QObject::connect(m_search_trigger_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(OnSearchTrigger()));
+    QObject::connect(m_main_window_ptr, &MainWindow::FileLoaded, m_text_file_view,
+                     &TextFileView::OnFileLoaded);
+    QObject::connect(m_search_trigger_button, SIGNAL(clicked()), m_main_window_ptr,
+                     SLOT(OnSearchTrigger()));
 
     QObject::connect(m_event_search_bar, SIGNAL(hide_search_bar(bool)), m_main_window_ptr,
                      SLOT(OnTabViewSearchBarVisibilityChange(bool)));
 
-    QObject::connect(m_tab_widget, &QTabWidget::currentChanged, m_main_window_ptr, &MainWindow::OnTabViewChange);
+    QObject::connect(m_tab_widget, &QTabWidget::currentChanged, m_main_window_ptr,
+                     &MainWindow::OnTabViewChange);
 
     QObject::connect(m_main_window_ptr, &MainWindow::AnalyzeCaptureStarted, m_analyze_dig,
                      &AnalyzeDialog::OnAnalyzeCaptureStarted);
@@ -636,9 +670,10 @@ void MainWindowPrivate::Initialize()
     UpdateRecentFileActions(Settings::Get()->ReadRecentFiles());
 
     // Capture overlay widget
-    QObject::connect(&m_progress_tracker, SIGNAL(sendMessageSignal(const QString&)), m_main_window_ptr,
-                     SLOT(UpdateOverlay(const QString&)));
-    QObject::connect(m_main_window_ptr, &MainWindow::HideOverlay, m_main_window_ptr, &MainWindow::OnHideOverlay);
+    QObject::connect(&m_progress_tracker, SIGNAL(sendMessageSignal(const QString&)),
+                     m_main_window_ptr, SLOT(UpdateOverlay(const QString&)));
+    QObject::connect(m_main_window_ptr, &MainWindow::HideOverlay, m_main_window_ptr,
+                     &MainWindow::OnHideOverlay);
 
     // Set default view mode
     m_main_window_ptr->OnCommandViewModeChange(m_main_window_ptr->tr(kEventViewModeStrings[0]));
@@ -649,12 +684,7 @@ void MainWindowPrivate::Initialize()
     m_controller.MainWindowInitialized();
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 void MainWindowPrivate::OnTraceAvailable(const QString& path)
@@ -1133,7 +1163,8 @@ void MainWindowPrivate::EmitLoadAssociatedFileTasks(const Dive::ComponentFilePat
     {
         qDebug() << "Attempting to load perf counter data from: "
                  << components.perf_counter_csv.string().c_str();
-        m_main_window_ptr->PendingPerfCounterResults(QString::fromStdString(components.perf_counter_csv.string()));
+        m_main_window_ptr->PendingPerfCounterResults(
+            QString::fromStdString(components.perf_counter_csv.string()));
     }
     else
     {
@@ -1144,7 +1175,8 @@ void MainWindowPrivate::EmitLoadAssociatedFileTasks(const Dive::ComponentFilePat
     {
         qDebug() << "Attempting to load gpu timing data from: "
                  << components.gpu_timing_csv.string().c_str();
-        m_main_window_ptr->PendingGpuTimingResults(QString::fromStdWString(components.gpu_timing_csv.wstring()));
+        m_main_window_ptr->PendingGpuTimingResults(
+            QString::fromStdWString(components.gpu_timing_csv.wstring()));
     }
     else
     {
@@ -1155,7 +1187,8 @@ void MainWindowPrivate::EmitLoadAssociatedFileTasks(const Dive::ComponentFilePat
     {
         qDebug() << "Attempting to load screenshot from: "
                  << components.screenshot_png.string().c_str();
-        m_main_window_ptr->PendingScreenshot(QString::fromStdWString(components.screenshot_png.wstring()));
+        m_main_window_ptr->PendingScreenshot(
+            QString::fromStdWString(components.screenshot_png.wstring()));
     }
     else
     {
@@ -1298,7 +1331,8 @@ void MainWindowPrivate::OnCaptureTrigger()
     if (ok)
     {
         uint32_t capture_delay = input_dialog.intValue();
-        QTimer::singleShot(capture_delay * 1000, m_main_window_ptr, SLOT(m_main_window_ptr->OnCapture(true)));
+        QTimer::singleShot(capture_delay * 1000, m_main_window_ptr,
+                           SLOT(m_main_window_ptr->OnCapture(true)));
         Settings::Get()->WriteCaptureDelay(capture_delay);
     }
 }
@@ -1425,9 +1459,9 @@ void MainWindowPrivate::OnSaveCapture()
     {
         return;
     }
-    QString file_name = QFileDialog::getSaveFileName(m_main_window_ptr, m_main_window_ptr->tr("Save the current capture"),
-                                                     QDir::currentPath(), m_main_window_ptr->tr("Dive files (*.dive)"),
-                                                     nullptr, QFileDialog::DontConfirmOverwrite);
+    QString file_name = QFileDialog::getSaveFileName(
+        m_main_window_ptr, m_main_window_ptr->tr("Save the current capture"), QDir::currentPath(),
+        m_main_window_ptr->tr("Dive files (*.dive)"), nullptr, QFileDialog::DontConfirmOverwrite);
     if (file_name.isNull() || file_name.isEmpty() || file_name == m_capture_file)
     {
         return;
@@ -1468,7 +1502,8 @@ void MainWindowPrivate::OnSaveCapture()
 
     if (save_result)
     {
-        QMessageBox::information(m_main_window_ptr, m_main_window_ptr->tr("Save capture succeed"), m_main_window_ptr->tr("Save capture succeed."));
+        QMessageBox::information(m_main_window_ptr, m_main_window_ptr->tr("Save capture succeed"),
+                                 m_main_window_ptr->tr("Save capture succeed."));
     }
     else
     {
@@ -1643,7 +1678,8 @@ void MainWindowPrivate::CreateActions()
     m_open_action->setIcon(QIcon(":/images/open.png"));
     m_open_action->setShortcuts(QKeySequence::Open);
     m_open_action->setStatusTip(m_main_window_ptr->tr("Open an existing capture"));
-    QObject::connect(m_open_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnOpenFile);
+    QObject::connect(m_open_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnOpenFile);
     m_exit_action = new QAction(m_main_window_ptr->tr("E&xit"), m_main_window_ptr);
     m_exit_action->setShortcut(m_main_window_ptr->tr("Ctrl+Q"));
     m_exit_action->setStatusTip(m_main_window_ptr->tr("Exit the application"));
@@ -1655,14 +1691,19 @@ void MainWindowPrivate::CreateActions()
     m_save_action->setIcon(QIcon(":/images/save.png"));
     m_save_action->setShortcut(QKeySequence::Save);
     m_save_action->setEnabled(false);
-    QObject::connect(m_save_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnSaveCapture);
-    QObject::connect(m_main_window_ptr, &MainWindow::SetSaveMenuStatus, m_save_action, &QAction::setEnabled);
- 
-    // TODO (b/447422197) Show m_main_window_ptr action when the save/load system has been implemented.
+    QObject::connect(m_save_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnSaveCapture);
+    QObject::connect(m_main_window_ptr, &MainWindow::SetSaveMenuStatus, m_save_action,
+                     &QAction::setEnabled);
+
+    // TODO (b/447422197) Show m_main_window_ptr action when the save/load system has been
+    // implemented.
     m_save_as_action = new QAction(m_main_window_ptr->tr("&Save As"), m_main_window_ptr);
     m_save_as_action->setStatusTip(m_main_window_ptr->tr("Save the current capture"));
-    QObject::connect(m_save_as_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnSaveCapture);
-    QObject::connect(m_main_window_ptr, &MainWindow::SetSaveAsMenuStatus, m_save_as_action, &QAction::setEnabled);
+    QObject::connect(m_save_as_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnSaveCapture);
+    QObject::connect(m_main_window_ptr, &MainWindow::SetSaveAsMenuStatus, m_save_as_action,
+                     &QAction::setEnabled);
 
     // Recent file actions
     for (auto& action : m_recent_file_actions)
@@ -1678,33 +1719,42 @@ void MainWindowPrivate::CreateActions()
     m_capture_action->setStatusTip(m_main_window_ptr->tr("Capture a Dive trace"));
     m_capture_action->setIcon(QIcon(":/images/capture.png"));
     m_capture_action->setShortcut(QKeySequence("f5"));
-    QObject::connect(m_capture_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnNormalCapture);
+    QObject::connect(m_capture_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnNormalCapture);
 
     // Capture with delay action
-    m_capture_delay_action = new QAction(m_main_window_ptr->tr("Capture with delay"), m_main_window_ptr);
-    m_capture_delay_action->setStatusTip(m_main_window_ptr->tr("Capture a Dive trace after a delay"));
+    m_capture_delay_action =
+        new QAction(m_main_window_ptr->tr("Capture with delay"), m_main_window_ptr);
+    m_capture_delay_action->setStatusTip(
+        m_main_window_ptr->tr("Capture a Dive trace after a delay"));
     m_capture_delay_action->setShortcut(QKeySequence("Ctrl+f5"));
-    QObject::connect(m_capture_delay_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnCaptureTrigger);
+    QObject::connect(m_capture_delay_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnCaptureTrigger);
 
     // Analyze action
-    m_analyze_action = new QAction(m_main_window_ptr->tr("Analyze GFXR Capture"), m_main_window_ptr);
+    m_analyze_action =
+        new QAction(m_main_window_ptr->tr("Analyze GFXR Capture"), m_main_window_ptr);
     m_analyze_action->setStatusTip(m_main_window_ptr->tr("Analyze currently loaded GFXR capture"));
     m_analyze_action->setIcon(QIcon(":/images/analyze.png"));
     m_analyze_action->setEnabled(false);
     m_analyze_action->setShortcut(QKeySequence("f7"));
-    QObject::connect(m_analyze_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnAnalyzeCapture);
+    QObject::connect(m_analyze_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnAnalyzeCapture);
 
     // What If Setup action
     m_what_if_setup_action = new QAction(m_main_window_ptr->tr("What Ifs"), m_main_window_ptr);
     m_what_if_setup_action->setStatusTip(m_main_window_ptr->tr("Setup What If scenarios"));
     m_what_if_setup_action->setIcon(QIcon(":/images/what-if-light-bulb.svg"));
     m_what_if_setup_action->setShortcut(QKeySequence("f8"));
-    QObject::connect(m_what_if_setup_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnWhatIfSetupTrigger);
+    QObject::connect(m_what_if_setup_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnWhatIfSetupTrigger);
 
     // Shortcuts action
     m_shortcuts_action = new QAction(m_main_window_ptr->tr("&Shortcuts"), m_main_window_ptr);
-    m_shortcuts_action->setStatusTip(m_main_window_ptr->tr("Display application keyboard shortcuts"));
-    QObject::connect(m_shortcuts_action, &QAction::triggered, m_main_window_ptr, &MainWindow::OnShortcuts);
+    m_shortcuts_action->setStatusTip(
+        m_main_window_ptr->tr("Display application keyboard shortcuts"));
+    QObject::connect(m_shortcuts_action, &QAction::triggered, m_main_window_ptr,
+                     &MainWindow::OnShortcuts);
 
     // About action
     m_about_action = new QAction(m_main_window_ptr->tr("&About Dive"), m_main_window_ptr);
@@ -1720,8 +1770,8 @@ void MainWindowPrivate::CreateMenus()
     m_file_menu->addAction(m_open_action);
     m_file_menu->addAction(m_save_action);
 
-    // TODO (b/447422197) Show m_main_window_ptr action when the save/load system has been implemented.
-    // m_file_menu->addAction(m_save_as_action);
+    // TODO (b/447422197) Show m_main_window_ptr action when the save/load system has been
+    // implemented. m_file_menu->addAction(m_save_as_action);
     m_file_menu->addSeparator();
     m_recent_captures_menu = m_file_menu->addMenu(m_main_window_ptr->tr("Recent captures"));
     for (auto action : m_recent_file_actions) m_recent_captures_menu->addAction(action);
@@ -1763,10 +1813,12 @@ void MainWindowPrivate::CreateShortcuts()
 {
     // Search Shortcut
     auto* search_shortcut = new QShortcut(QKeySequence(SHORTCUT_EVENTS_SEARCH), m_main_window_ptr);
-    QObject::connect(search_shortcut, &QShortcut::activated, m_main_window_ptr, &MainWindow::OnSearchTrigger);
+    QObject::connect(search_shortcut, &QShortcut::activated, m_main_window_ptr,
+                     &MainWindow::OnSearchTrigger);
 
     // TabView Search Shortcut
-    auto* search_tab_view_shortcut = new QShortcut(QKeySequence(SHORTCUT_TAB_VIEW_SEARCH), m_main_window_ptr);
+    auto* search_tab_view_shortcut =
+        new QShortcut(QKeySequence(SHORTCUT_TAB_VIEW_SEARCH), m_main_window_ptr);
     QObject::connect(search_tab_view_shortcut, &QShortcut::activated, [this]() {
         int current_tab_index = m_tab_widget->currentIndex();
         if (current_tab_index == m_tabs.command)
@@ -1794,21 +1846,25 @@ void MainWindowPrivate::CreateShortcuts()
     });
 
     // Overview Shortcut
-    auto* overview_tab_shortcut = new QShortcut(QKeySequence(SHORTCUT_OVERVIEW_TAB), m_main_window_ptr);
+    auto* overview_tab_shortcut =
+        new QShortcut(QKeySequence(SHORTCUT_OVERVIEW_TAB), m_main_window_ptr);
     QObject::connect(overview_tab_shortcut, &QShortcut::activated,
-            [this]() { m_tab_widget->setCurrentIndex(m_tabs.overview); });
+                     [this]() { m_tab_widget->setCurrentIndex(m_tabs.overview); });
     // Commands Shortcut
-    auto* command_tab_shortcut = new QShortcut(QKeySequence(SHORTCUT_COMMANDS_TAB), m_main_window_ptr);
+    auto* command_tab_shortcut =
+        new QShortcut(QKeySequence(SHORTCUT_COMMANDS_TAB), m_main_window_ptr);
     QObject::connect(command_tab_shortcut, &QShortcut::activated,
-            [this]() { m_tab_widget->setCurrentIndex(m_tabs.command); });
+                     [this]() { m_tab_widget->setCurrentIndex(m_tabs.command); });
     // Shaders Shortcut
-    auto* shader_tab_shortcut = new QShortcut(QKeySequence(SHORTCUT_SHADERS_TAB), m_main_window_ptr);
+    auto* shader_tab_shortcut =
+        new QShortcut(QKeySequence(SHORTCUT_SHADERS_TAB), m_main_window_ptr);
     QObject::connect(shader_tab_shortcut, &QShortcut::activated,
-            [this]() { m_tab_widget->setCurrentIndex(m_tabs.shader); });
+                     [this]() { m_tab_widget->setCurrentIndex(m_tabs.shader); });
     // Event State Shortcut
-    auto* event_state_tab_shortcut = new QShortcut(QKeySequence(SHORTCUT_EVENT_STATE_TAB), m_main_window_ptr);
+    auto* event_state_tab_shortcut =
+        new QShortcut(QKeySequence(SHORTCUT_EVENT_STATE_TAB), m_main_window_ptr);
     QObject::connect(event_state_tab_shortcut, &QShortcut::activated,
-            [this]() { m_tab_widget->setCurrentIndex(m_tabs.event_state); });
+                     [this]() { m_tab_widget->setCurrentIndex(m_tabs.event_state); });
     // Gfxr Vulkan Command Arguments Shortcut
     auto* gfxr_vulkan_command_arguments_tab_shortcut =
         new QShortcut(QKeySequence(SHORTCUT_GFXR_VULKAN_COMMAND_ARGUMENTS_TAB), m_main_window_ptr);
@@ -1843,7 +1899,7 @@ void MainWindowPrivate::ShowTempStatus(const QString& status_message)
 
 //--------------------------------------------------------------------------------------------------
 void MainWindowPrivate::ExpandResizeHierarchyView(DiveTreeView& tree_view,
-                                           const QSortFilterProxyModel& model)
+                                                  const QSortFilterProxyModel& model)
 {
     tree_view.expandAll();
     // Set to -1 so that resizeColumnToContents() will consider *all* rows to determine amount
@@ -1870,7 +1926,8 @@ void MainWindowPrivate::SetCurrentFile(const QString& file_name, bool is_temp_fi
         UpdateRecentFileActions(recent_files);
     }
 
-    m_main_window_ptr->setWindowTitle(m_main_window_ptr->tr("%1[*] - %2").arg(shownName).arg(m_main_window_ptr->tr("Dive")));
+    m_main_window_ptr->setWindowTitle(
+        m_main_window_ptr->tr("%1[*] - %2").arg(shownName).arg(m_main_window_ptr->tr("Dive")));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2114,12 +2171,15 @@ void MainWindowPrivate::DisconnectAllTabs()
 
     foreach (auto expand_to_lvl_button, m_expand_to_lvl_buttons)
     {
-        QObject::disconnect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(m_main_window_ptr->OnExpandToLevel()));
+        QObject::disconnect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr,
+                            SLOT(m_main_window_ptr->OnExpandToLevel()));
     }
 
-    QObject::disconnect(m_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::disconnect(m_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnCommandViewModeChange(const QString&)));
-    QObject::disconnect(m_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)), m_main_window_ptr,
+    QObject::disconnect(m_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnCommandViewModeComboBoxHover(const QString&)));
 
     QObject::disconnect(m_command_hierarchy_view, &DiveTreeView::expanded, m_command_hierarchy_view,
@@ -2140,27 +2200,33 @@ void MainWindowPrivate::DisconnectAllTabs()
 
     QObject::disconnect(m_command_hierarchy_view,
                         SIGNAL(sourceCurrentChanged(const QModelIndex&, const QModelIndex&)),
-                        m_command_tab_view, SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
-
-    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
-                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                        m_command_tab_view,
                         SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
-    QObject::disconnect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested, m_main_window_ptr,
-                        &MainWindow::OnOpenVulkanDrawCallMenu);
+    QObject::disconnect(m_command_hierarchy_view->selectionModel(),
+                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                        m_main_window_ptr,
+                        SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
+
+    QObject::disconnect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested,
+                        m_main_window_ptr, &MainWindow::OnOpenVulkanDrawCallMenu);
 
     foreach (auto expand_to_lvl_button, m_pm4_expand_to_lvl_buttons)
     {
-        QObject::disconnect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(m_main_window_ptr->OnExpandToLevel()));
+        QObject::disconnect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr,
+                            SLOT(m_main_window_ptr->OnExpandToLevel()));
     }
 
-    QObject::disconnect(m_pm4_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::disconnect(m_pm4_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnCommandViewModeChange(const QString&)));
-    QObject::disconnect(m_pm4_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)), m_main_window_ptr,
+    QObject::disconnect(m_pm4_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnCommandViewModeComboBoxHover(const QString&)));
 
     QObject::disconnect(m_pm4_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
-                        m_main_window_ptr, SLOT(m_main_window_ptr->OnFilterModeChange(const QString&)));
+                        m_main_window_ptr,
+                        SLOT(m_main_window_ptr->OnFilterModeChange(const QString&)));
 
     QObject::disconnect(m_pm4_search_trigger_button, SIGNAL(clicked()), m_main_window_ptr,
                         SLOT(OnSearchTrigger()));
@@ -2178,18 +2244,22 @@ void MainWindowPrivate::DisconnectAllTabs()
 
     QObject::disconnect(m_pm4_command_hierarchy_view,
                         SIGNAL(sourceCurrentChanged(const QModelIndex&, const QModelIndex&)),
-                        m_command_tab_view, SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
-
-    QObject::disconnect(m_pm4_command_hierarchy_view->selectionModel(),
-                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-                        m_command_tab_view, SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
-
-    QObject::disconnect(m_pm4_command_hierarchy_view->selectionModel(),
-                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                        m_command_tab_view,
                         SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::disconnect(m_pm4_command_hierarchy_view->selectionModel(),
-                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                        m_command_tab_view,
+                        SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
+
+    QObject::disconnect(m_pm4_command_hierarchy_view->selectionModel(),
+                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                        m_main_window_ptr,
+                        SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
+
+    QObject::disconnect(m_pm4_command_hierarchy_view->selectionModel(),
+                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnCorrelatePm4DrawCall(const QModelIndex&)));
 
     QObject::disconnect(m_command_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
@@ -2198,11 +2268,11 @@ void MainWindowPrivate::DisconnectAllTabs()
     QObject::disconnect(m_command_tab_view, SIGNAL(SendNodeProperty(const QString&)),
                         m_property_panel, SLOT(OnSelectionInfoChange(const QString&)));
 
-    QObject::disconnect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)), m_shader_view,
-                        SLOT(OnEventSelected(uint64_t)));
+    QObject::disconnect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)),
+                        m_shader_view, SLOT(OnEventSelected(uint64_t)));
 
-    QObject::disconnect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)), m_event_state_view,
-                        SLOT(OnEventSelected(uint64_t)));
+    QObject::disconnect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)),
+                        m_event_state_view, SLOT(OnEventSelected(uint64_t)));
 
     QObject::disconnect(m_command_hierarchy_view->selectionModel(),
                         SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
@@ -2210,7 +2280,8 @@ void MainWindowPrivate::DisconnectAllTabs()
                         SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::disconnect(m_command_hierarchy_view->selectionModel(),
-                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                        SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnCorrelateVulkanDrawCall(const QModelIndex&)));
 
     QObject::disconnect(m_gfxr_vulkan_command_arguments_tab_view, SIGNAL(HideOtherSearchBars()),
@@ -2219,17 +2290,18 @@ void MainWindowPrivate::DisconnectAllTabs()
     QObject::disconnect(m_perf_counter_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnTabViewChange()));
 
-    QObject::disconnect(m_perf_counter_tab_view, &PerfCounterTabView::CounterSelected, m_main_window_ptr,
-                        &MainWindow::OnCounterSelected);
+    QObject::disconnect(m_perf_counter_tab_view, &PerfCounterTabView::CounterSelected,
+                        m_main_window_ptr, &MainWindow::OnCounterSelected);
 
-    QObject::disconnect(m_gpu_timing_tab_view, &GpuTimingTabView::GpuTimingDataSelected, m_main_window_ptr,
-                        &MainWindow::OnGpuTimingDataSelected);
+    QObject::disconnect(m_gpu_timing_tab_view, &GpuTimingTabView::GpuTimingDataSelected,
+                        m_main_window_ptr, &MainWindow::OnGpuTimingDataSelected);
 
-    QObject::disconnect(m_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::disconnect(m_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                        m_main_window_ptr,
                         SLOT(m_main_window_ptr->OnFilterModeChange(const QString&)));
 
-    QObject::disconnect(m_filter_gfxr_commands_combo_box, SIGNAL(FilterChanged()), m_main_window_ptr,
-                        SLOT(m_main_window_ptr->OnGfxrFilterModeChange()));
+    QObject::disconnect(m_filter_gfxr_commands_combo_box, SIGNAL(FilterChanged()),
+                        m_main_window_ptr, SLOT(m_main_window_ptr->OnGfxrFilterModeChange()));
 
     // Temporarily set the model to nullptr and clear selection/current index
     // before loading new data. This forces a clean break.
@@ -2253,7 +2325,8 @@ void MainWindowPrivate::ConnectDiveFileTabs()
     // Left Panel
     foreach (auto expand_to_lvl_button, m_expand_to_lvl_buttons)
     {
-        QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(m_main_window_ptr->OnExpandToLevel()));
+        QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr,
+                         SLOT(m_main_window_ptr->OnExpandToLevel()));
     }
 
     QObject::connect(m_command_hierarchy_view, &DiveTreeView::expanded, m_command_hierarchy_view,
@@ -2284,11 +2357,12 @@ void MainWindowPrivate::ConnectDiveFileTabs()
 
     // Correlate between two calls
     QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCorrelateVulkanDrawCall(const QModelIndex&)));
 
-    QObject::connect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested, m_main_window_ptr,
-                     &MainWindow::OnOpenVulkanDrawCallMenu);
+    QObject::connect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested,
+                     m_main_window_ptr, &MainWindow::OnOpenVulkanDrawCallMenu);
 
     QObject::connect(m_property_panel, &PropertyPanel::crossReference, m_main_window_ptr,
                      &MainWindow::OnCrossReference);
@@ -2298,11 +2372,13 @@ void MainWindowPrivate::ConnectDiveFileTabs()
     // Middle Panel
     foreach (auto expand_to_lvl_button, m_pm4_expand_to_lvl_buttons)
     {
-        QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(m_main_window_ptr->OnExpandToLevel()));
+        QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr,
+                         SLOT(m_main_window_ptr->OnExpandToLevel()));
     }
 
     QObject::connect(m_pm4_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::connect(m_pm4_command_hierarchy_view, &DiveTreeView::expanded,
@@ -2313,20 +2389,24 @@ void MainWindowPrivate::ConnectDiveFileTabs()
                      m_pm4_command_hierarchy_view, &DiveTreeView::setCurrentNode);
 
     // Combo Boxes
-    QObject::connect(m_pm4_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::connect(m_pm4_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCommandViewModeChange(const QString&)));
 
-    QObject::connect(m_pm4_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)), m_main_window_ptr,
+    QObject::connect(m_pm4_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCommandViewModeComboBoxHover(const QString&)));
 
-    QObject::connect(m_pm4_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::connect(m_pm4_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnFilterModeChange(const QString&)));
 
     QObject::connect(m_filter_gfxr_commands_combo_box, SIGNAL(FilterChanged()), m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnGfxrFilterModeChange()));
 
     // Buttons
-    QObject::connect(m_pm4_search_trigger_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(OnSearchTrigger()));
+    QObject::connect(m_pm4_search_trigger_button, SIGNAL(clicked()), m_main_window_ptr,
+                     SLOT(OnSearchTrigger()));
 
     QObject::connect(m_pm4_prev_event_button, &QPushButton::clicked, m_pm4_command_hierarchy_view,
                      &DiveTreeView::gotoPrevEvent);
@@ -2337,11 +2417,13 @@ void MainWindowPrivate::ConnectDiveFileTabs()
     // Tabs
     QObject::connect(m_pm4_command_hierarchy_view,
                      SIGNAL(sourceCurrentChanged(const QModelIndex&, const QModelIndex&)),
-                     m_command_tab_view, SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
+                     m_command_tab_view,
+                     SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::connect(m_pm4_command_hierarchy_view->selectionModel(),
                      SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-                     m_command_tab_view, SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
+                     m_command_tab_view,
+                     SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::connect(m_command_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnTabViewChange()));
@@ -2352,24 +2434,25 @@ void MainWindowPrivate::ConnectDiveFileTabs()
     QObject::connect(m_command_tab_view, SIGNAL(SendNodeProperty(const QString&)), m_property_panel,
                      SLOT(OnSelectionInfoChange(const QString&)));
 
-    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)), m_shader_view,
-                     SLOT(OnEventSelected(uint64_t)));
+    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)),
+                     m_shader_view, SLOT(OnEventSelected(uint64_t)));
 
-    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)), m_event_state_view,
-                     SLOT(OnEventSelected(uint64_t)));
+    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)),
+                     m_event_state_view, SLOT(OnEventSelected(uint64_t)));
 
-    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
-                     SLOT(m_main_window_ptr->OnTabViewChange()));
+    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view, SIGNAL(HideOtherSearchBars()),
+                     m_main_window_ptr, SLOT(m_main_window_ptr->OnTabViewChange()));
 
-    QObject::connect(m_perf_counter_tab_view, &PerfCounterTabView::CounterSelected, m_main_window_ptr,
-                     &MainWindow::OnCounterSelected);
+    QObject::connect(m_perf_counter_tab_view, &PerfCounterTabView::CounterSelected,
+                     m_main_window_ptr, &MainWindow::OnCounterSelected);
 
-    QObject::connect(m_gpu_timing_tab_view, &GpuTimingTabView::GpuTimingDataSelected, m_main_window_ptr,
-                     &MainWindow::OnGpuTimingDataSelected);
+    QObject::connect(m_gpu_timing_tab_view, &GpuTimingTabView::GpuTimingDataSelected,
+                     m_main_window_ptr, &MainWindow::OnGpuTimingDataSelected);
 
     // Correlate between two calls
     QObject::connect(m_pm4_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCorrelatePm4DrawCall(const QModelIndex&)));
 }
 
@@ -2378,7 +2461,8 @@ void MainWindowPrivate::ConnectAdrenoRdFileTabs()
 {
     foreach (auto expand_to_lvl_button, m_expand_to_lvl_buttons)
     {
-        QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr, SLOT(m_main_window_ptr->OnExpandToLevel()));
+        QObject::connect(expand_to_lvl_button, SIGNAL(clicked()), m_main_window_ptr,
+                         SLOT(m_main_window_ptr->OnExpandToLevel()));
     }
 
     QObject::connect(m_command_hierarchy_view, &DiveTreeView::expanded, m_command_hierarchy_view,
@@ -2389,20 +2473,25 @@ void MainWindowPrivate::ConnectAdrenoRdFileTabs()
                      m_command_hierarchy_view, &DiveTreeView::setCurrentNode);
 
     // Combo Boxes
-    QObject::connect(m_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::connect(m_view_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCommandViewModeChange(const QString&)));
-    QObject::connect(m_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)), m_main_window_ptr,
+    QObject::connect(m_view_mode_combo_box, SIGNAL(textHighlighted(const QString&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCommandViewModeComboBoxHover(const QString&)));
-    QObject::connect(m_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)), m_main_window_ptr,
+    QObject::connect(m_filter_mode_combo_box, SIGNAL(currentTextChanged(const QString&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnFilterModeChange(const QString&)));
 
     // Tabs
     QObject::connect(m_command_hierarchy_view,
                      SIGNAL(sourceCurrentChanged(const QModelIndex&, const QModelIndex&)),
-                     m_command_tab_view, SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
+                     m_command_tab_view,
+                     SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::connect(m_command_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
@@ -2411,11 +2500,11 @@ void MainWindowPrivate::ConnectAdrenoRdFileTabs()
     QObject::connect(m_command_tab_view, SIGNAL(SendNodeProperty(const QString&)), m_property_panel,
                      SLOT(OnSelectionInfoChange(const QString&)));
 
-    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)), m_shader_view,
-                     SLOT(OnEventSelected(uint64_t)));
+    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)),
+                     m_shader_view, SLOT(OnEventSelected(uint64_t)));
 
-    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)), m_event_state_view,
-                     SLOT(OnEventSelected(uint64_t)));
+    QObject::connect(m_main_window_ptr, SIGNAL(m_main_window_ptr->EventSelected(uint64_t)),
+                     m_event_state_view, SLOT(OnEventSelected(uint64_t)));
 
     // Buttons
     QObject::connect(m_prev_event_button, &QPushButton::clicked, m_command_hierarchy_view,
@@ -2443,21 +2532,22 @@ void MainWindowPrivate::ConnectGfxrFileTabs()
                      SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnSelectionChanged(const QModelIndex&)));
 
     // Tabs
-    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
-                     SLOT(m_main_window_ptr->OnTabViewChange()));
+    QObject::connect(m_gfxr_vulkan_command_arguments_tab_view, SIGNAL(HideOtherSearchBars()),
+                     m_main_window_ptr, SLOT(m_main_window_ptr->OnTabViewChange()));
 
     QObject::connect(m_perf_counter_tab_view, SIGNAL(HideOtherSearchBars()), m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnTabViewChange()));
 
-    QObject::connect(m_perf_counter_tab_view, &PerfCounterTabView::CounterSelected, m_main_window_ptr,
-                     &MainWindow::OnCounterSelected);
+    QObject::connect(m_perf_counter_tab_view, &PerfCounterTabView::CounterSelected,
+                     m_main_window_ptr, &MainWindow::OnCounterSelected);
 
-    QObject::connect(m_gpu_timing_tab_view, &GpuTimingTabView::GpuTimingDataSelected, m_main_window_ptr,
-                     &MainWindow::OnGpuTimingDataSelected);
+    QObject::connect(m_gpu_timing_tab_view, &GpuTimingTabView::GpuTimingDataSelected,
+                     m_main_window_ptr, &MainWindow::OnGpuTimingDataSelected);
 
     // Combo Boxes
     QObject::connect(m_filter_gfxr_commands_combo_box, SIGNAL(FilterChanged()), m_main_window_ptr,
@@ -2480,12 +2570,13 @@ void MainWindowPrivate::ConnectGfxrFileTabs()
 
     // Correlate calls
     QObject::connect(m_command_hierarchy_view->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), m_main_window_ptr,
+                     SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+                     m_main_window_ptr,
                      SLOT(m_main_window_ptr->OnCorrelateVulkanDrawCall(const QModelIndex&)));
 
     // Menus
-    QObject::connect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested, m_main_window_ptr,
-                     &MainWindow::OnOpenVulkanDrawCallMenu);
+    QObject::connect(m_command_hierarchy_view, &QTreeView::customContextMenuRequested,
+                     m_main_window_ptr, &MainWindow::OnOpenVulkanDrawCallMenu);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2503,13 +2594,13 @@ void MainWindowPrivate::OnCaptureUpdated(const QString& file_path)
 //--------------------------------------------------------------------------------------------------
 
 QModelIndex MainWindowPrivate::FindSourceIndexFromNode(QAbstractItemModel* model,
-                                                 uint64_t target_node_index)
+                                                       uint64_t target_node_index)
 {
     return FindSourceIndexFromNode(model, target_node_index, QModelIndex());
 }
 QModelIndex MainWindowPrivate::FindSourceIndexFromNode(QAbstractItemModel* model,
-                                                 uint64_t target_node_index,
-                                                 const QModelIndex& parent)
+                                                       uint64_t target_node_index,
+                                                       const QModelIndex& parent)
 {
     if (!model) return QModelIndex();
 
@@ -2556,7 +2647,8 @@ void MainWindowPrivate::OnOpenVulkanDrawCallMenu(const QPoint& pos)
 
     if (it == gfxr_draw_call_indices.end())
     {
-        QMessageBox::critical(m_main_window_ptr, "Correlation Failed", "Corresponding perf counter not found.");
+        QMessageBox::critical(m_main_window_ptr, "Correlation Failed",
+                              "Corresponding perf counter not found.");
         return;
     }
 
@@ -2590,15 +2682,18 @@ void MainWindowPrivate::OnOpenVulkanDrawCallMenu(const QPoint& pos)
             break;
         case DrawCallContextMenuOption::kArguments:
             m_tab_widget->setCurrentIndex(m_tabs.gfxr_vulkan_command_arguments);
-            m_main_window_ptr->OnCorrelationFilterApplied(found_gfxr_draw_call_index, vulkan_draw_call_index);
+            m_main_window_ptr->OnCorrelationFilterApplied(found_gfxr_draw_call_index,
+                                                          vulkan_draw_call_index);
             break;
         case DrawCallContextMenuOption::kBinningPassOnly:
             m_pm4_filter_mode_combo_box->setCurrentIndex(DiveFilterModel::kBinningPassOnly);
-            m_main_window_ptr->OnCorrelationFilterApplied(found_gfxr_draw_call_index, vulkan_draw_call_index);
+            m_main_window_ptr->OnCorrelationFilterApplied(found_gfxr_draw_call_index,
+                                                          vulkan_draw_call_index);
             break;
         case DrawCallContextMenuOption::kFirstTilePassOnly:
             m_pm4_filter_mode_combo_box->setCurrentIndex(DiveFilterModel::kFirstTilePassOnly);
-            m_main_window_ptr->OnCorrelationFilterApplied(found_gfxr_draw_call_index, vulkan_draw_call_index);
+            m_main_window_ptr->OnCorrelationFilterApplied(found_gfxr_draw_call_index,
+                                                          vulkan_draw_call_index);
             break;
         case DrawCallContextMenuOption::kPerfCounterData:
             m_tab_widget->setCurrentIndex(m_tabs.perf_counter);
@@ -2610,7 +2705,7 @@ void MainWindowPrivate::OnOpenVulkanDrawCallMenu(const QPoint& pos)
 }
 
 void MainWindowPrivate::OnCorrelationFilterApplied(uint64_t gfxr_draw_call_index,
-                                            const QModelIndex& vulkan_draw_call_model_index)
+                                                   const QModelIndex& vulkan_draw_call_model_index)
 {
     std::vector<uint64_t> pm4_draw_call_indices =
         qobject_cast<DiveFilterModel*>(m_pm4_command_hierarchy_view->model())

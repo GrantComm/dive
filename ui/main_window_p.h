@@ -1,5 +1,5 @@
 /*
- Copyright 2025 Google LLC
+ Copyright 2026 Google LLC
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@
 #include <QTabWidget>
 #include <QToolBar>
 #include <QVBoxLayout>
-
 #include <array>
 #include <functional>
 #include <memory>
@@ -46,8 +45,8 @@
 #include "dive_core/common/common.h"
 #include "dive_core/data_core.h"
 #include "dive_core/log.h"
-#include "ui/main_window.h"
 #include "ui/capture_file_manager.h"
+#include "ui/main_window.h"
 #include "ui/progress_tracker_callback.h"
 
 // Forward declarations for members
@@ -83,12 +82,13 @@ class EventSelection;
 class OverlayHelper;
 class GfxrVulkanCommandArgumentsFilterProxyModel;
 
-namespace Dive {
+namespace Dive
+{
 class AvailableMetrics;
 class CaptureStats;
 class CrossRef;
 struct ComponentFilePaths;
-}
+}  // namespace Dive
 
 struct MainWindowPrivate
 {
