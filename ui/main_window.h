@@ -18,11 +18,10 @@
 
 #include <QMainWindow>
 #include <memory>
-#include <string>
 
-#include "dive/ui/dive_ui_lib_export.h"
 #include "dive/ui/forward.h"
 #include "dive_core/cross_ref.h"
+#include "dive_ui_lib_export.h"
 
 class ApplicationController;
 class TraceDialog;
@@ -99,8 +98,8 @@ class DIVE_UI_LIB_EXPORT MainWindow : public QMainWindow
     void OnSearchTrigger();
     void OpenRecentFile();
     void UpdateOverlay(const QString&);
-    void OnCrossReference(Dive::CrossRef ref);
-    void OnFileLoaded(const LoadFileResult& result);
+    void OnCrossReference(Dive::CrossRef);
+    void OnFileLoaded(const LoadFileResult& loaded_file);
     void OnTraceAvailable(const QString&);
     void OnTabViewSearchBarVisibilityChange(bool isHidden);
     void OnTabViewChange();
