@@ -1,5 +1,6 @@
 # Prerequisites
 
+- Visual Studio (Windows Only): To build on Windows, you must use Visual Studio (2022 version is recommended).
 - CMake
 - Ninja
 - The QT framework, can be installed from [QT online installer](https://download.qt.io/archive/online_installers/4.6/). We are currently using QT 5.15.2. Note that to install QT 5.15.2 from the online installer, you have to enable (turn on) the `archived` versions and then click on `filter`.
@@ -108,7 +109,7 @@ TODO: b/484082504 - Add more stages for packaging and deploying to the unified b
 ```sh
 python scripts/build.py
 
-# TIP: On Windows, run in Visual Studio Developer Command Prompt for VS 2022 (or 2019)
+# TIP: On Windows, run in Visual Studio Developer Command Prompt for VS 2022
 #      and use --build-via-generator to build through VS and use multiple cores for speed
 
 python scripts/build.py --build-via-generator
