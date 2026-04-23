@@ -63,7 +63,6 @@ class CommandBufferView : public DiveTreeView
 
  private:
     void setAndScrollToIndex(QModelIndex& idx);
-    int getNearestSearchCommand(uint64_t target_index);
 
     QList<QModelIndex> search_indexes;
     QList<QModelIndex>::Iterator search_index_it;

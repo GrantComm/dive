@@ -268,8 +268,9 @@ void CommandBufferModel::OnSelectionChanged(const QModelIndex& index)
         m_scroll_to_index = QModelIndex();
         uint64_t end_node_index = m_topology_ptr->GetEndSharedChildNodeIndex(m_selected_node_index);
         uint64_t parent_node_index = m_node_parent_list[end_node_index].internalId();
-        uint64_t num_children = m_topology_ptr->GetNumSharedChildren(parent_node_index);
-        for (uint64_t child = 0; child < num_children; ++child)
+        uint64_t num_shared_children = m_topology_ptr->GetNumSharedChildren(parent_node_index);
+        uint64_t num_normal_children = m_topology_ptr->GetNumChildren(parent_node_index);
+        for (uint64_t child = 0; child < num_shared_children; ++child)
         {
             uint64_t child_node_index =
                 m_topology_ptr->GetSharedChildNodeIndex(parent_node_index, child);
@@ -278,7 +279,8 @@ void CommandBufferModel::OnSelectionChanged(const QModelIndex& index)
             // The row has to account for both
             if (child_node_index == end_node_index)
             {
-                m_scroll_to_index = createIndex(child, 0, (void*)end_node_index);
+                m_scroll_to_index =
+                    createIndex(num_normal_children + child, 0, (void*)end_node_index);
 
                 // If the shared node has fields, then the last field should be the scroll-to
                 // position instead
@@ -338,6 +340,14 @@ QList<QModelIndex> CommandBufferModel::search(const QModelIndex& start, const QV
 
         // Search the address column for the text and append the index if a match is found.
         searchAddressColumn(result, r, p, text, cs);
+
+        // Search the IB level column for the text and append the index if a match is found.
+        QModelIndex ib_level_idx = index(r, CommandBufferModel::kColumnIbLevel, p);
+        if (ib_level_idx.isValid())
+        {
+            if (data(ib_level_idx, Qt::DisplayRole).toString().contains(text, cs))
+                result.append(ib_level_idx);
+        }
 
         QString t = v.toString();
         if (t.contains(text, cs)) result.append(idx);
