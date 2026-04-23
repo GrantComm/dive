@@ -49,29 +49,148 @@ void GfxrVulkanCommandHierarchyCreator::ConditionallyAddChild(uint64_t node_inde
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-std::string GfxrVulkanCommandHierarchyCreator::GetCurrDrawCallString()
+std::string GfxrVulkanCommandHierarchyCreator::GetValueStr(const nlohmann::ordered_json& node,
+                                                           const std::string& key)
 {
-    // Early return for zero instance count
-    if (m_cur_draw_call_info.instance_count == 0)
+    if (node.contains(key))
     {
-        return "";
+        const auto& val = node[key];
+        if (val.is_string())
+        {
+            return val.get<std::string>();
+        }
+        std::ostringstream s;
+        s << val;
+        return s.str();
     }
+    return "0";
+}
 
+std::string GfxrVulkanCommandHierarchyCreator::GetCommandSummary(const std::string& cmd_name,
+                                                                 const nlohmann::ordered_json& args)
+{
     std::ostringstream s;
-
-    s << "(";
-
-    if (m_cur_draw_call_info.index_count > 0)
+    if (cmd_name == "vkCmdDrawIndexed")
     {
-        s << "indexCount:" << m_cur_draw_call_info.index_count << ",";
+        if (args.contains("indexCount"))
+        {
+            s << "(indexCount: " << GetValueStr(args, "indexCount");
+            if (args.contains("instanceCount") && GetValueStr(args, "instanceCount") != "1")
+            {
+                s << ", instanceCount: " << GetValueStr(args, "instanceCount");
+            }
+            s << ")";
+        }
     }
-    else if (m_cur_draw_call_info.vertex_count > 0)
+    else if (cmd_name == "vkCmdDraw")
     {
-        s << "vertexCount:" << m_cur_draw_call_info.vertex_count << ",";
+        if (args.contains("vertexCount"))
+        {
+            s << "(vertexCount: " << GetValueStr(args, "vertexCount");
+            if (args.contains("instanceCount") && GetValueStr(args, "instanceCount") != "1")
+            {
+                s << ", instanceCount: " << GetValueStr(args, "instanceCount");
+            }
+            s << ")";
+        }
     }
-
-    s << "instanceCount:" << m_cur_draw_call_info.instance_count << ")";
+    else if (cmd_name == "vkCmdSetViewport")
+    {
+        if (args.contains("pViewports") && args["pViewports"].is_array() &&
+            !args["pViewports"].empty())
+        {
+            const auto& vp = args["pViewports"][0];
+            s << "(x:" << GetValueStr(vp, "x") << ", y:" << GetValueStr(vp, "y")
+              << ", width:" << GetValueStr(vp, "width") << ", height:" << GetValueStr(vp, "height")
+              << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdSetScissor")
+    {
+        if (args.contains("pScissors") && args["pScissors"].is_array() &&
+            !args["pScissors"].empty())
+        {
+            const auto& sc = args["pScissors"][0];
+            if (sc.contains("offset") && sc.contains("extent"))
+            {
+                const auto& offset = sc["offset"];
+                const auto& extent = sc["extent"];
+                s << "(x:" << GetValueStr(offset, "x") << ", y:" << GetValueStr(offset, "y")
+                  << ", width:" << GetValueStr(extent, "width")
+                  << ", height:" << GetValueStr(extent, "height") << ")";
+            }
+        }
+    }
+    else if (cmd_name == "vkCmdDispatch")
+    {
+        if (args.contains("groupCountX"))
+        {
+            s << "(x:" << GetValueStr(args, "groupCountX")
+              << ", y:" << GetValueStr(args, "groupCountY")
+              << ", z:" << GetValueStr(args, "groupCountZ") << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdDrawMultiEXT" || cmd_name == "vkCmdDrawMultiIndexedEXT")
+    {
+        if (args.contains("drawCount"))
+        {
+            s << "(drawCount: " << GetValueStr(args, "drawCount");
+            if (args.contains("instanceCount") && GetValueStr(args, "instanceCount") != "1")
+            {
+                s << ", instanceCount: " << GetValueStr(args, "instanceCount");
+            }
+            s << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdDrawIndirect" || cmd_name == "vkCmdDrawIndexedIndirect")
+    {
+        if (args.contains("drawCount") && GetValueStr(args, "drawCount") != "1")
+        {
+            s << "(drawCount: " << GetValueStr(args, "drawCount") << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdBindPipeline")
+    {
+        if (args.contains("pipelineBindPoint"))
+        {
+            std::string bind_point = GetValueStr(args, "pipelineBindPoint");
+            size_t prefix_pos = bind_point.find("VK_PIPELINE_BIND_POINT_");
+            if (prefix_pos != std::string::npos)
+            {
+                bind_point.erase(prefix_pos, 23);
+            }
+            s << "(" << bind_point << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdBindDescriptorSets")
+    {
+        if (args.contains("firstSet") && args.contains("descriptorSetCount"))
+        {
+            s << "(firstSet: " << GetValueStr(args, "firstSet")
+              << ", setCount: " << GetValueStr(args, "descriptorSetCount") << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdBindVertexBuffers")
+    {
+        if (args.contains("firstBinding") && args.contains("bindingCount"))
+        {
+            s << "(firstBinding: " << GetValueStr(args, "firstBinding")
+              << ", bindingCount: " << GetValueStr(args, "bindingCount") << ")";
+        }
+    }
+    else if (cmd_name == "vkCmdBindIndexBuffer")
+    {
+        if (args.contains("indexType"))
+        {
+            std::string index_type = GetValueStr(args, "indexType");
+            size_t prefix_pos = index_type.find("VK_INDEX_TYPE_");
+            if (prefix_pos != std::string::npos)
+            {
+                index_type.erase(prefix_pos, 14);
+            }
+            s << "(" << index_type << ")";
+        }
+    }
 
     return s.str();
 }
@@ -85,6 +204,8 @@ void GfxrVulkanCommandHierarchyCreator::OnCommand(
     const nlohmann::ordered_json& vulkan_cmd_args = vk_cmd_info.args;
     std::ostringstream vk_cmd_string_stream;
     vk_cmd_string_stream << vulkan_cmd_name;
+    vk_cmd_string_stream << GetCommandSummary(vulkan_cmd_name, vulkan_cmd_args);
+
     if (vulkan_cmd_name == "vkBeginCommandBuffer")
     {
         vk_cmd_string_stream << ", Draw Call Count: " << draw_call_count;
@@ -127,23 +248,10 @@ void GfxrVulkanCommandHierarchyCreator::OnCommand(
     else if (vulkan_cmd_name.find("vkCmdDraw") != std::string::npos ||
              vulkan_cmd_name.find("vkCmdDispatch") != std::string::npos)
     {
-        m_cur_draw_call_info = {};
-
         uint64_t vk_cmd_index =
             AddNode(NodeType::kGfxrVulkanDrawCommandNode, vk_cmd_string_stream.str());
         GetArgs(vulkan_cmd_args, vk_cmd_index);
         ConditionallyAddChild(vk_cmd_index);
-
-        if (vulkan_cmd_name.find("vkCmdDraw") != std::string::npos)
-        {
-            std::string extra_info = GetCurrDrawCallString();
-            if (!extra_info.empty())
-            {
-                // Update the draw node description with info obtained from its args
-                vk_cmd_string_stream << extra_info;
-                m_command_hierarchy.SetNodeDesc(vk_cmd_index, vk_cmd_string_stream.str());
-            }
-        }
     }
     else if (vulkan_cmd_name.find("vkCmdBeginRenderPass") != std::string::npos)
     {
@@ -326,44 +434,6 @@ void GfxrVulkanCommandHierarchyCreator::AddChild(CommandHierarchy::TopologyType 
     }
 }
 
-bool GfxrVulkanCommandHierarchyCreator::ParseCurDrawCallInfo(std::string_view key,
-                                                             std::string_view val)
-{
-    if (key == "indexCount")
-    {
-        uint64_t value = 0;
-        if (!absl::SimpleAtoi(val, &value))
-        {
-            return false;
-        }
-        m_cur_draw_call_info.index_count = value;
-        return true;
-    }
-    if (key == "vertexCount")
-    {
-        uint64_t value = 0;
-        if (!absl::SimpleAtoi(val, &value))
-        {
-            return false;
-        }
-        m_cur_draw_call_info.vertex_count = value;
-        return true;
-    }
-    if (key == "instanceCount")
-    {
-        uint64_t value = 0;
-        if (!absl::SimpleAtoi(val, &value))
-        {
-            return false;
-        }
-        m_cur_draw_call_info.instance_count = value;
-        return true;
-    }
-
-    // key is unrelated to DrawCallDescInfo
-    return true;
-}
-
 void GfxrVulkanCommandHierarchyCreator::GetArgs(const nlohmann::ordered_json& json_args,
                                                 uint64_t curr_index)
 {
@@ -434,12 +504,6 @@ void GfxrVulkanCommandHierarchyCreator::GetArgs(const nlohmann::ordered_json& js
 
                 s.str("");
                 s << key << ":" << val;
-
-                if (!ParseCurDrawCallInfo(key, val_str))
-                {
-                    std::cerr << "GfxrVulkanCommandHierarchyCreator::GetArgs() "
-                              << "could not parse draw call info from: " << s.str() << std::endl;
-                }
 
                 // If the value is a primitive,
                 // create a node containing the "key:value" pair.
