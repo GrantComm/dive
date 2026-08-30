@@ -79,109 +79,233 @@ void CommandBufferView::Reset()
 }
 
 //--------------------------------------------------------------------------------------------------
+static int FindNearestSearchCommand(const QList<QModelIndex>& search_indexes,
+                                    const QModelIndex& target, bool prefer_previous = false)
+{
+    if (search_indexes.isEmpty() || !target.isValid()) return 0;
+
+    auto get_path = [](QModelIndex idx) {
+        QList<int> path;
+        while (idx.isValid())
+        {
+            path.prepend(idx.row());
+            idx = idx.parent();
+        }
+        return path;
+    };
+
+    auto compare_paths = [](const QList<int>& pathA, const QList<int>& pathB) {
+        int minLen = std::min(pathA.size(), pathB.size());
+        for (int i = 0; i < minLen; ++i)
+        {
+            if (pathA[i] < pathB[i]) return -1;
+            if (pathA[i] > pathB[i]) return 1;
+        }
+        if (pathA.size() < pathB.size()) return -1;
+        if (pathA.size() > pathB.size()) return 1;
+        return 0;
+    };
+
+    QList<int> target_path = get_path(target);
+
+    int left = 0;
+    int right = search_indexes.size() - 1;
+    int best_idx = 0;
+
+    while (left <= right)
+    {
+        int mid = left + (right - left) / 2;
+        QList<int> mid_path = get_path(search_indexes[mid]);
+        int cmp = compare_paths(mid_path, target_path);
+
+        if (cmp == 0)
+        {
+            return mid;
+        }
+        else if (cmp < 0)
+        {
+            best_idx = mid;
+            left = mid + 1;
+        }
+        else
+        {
+            right = mid - 1;
+        }
+    }
+
+    QList<int> best_path = get_path(search_indexes[best_idx]);
+    int cmp = compare_paths(best_path, target_path);
+
+    if (cmp < 0)
+    {
+        if (!prefer_previous)
+        {
+            return (best_idx < search_indexes.size() - 1) ? best_idx + 1 : 0;
+        }
+    }
+    else if (cmp > 0)
+    {
+        if (prefer_previous)
+        {
+            return (best_idx > 0) ? best_idx - 1 : search_indexes.size() - 1;
+        }
+    }
+    return best_idx;
+}
+
+//--------------------------------------------------------------------------------------------------
 void CommandBufferView::searchCommandBufferByText(const QString& search_text)
 {
     search_indexes.clear();
     search_index_it = search_indexes.begin();
 
-    if (search_text.isEmpty()) return;
+    if (search_text.isEmpty())
+    {
+        emit updateSearch(0, 0);
+        return;
+    }
 
     auto m = dynamic_cast<CommandBufferModel*>(model());
     search_indexes = m->search(m->index(0, 0), QVariant::fromValue(search_text));
-    search_index_it = search_indexes.begin();
 
     if (!search_indexes.isEmpty())
     {
         QModelIndex curr_idx = currentIndex();
-        if (curr_idx.isValid() && curr_idx != *search_index_it)
+
+        // If the current index is invalid or not within the highlighted section (lacks accent
+        // color), default to the first highlighted match.
+        if (m && (!curr_idx.isValid() || !curr_idx.data(Qt::ForegroundRole).isValid()))
+        {
+            QModelIndex highlighted_idx;
+            for (int i = 0; i < search_indexes.size(); ++i)
+            {
+                if (search_indexes[i].data(Qt::ForegroundRole).isValid())
+                {
+                    highlighted_idx = search_indexes[i];
+                    break;
+                }
+            }
+            if (highlighted_idx.isValid())
+            {
+                curr_idx = highlighted_idx;
+            }
+            else if (!curr_idx.isValid())
+            {
+                curr_idx = m->scrollToIndex();
+            }
+        }
+
+        if (curr_idx.isValid())
         {
             search_index_it =
-                search_indexes.begin() + getNearestSearchCommand(curr_idx.internalId());
+                search_indexes.begin() + FindNearestSearchCommand(search_indexes, curr_idx);
+        }
+        else
+        {
+            search_index_it = search_indexes.begin();
         }
         setAndScrollToIndex(*search_index_it);
     }
-    emit updateSearch(0, search_indexes.isEmpty() ? 0 : search_indexes.size());
+
+    emit updateSearch(search_indexes.isEmpty() ? 0 : (search_index_it - search_indexes.begin()),
+                      search_indexes.size());
 }
 
 //--------------------------------------------------------------------------------------------------
 void CommandBufferView::nextCommandInSearch()
 {
-    if (!search_indexes.isEmpty() && search_index_it != search_indexes.end() &&
-        (search_index_it + 1) != search_indexes.end())
+    if (search_indexes.isEmpty()) return;
+
+    QModelIndex curr_idx = currentIndex();
+    if (!curr_idx.isValid())
     {
-        QModelIndex curr_idx = currentIndex();
-        if (curr_idx.isValid() && curr_idx != *search_index_it)
+        auto m = dynamic_cast<CommandBufferModel*>(model());
+        if (m)
         {
-            search_index_it =
-                search_indexes.begin() + getNearestSearchCommand(curr_idx.internalId());
-            if (*search_index_it == curr_idx) ++search_index_it;
+            for (int i = 0; i < search_indexes.size(); ++i)
+            {
+                if (search_indexes[i].data(Qt::ForegroundRole).isValid())
+                {
+                    curr_idx = search_indexes[i];
+                    break;
+                }
+            }
+            if (!curr_idx.isValid()) curr_idx = m->scrollToIndex();
         }
-        else
+    }
+
+    if (curr_idx.isValid() && curr_idx.internalId() != search_index_it->internalId())
+    {
+        search_index_it =
+            search_indexes.begin() + FindNearestSearchCommand(search_indexes, curr_idx);
+        if (search_index_it->internalId() == curr_idx.internalId())
+        {
+            if ((search_index_it + 1) != search_indexes.end())
+            {
+                ++search_index_it;
+            }
+            else
+            {
+                search_index_it = search_indexes.begin();
+            }
+        }
+    }
+    else
+    {
+        if ((search_index_it + 1) != search_indexes.end())
         {
             ++search_index_it;
         }
-        setAndScrollToIndex(*search_index_it);
-        emit updateSearch(search_index_it - search_indexes.begin(), search_indexes.size());
+        else
+        {
+            search_index_it = search_indexes.begin();
+        }
     }
+
+    setAndScrollToIndex(*search_index_it);
+    emit updateSearch(search_index_it - search_indexes.begin(), search_indexes.size());
 }
 
 //--------------------------------------------------------------------------------------------------
 void CommandBufferView::prevCommandInSearch()
 {
-    if (!search_indexes.isEmpty() && search_index_it != search_indexes.begin())
+    if (search_indexes.isEmpty()) return;
+
+    QModelIndex curr_idx = currentIndex();
+    if (!curr_idx.isValid())
     {
-        QModelIndex curr_idx = currentIndex();
-        if (curr_idx.isValid() && curr_idx != *search_index_it)
+        auto m = dynamic_cast<CommandBufferModel*>(model());
+        if (m) curr_idx = m->scrollToIndex();
+    }
+
+    if (curr_idx.isValid() && curr_idx.internalId() != search_index_it->internalId())
+    {
+        search_index_it =
+            search_indexes.begin() + FindNearestSearchCommand(search_indexes, curr_idx, true);
+        if (search_index_it->internalId() == curr_idx.internalId())
         {
-            search_index_it =
-                search_indexes.begin() + getNearestSearchCommand(curr_idx.internalId());
-            if (*search_index_it == curr_idx) --search_index_it;
+            if (search_index_it != search_indexes.begin())
+            {
+                --search_index_it;
+            }
+            else
+            {
+                search_index_it = search_indexes.end() - 1;
+            }
         }
-        else
+    }
+    else
+    {
+        if (search_index_it != search_indexes.begin())
         {
             --search_index_it;
         }
-        setAndScrollToIndex(*search_index_it);
-        emit updateSearch(search_index_it - search_indexes.begin(), search_indexes.size());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-int CommandBufferView::getNearestSearchCommand(uint64_t target_index)
-{
-    auto get_internal_id = [this](int index) { return search_indexes[index].internalId(); };
-
-    auto get_nearest = [this](int x, int y, uint64_t target) {
-        if (target - search_indexes[x].internalId() >= search_indexes[y].internalId() - target)
-            return y;
-        else
-            return x;
-    };
-
-    int n = search_indexes.size();
-    int left = 0, right = n, mid = 0;
-
-    if (target_index <= get_internal_id(left)) return left;
-
-    if (target_index >= get_internal_id(right - 1)) return right - 1;
-
-    while (left < right)
-    {
-        mid = (left + right) / 2;
-
-        if (target_index == get_internal_id(mid)) return mid;
-        if (target_index < get_internal_id(mid))
-        {
-            if (mid > 0 && target_index > get_internal_id(mid - 1))
-                return get_nearest(mid - 1, mid, target_index);
-            right = mid;
-        }
         else
         {
-            if (mid < n - 1 && target_index < get_internal_id(mid + 1))
-                return get_nearest(mid, mid + 1, target_index);
-            left = mid + 1;
+            search_index_it = search_indexes.end() - 1;
         }
     }
-    return mid;
+
+    setAndScrollToIndex(*search_index_it);
+    emit updateSearch(search_index_it - search_indexes.begin(), search_indexes.size());
 }
